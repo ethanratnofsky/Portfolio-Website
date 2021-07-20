@@ -14,4 +14,4 @@ After cloning this repository, navigate to the project root and install the nece
 export FLASK_APP=app.py
 export FLASK_ENV=development
 ```
-Finally, start the Flask server with `flask run`. The website will now be live at [localhost:5000](localhost:5000).
+Finally, start the Flask server with `flask run`. The website will now be live at <http://localhost:5000>.
