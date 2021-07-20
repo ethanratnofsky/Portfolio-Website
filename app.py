@@ -1,7 +1,11 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
+app.jinja_options = {
+    'trim_blocks': True,
+    'lstrip_blocks': True
+}
 
-@app.route("/")
+@app.route('/')
 def index():
-    return
+    return render_template('index.jinja2')
