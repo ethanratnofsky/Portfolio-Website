@@ -14,15 +14,16 @@
 .greetingSubtitle {
     margin-top: 0.5rem;
     opacity: 0;
-    animation-fill-mode: forwards;
 }
 
 .fadeIn {
     animation: fade-in 3s;
+    animation-fill-mode: forwards;
 }
 
 .fadeOut {
     animation: fade-out 1s;
+    animation-fill-mode: forwards;
 }
 
 @keyframes fade-in {
