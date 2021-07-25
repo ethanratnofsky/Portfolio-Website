@@ -15,9 +15,6 @@ This GitHub repository houses the codebase for my personal website. The contents
 - Downloadable resumé
 - Contact information
 ## Setup Instructions For Local Development
-After cloning this repository, navigate to the project root and install the necessary dependencies in your environment with `pip install -r requirements.txt`. Then, export the necessary environment variables with the following sequence of commands:
-```
-export FLASK_APP=app.py
-export FLASK_ENV=development
-```
-Finally, start the Flask server with `flask run`. The website will now be live at <http://localhost:5000>.
+1. Clone this repository with `git clone https://github.com/ethanratnofsky/Website-Portfolio.git`
+2. Navigate to the project directory with `cd Website-Portfolio`
+3. Run `npm start` to run the app in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
