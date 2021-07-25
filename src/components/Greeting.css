@@ -1,4 +1,4 @@
-.greetingContainer {
+.greeting-container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -6,21 +6,22 @@
     justify-content: center;
 }
 
-.greetingTitle {
+.greeting-title {
     margin-bottom: 0.5rem;
+    opacity: 0;
 }
 
-.greetingSubtitle {
+.greeting-subtitle {
     margin-top: 0.5rem;
     opacity: 0;
 }
 
-.fadeIn {
+.fade-in {
     animation: fade-in 2s;
     animation-fill-mode: forwards;
 }
 
-.fadeOut {
+.fade-out {
     animation: fade-out 1s;
     animation-fill-mode: forwards;
 }
