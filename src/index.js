@@ -1,8 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+
 import reportWebVitals from './reportWebVitals';
+import Greeting from "./components/Greeting";
+
+import './index.css';
+
+function App() {
+  const [isGreeting, setIsGreeting] = useState(true);
+
+  const handleOnFinished = () => {
+    setIsGreeting(false);
+  };
+
+  return (isGreeting ? <Greeting title="Hi, I'm Ethan!" subtitle="Welcome to my website." onFinished={handleOnFinished} /> :
+    <div>
+      <h1>Hello, world!</h1>
+    </div>
+  );
+}
 
 ReactDOM.render(
   <React.StrictMode>
