@@ -1,9 +1,17 @@
-import Greeting from './components/Greeting'
+import { useState } from "react";
+
+import Greeting from "./components/Greeting";
 
 function App() {
-  return (
+  const [isGreeting, setIsGreeting] = useState(true);
+
+  const handleOnFinished = () => {
+    setIsGreeting(false);
+  };
+
+  return (isGreeting ? <Greeting title="Hi, I'm Ethan!" subtitle="Welcome to my website." onFinished={handleOnFinished} /> :
     <div className="App">
-      <Greeting title="Hi, I'm Ethan!" subtitle="Welcome to my website." />
+      <h1>Hello, world!</h1>
     </div>
   );
 }

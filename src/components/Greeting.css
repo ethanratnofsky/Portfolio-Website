@@ -4,7 +4,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: white;
 }
 
 .greetingTitle {
@@ -17,7 +16,7 @@
 }
 
 .fadeIn {
-    animation: fade-in 3s;
+    animation: fade-in 2s;
     animation-fill-mode: forwards;
 }
 
