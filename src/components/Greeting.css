@@ -17,13 +17,11 @@
 }
 
 .fade-in {
-    animation: fade-in 2s;
-    animation-fill-mode: forwards;
+    animation: 2s forwards fade-in;
 }
 
 .fade-out {
-    animation: fade-out 1s;
-    animation-fill-mode: forwards;
+    animation: 1s forwards fade-out;
 }
 
 @keyframes fade-in {

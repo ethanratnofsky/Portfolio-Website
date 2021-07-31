@@ -7,9 +7,6 @@ function Greeting({ title, subtitle, duration = 4000, subtitleDelay = 1500, onFi
         const titleElement = document.querySelector(".greeting-title");
         const subtitleElement = document.querySelector(".greeting-subtitle");
 
-        // Fade in title
-        titleElement.classList.add("fade-in");
-
         // Fade in subtitle after subtitleDelay (default: 1500 ms)
         setTimeout(() => {
             subtitleElement.classList.add("fade-in");
@@ -23,11 +20,11 @@ function Greeting({ title, subtitle, duration = 4000, subtitleDelay = 1500, onFi
 
         // call onFinished function after finished (fade out takes 1000 ms)
         setTimeout(onFinished, duration + 1000);
-    });
+    }, []);
 
     return (
         <header className="greeting-container" >
-            <h1 className="greeting-title" >{title}</h1>
+            <h1 className="greeting-title fade-in" >{title}</h1>
             <p className="greeting-subtitle" >{subtitle}</p>
         </header>
     );
