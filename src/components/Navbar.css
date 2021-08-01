@@ -1,8 +1,9 @@
 nav {
     background: white;
     box-shadow: 0 0 4px black;
+    height: 4rem;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     animation: slide-down 500ms;
 }
