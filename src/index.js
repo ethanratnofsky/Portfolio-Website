@@ -14,7 +14,7 @@ function App() {
     setIsGreeting(false);
   };
 
-  return (isGreeting ? <Greeting title="Hi, I'm Ethan!" subtitle="Welcome to my website." onFinished={handleOnFinished} /> :
+  return (isGreeting ? <Greeting onFinished={handleOnFinished} /> :
     <>
       <Navbar />
     </>

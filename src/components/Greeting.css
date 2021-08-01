@@ -8,20 +8,12 @@
 
 .greeting-title {
     margin-bottom: 0.5rem;
-    opacity: 0;
+    animation: fade-in 2s both, fade-out 500ms linear 4s forwards;
 }
 
 .greeting-subtitle {
     margin-top: 0.5rem;
-    opacity: 0;
-}
-
-.fade-in {
-    animation: 2s forwards fade-in;
-}
-
-.fade-out {
-    animation: 1s forwards fade-out;
+    animation: fade-in 2s 1500ms both, fade-out 500ms linear 4s forwards;
 }
 
 @keyframes fade-in {
