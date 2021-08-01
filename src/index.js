@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import reportWebVitals from './reportWebVitals';
 import Greeting from "./components/Greeting";
+import Navbar from "./components/Navbar";
 
 import './index.css';
 
@@ -14,9 +15,9 @@ function App() {
   };
 
   return (isGreeting ? <Greeting title="Hi, I'm Ethan!" subtitle="Welcome to my website." onFinished={handleOnFinished} /> :
-    <div>
-      <h1>Hello, world!</h1>
-    </div>
+    <>
+      <Navbar />
+    </>
   );
 }
 

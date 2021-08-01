@@ -1,0 +1,99 @@
+nav {
+    box-shadow: 0 0 3px black;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+nav a.brand {
+    margin: 1rem auto 0.5rem 1rem;
+}
+
+nav #logo-signature {
+    height: 2rem;
+}
+
+nav a {
+    text-decoration: none;
+    color: inherit;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    padding: 1rem;
+    transition: background 0.5s;
+}
+
+nav li:hover,
+nav li:focus-within {
+    background: lightgray;
+    cursor: pointer;
+}
+
+nav li:focus-within a {
+    outline: none;
+}
+
+nav ul.menu {
+    display: flex;
+    align-items: center;
+    /* Below styling not necessary with flexbox */
+    float: right;
+    /* Above styling not necessary with flexbox */
+}
+
+nav ul.dropdown {
+    visibility: hidden;
+    opacity: 0;
+    display: none;
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    transform: translateY(4rem);
+}
+
+nav li:hover > ul.dropdown,
+nav li:focus-within > ul.dropdown,
+nav ul.dropdown:hover,
+nav ul.dropdown:focus {
+    visibility: visible;
+    opacity: 1;
+    display: block;
+}
+
+/* Mobile View Styling */
+nav.mobile ul.menu {
+    position: absolute;
+    z-index: -1;
+    flex-direction: column;
+    align-items: flex-end;
+    top: 3.85rem;
+    right: -100%;
+    transition: right 300ms;
+}
+
+nav.mobile ul.menu.active {
+    right: 0;
+}
+
+nav.mobile ul.menu > li {
+    width: 6rem;
+}
+
+nav.mobile ul.dropdown > li {
+    width: 7rem;
+}
+
+nav.mobile ul.dropdown {
+    top: 4rem;
+    right: 8rem;
+}

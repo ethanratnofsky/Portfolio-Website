@@ -1,0 +1,30 @@
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    width: 2rem;
+}
+
+.hamburger > div {
+    margin: 0.25rem;
+    border: 1px solid black;
+    width: 100%;
+    transition: transform 500ms, width 500ms;
+}
+
+.hamburger:hover {
+    cursor: pointer;
+}
+
+.hamburger.active > div.top {
+    transform: translateY(10px) rotate(-315deg);
+}
+
+.hamburger.active > div.middle {
+    width: 0;
+}
+
+.hamburger.active > div.bottom {
+    transform: translateY(-10px) rotate(315deg);
+}
