@@ -36,7 +36,7 @@ function Navbar() {
     }, [isMobileView]);
 
     return (
-        <nav className={isMobileView ? "mobile" : "desktop"} >
+        <nav className={isMobileView ? "mobile" : ""} >
             <a className="brand" href="/#" >
                 <LogoSignature />
             </a>

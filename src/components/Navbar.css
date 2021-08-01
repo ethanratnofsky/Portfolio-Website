@@ -1,8 +1,10 @@
 nav {
-    box-shadow: 0 0 3px black;
+    background: white;
+    box-shadow: 0 0 4px black;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    animation: slide-down 500ms;
 }
 
 nav a.brand {
@@ -25,6 +27,7 @@ nav ul {
 }
 
 nav li {
+    background: white;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -96,4 +99,10 @@ nav.mobile ul.dropdown > li {
 nav.mobile ul.dropdown {
     top: 4rem;
     right: 8rem;
+}
+
+@keyframes slide-down {
+    from {
+        transform: translateY(-110%);
+    }
 }
