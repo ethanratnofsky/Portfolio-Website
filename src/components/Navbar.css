@@ -19,6 +19,7 @@ nav #logo-signature {
 nav a {
     text-decoration: none;
     color: inherit;
+    padding: 1.5rem;
 }
 
 nav ul {
@@ -32,8 +33,7 @@ nav li {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 2rem;
-    padding: 1rem;
+    height: 4rem;
     transition: background 0.5s;
 }
 
@@ -60,7 +60,7 @@ nav ul.dropdown {
     opacity: 0;
     display: none;
     position: absolute;
-    z-index: -1;
+    z-index: -1;  /* FIXME: can't hover onto dropdown */
     top: 0;
     transform: translateY(4rem);
 }

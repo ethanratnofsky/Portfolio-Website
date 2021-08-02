@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import reportWebVitals from './reportWebVitals';
 import Greeting from "./components/Greeting";
 import Navbar from "./components/Navbar";
+
+import Projects from "./routes/Projects";
+import Experience from "./routes/Experience";
+import GraphicDesign from "./routes/GraphicDesign";
+import Photography from "./routes/Photography";
+import About from "./routes/About";
+import ContactMe from "./routes/ContactMe";
+import Home from "./routes/Home";
 
 import './index.css';
 
@@ -17,13 +26,39 @@ function App() {
   return (isGreeting ? <Greeting onFinished={handleOnFinished} /> :
     <>
       <Navbar />
+
+      <Switch>
+        <Route path="/projects" >
+          <Projects />
+        </Route>
+        <Route path="/experience" >
+          <Experience />
+        </Route>
+        <Route path="/graphic-design" >
+          <GraphicDesign />
+        </Route>
+        <Route path="/photography" >
+          <Photography />
+        </Route>
+        <Route path="/about" >
+          <About />
+        </Route>
+        <Route path="/contact-me" >
+          <ContactMe />
+        </Route>
+        <Route path="/" >
+          <Home />
+        </Route>
+      </Switch>
     </>
   );
 }
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );

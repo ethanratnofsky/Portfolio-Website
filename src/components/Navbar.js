@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import Hamburger from "./Hamburger.js"
 import "./Navbar.css";
@@ -37,22 +38,22 @@ function Navbar() {
 
     return (
         <nav className={isMobileView ? "mobile" : ""} >
-            <a className="brand" href="/#" >
+            <Link className="brand" to="/" >
                 <LogoSignature />
-            </a>
+            </Link>
             {isMobileView ? <Hamburger onClick={handleHamburgerClick} isActive={isMobileMenuActive} /> : null}
             <ul className={"menu" + (isMobileMenuActive ? " active" : "")} >
-                <li><a href="/#" >Projects</a></li>
-                <li><a href="/#" >Experience</a></li>
+                <li><Link to="/projects" >Projects</Link></li>
+                <li><Link to="/experience" >Experience</Link></li>
                 <li><a href="/#" >Gallery</a>
                     <ul className="dropdown" >
-                        <li><a href="/#" >Graphic Design</a></li>
-                        <li><a href="/#" >Photography</a></li>
+                        <li><Link to="/graphic-design" >Graphic Design</Link></li>
+                        <li><Link to="/photography" >Photography</Link></li>
                     </ul>
                 </li>
-                <li><a href="/#" >About</a></li>
-                <li><a href="/#" >Contact Me</a></li>
-                <li><a href="/#" >Resumé</a></li>
+                <li><Link to="/about" >About</Link></li>
+                <li><Link to="/contact-me" >Contact Me</Link></li>
+                <li><Link to="/#" >Resumé</Link></li>
             </ul>
         </nav>
     );
