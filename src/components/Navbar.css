@@ -1,7 +1,16 @@
-nav {
+@keyframes slide-down {
+    from {
+        transform: translateY(-100%);
+    }
+}
+
+nav .bar {
     background: white;
     box-shadow: 0 0 4px black;
     height: 4rem;
+    width: 100%;
+    position: fixed;
+    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -9,101 +18,111 @@ nav {
 }
 
 nav a.brand {
-    margin: 1rem auto 0.5rem 1rem;
+    margin-inline: 2rem;
 }
 
-nav #logo-signature {
+nav a.brand > #logo-signature {
     height: 2rem;
 }
 
-nav a {
-    text-decoration: none;
-    color: inherit;
-    padding: 1.5rem;
-}
-
 nav ul {
+    position: fixed;
     list-style-type: none;
-    margin: 0;
     padding: 0;
+    margin: 0;
 }
 
 nav li {
+    display: inline-block;
+    text-align: center;
+}
+
+nav li > a,
+nav li > button {
+    display: inline-block;
+    margin: 0;
+    padding: 1.4375rem 1.25rem;
     background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 4rem;
+    text-decoration: none;
+    color: inherit;
     transition: background 0.5s;
 }
 
-nav li:hover,
-nav li:focus-within {
+nav li > a:hover,
+nav li > a:focus,
+nav li > button:hover,
+nav li > button:focus {
     background: lightgray;
     cursor: pointer;
-}
-
-nav li:focus-within a {
     outline: none;
 }
 
+nav li > button {
+    cursor: pointer;
+    font: inherit;
+    border: none;
+}
+
 nav ul.menu {
-    display: flex;
-    align-items: center;
-    /* Below styling not necessary with flexbox */
-    float: right;
-    /* Above styling not necessary with flexbox */
+    z-index: 3;
+    right: 0;
+    animation: slide-down 500ms;
 }
 
 nav ul.dropdown {
+    z-index: 1;
+    right: 17.25rem;
+    top: -4rem;
+    box-shadow: 0 0 4px black;
     visibility: hidden;
-    opacity: 0;
-    display: none;
-    position: absolute;
-    z-index: -1;  /* FIXME: can't hover onto dropdown */
-    top: 0;
-    transform: translateY(4rem);
+    transition: transform 500ms, visibility 500ms;
 }
 
-nav li:hover > ul.dropdown,
-nav li:focus-within > ul.dropdown,
-nav ul.dropdown:hover,
-nav ul.dropdown:focus {
-    visibility: visible;
-    opacity: 1;
+nav ul.dropdown > li {
     display: block;
+}
+
+nav ul.dropdown > li > a {
+    width: 7rem;
+}
+
+nav ul.dropdown.show {
+    visibility: visible;
+    transform: translateY(100%);
 }
 
 /* Mobile View Styling */
 nav.mobile ul.menu {
-    position: absolute;
-    z-index: -1;
-    flex-direction: column;
-    align-items: flex-end;
-    top: 3.85rem;
-    right: -100%;
-    transition: right 300ms;
+    top: 4rem;
+    z-index: 2;
+    box-shadow: 0 0 4px black;
+    visibility: hidden;
+    right: -12.5rem;
+    transition: transform 500ms, visibility 500ms;
 }
 
 nav.mobile ul.menu.active {
-    right: 0;
+    visibility: visible;
+    transform: translateX(-100%);
 }
 
 nav.mobile ul.menu > li {
-    width: 6rem;
+    display: block;
 }
 
-nav.mobile ul.dropdown > li {
-    width: 7rem;
+nav.mobile ul.menu > li > a {
+    width: 10rem;
+}
+
+nav.mobile ul.menu > li > button {
+    width: 12.5rem;
 }
 
 nav.mobile ul.dropdown {
-    top: 4rem;
-    right: 8rem;
+    right: 3rem;
+    top: 12rem;
 }
 
-@keyframes slide-down {
-    from {
-        transform: translateY(-110%);
-    }
+nav.mobile ul.dropdown.show {
+    transform: translateX(-100%);
 }

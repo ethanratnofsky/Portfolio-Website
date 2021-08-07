@@ -1,7 +1,9 @@
+import { ReactComponent as CartoonEthan } from "../images/cartoon_ethan.svg"
+
 function Home() {
     return (
         <>
-            <p>Home</p>
+            <CartoonEthan width="50%" />
         </>
     )
 };
