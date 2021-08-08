@@ -19,69 +19,69 @@ import "./index.css";
 const mobileWidthThreshold = 890; // The maximum number of pixels the window must be to be determined as mobile view
 
 function App() {
-  const [showGreeting, setShowGreeting] = useState(true);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [showMobileView, setShowMobileView] = useState(null);
+    const [showGreeting, setShowGreeting] = useState(true);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [showMobileView, setShowMobileView] = useState(null);
 
-  const handleOnFinished = () => {
-    setShowGreeting(false);
-  };
-
-  // Handle window resize
-  useEffect(() => {
-    function handleWindowResize() {
-        setWindowWidth(window.innerWidth);
+    const handleOnFinished = () => {
+        setShowGreeting(false);
     };
 
-    window.addEventListener("resize", handleWindowResize);
-    return () => {
-      window.removeEventListener("resize", handleWindowResize);
-    };
-  }, []); // Empty array ensures that effect is only run on mount
+    // Handle window resize
+    useEffect(() => {
+        function handleWindowResize() {
+                setWindowWidth(window.innerWidth);
+        };
 
-  // Determine if window is narrow enough to be identified as mobile view
-  useEffect(() => {
-    setShowMobileView(windowWidth <= mobileWidthThreshold);
-  }, [windowWidth]);
+        window.addEventListener("resize", handleWindowResize);
+        return () => {
+            window.removeEventListener("resize", handleWindowResize);
+        };
+    }, []); // Empty array ensures that effect is only run on mount
 
-  return (showGreeting ? <Greeting onFinished={handleOnFinished} /> :
-    <>
-      <Navbar showMobileView={showMobileView} />
-      
-      <Switch>
-        <Route path="/projects" >
-          <Projects />
-        </Route>
-        <Route path="/experience" >
-          <Experience />
-        </Route>
-        <Route path="/graphic-design" >
-          <GraphicDesign />
-        </Route>
-        <Route path="/photography" >
-          <Photography />
-        </Route>
-        <Route path="/about" >
-          <About />
-        </Route>
-        <Route path="/contact-me" >
-          <ContactMe />
-        </Route>
-        <Route path="/" >
-          <Home showMobileView={showMobileView} />
-        </Route>
-      </Switch>
-    </>
-  );
+    // Determine if window is narrow enough to be identified as mobile view
+    useEffect(() => {
+        setShowMobileView(windowWidth <= mobileWidthThreshold);
+    }, [windowWidth]);
+
+    return (showGreeting ? <Greeting onFinished={handleOnFinished} /> :
+        <>
+            <Navbar showMobileView={showMobileView} />
+            
+            <Switch>
+                <Route path="/projects" >
+                    <Projects />
+                </Route>
+                <Route path="/experience" >
+                    <Experience />
+                </Route>
+                <Route path="/graphic-design" >
+                    <GraphicDesign />
+                </Route>
+                <Route path="/photography" >
+                    <Photography />
+                </Route>
+                <Route path="/about" >
+                    <About />
+                </Route>
+                <Route path="/contact-me" >
+                    <ContactMe />
+                </Route>
+                <Route path="/" >
+                    <Home showMobileView={showMobileView} />
+                </Route>
+            </Switch>
+        </>
+    );
 }
 
 ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById("root")
+    <React.StrictMode>
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
+    </React.StrictMode>,
+    document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function

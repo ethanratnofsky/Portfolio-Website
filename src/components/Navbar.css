@@ -1,9 +1,3 @@
-@keyframes slide-down {
-    from {
-        transform: translateY(-100%);
-    }
-}
-
 nav {
     position: absolute;
     top: 0;

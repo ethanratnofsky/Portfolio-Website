@@ -1,25 +1,3 @@
-@keyframes img-appear {
-    from {
-        opacity: 0;
-        transform: translateY(50%);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes info-appear {
-    from {
-        opacity: 0;
-        transform: translateX(50%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
 .home {
     position: absolute;
     top: 4rem;
@@ -31,31 +9,33 @@
     overflow: hidden;
 }
 
-.home > #cartoon-ethan {
+.home #cartoon-ethan {
     height: 100%;
     position: absolute;
     bottom: -5rem;
     left: 3%;
-    animation: img-appear 750ms;
+    animation: fade-in 750ms;
+    animation: slide-up 750ms;
 }
 
-.home > .info-container {
+.home .info-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     background: white;
     box-shadow: 0 0 1rem 2rem white;
     border-radius: 0.5rem;
-    width: 40%;
+    width: 35%;
     position: relative;
     left: 25%;
     margin: 2rem;
     padding: 0.5rem;
-    animation: info-appear 750ms;
+    animation: fade-in 750ms;
+    animation: slide-left 750ms;
 }
 
-.home > .info-container > h1,
-.home > .info-container > p {
+.home .info-container > h1,
+.home .info-container > p {
     margin-top: 0;
 }
 
@@ -64,7 +44,7 @@
     flex-direction: column;
 }
 
-.home.mobile > #cartoon-ethan {
+.home.mobile #cartoon-ethan {
     position: static;
     margin-top: 3%;
     height: unset;
@@ -72,7 +52,7 @@
     animation: unset;
 }
 
-.home.mobile > .info-container {
+.home.mobile .info-container {
     transform: translateX(0);
     text-align: center;
     width: auto;

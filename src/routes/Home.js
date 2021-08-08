@@ -9,9 +9,11 @@ function Home({ showMobileView }) {
             <div className="info-container" >
                 <h1>Hi, I'm Ethan Ratnofsky!</h1>
                 <p>
-                    I'm currently a junior studying computer science at Vanderbilt University.
-                    I am a creative developer, entrepreneur, and artist.
-                    I believe that mindfulness and experience are the keys to success.
+                    Let me tell you a little bit about myself!
+                    After being born and raised in the Greater Boston area, I still consider Newton, MA "home, sweet home."
+                    However, I am currently an undergraduate student studying Computer Science at Vanderbilt University in Nashville, TN.
+                    I am a passionate developer, curious entrepreneur, and creative artist.
+                    Explore my website for the proof in the pudding!
                 </p>
             </div>
         </div>
