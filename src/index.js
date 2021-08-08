@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 
-import reportWebVitals from './reportWebVitals';
+import reportWebVitals from "./reportWebVitals";
 import Greeting from "./components/Greeting";
 import Navbar from "./components/Navbar";
 
@@ -14,19 +14,40 @@ import About from "./routes/About";
 import ContactMe from "./routes/ContactMe";
 import Home from "./routes/Home";
 
-import './index.css';
+import "./index.css";
+
+const mobileWidthThreshold = 890; // The maximum number of pixels the window must be to be determined as mobile view
 
 function App() {
-  const [isGreeting, setIsGreeting] = useState(true);
+  const [showGreeting, setShowGreeting] = useState(true);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [showMobileView, setShowMobileView] = useState(null);
 
   const handleOnFinished = () => {
-    setIsGreeting(false);
+    setShowGreeting(false);
   };
 
-  return (isGreeting ? <Greeting onFinished={handleOnFinished} /> :
-    <>
-      <Navbar />
+  // Handle window resize
+  useEffect(() => {
+    function handleWindowResize() {
+        setWindowWidth(window.innerWidth);
+    };
 
+    window.addEventListener("resize", handleWindowResize);
+    return () => {
+      window.removeEventListener("resize", handleWindowResize);
+    };
+  }, []); // Empty array ensures that effect is only run on mount
+
+  // Determine if window is narrow enough to be identified as mobile view
+  useEffect(() => {
+    setShowMobileView(windowWidth <= mobileWidthThreshold);
+  }, [windowWidth]);
+
+  return (showGreeting ? <Greeting onFinished={handleOnFinished} /> :
+    <>
+      <Navbar showMobileView={showMobileView} />
+      
       <Switch>
         <Route path="/projects" >
           <Projects />
@@ -47,7 +68,7 @@ function App() {
           <ContactMe />
         </Route>
         <Route path="/" >
-          <Home />
+          <Home showMobileView={showMobileView} />
         </Route>
       </Switch>
     </>
@@ -60,7 +81,7 @@ ReactDOM.render(
       <App />
     </BrowserRouter>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -4,6 +4,11 @@
     }
 }
 
+nav {
+    position: absolute;
+    top: 0;
+}
+
 nav .bar {
     background: white;
     box-shadow: 0 0 4px black;

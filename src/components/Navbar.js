@@ -5,11 +5,7 @@ import Hamburger from "./Hamburger.js"
 import "./Navbar.css";
 import {ReactComponent as LogoSignature} from '../images/logo_signature.svg';
 
-const mobileWidthThreshold = 890; // The maximum number of pixels the window must be to be determined as mobile view
-
-function Navbar() {
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [showMobileView, setShowMobileView] = useState(null);
+function Navbar({ showMobileView }) {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -27,12 +23,7 @@ function Navbar() {
         setShowDropdown(false);
     };
 
-    // Add/Cleanup window resize event listener
     useEffect(() => {
-        function handleWindowResize() {
-            setWindowWidth(window.innerWidth);
-        };
-    
         // Handle mobile touch events to show/hide dropdown menu
         function handleTouchEnd(e) {
             if (!showDropdown && e.target === dropdownTriggerElement.current) {
@@ -43,18 +34,10 @@ function Navbar() {
             };
         };
 
-        window.addEventListener("resize", handleWindowResize);
-        window.addEventListener("touchend", handleTouchEnd);
         return () => {
-            window.removeEventListener("resize", handleWindowResize);
             window.removeEventListener("touchend", handleTouchEnd);
         };
-    }, [showDropdown]); // Empty array ensures that effect is only run on mount
-
-    // Determine if window is narrow enough to be identified as mobile view
-    useEffect(() => {
-        setShowMobileView(windowWidth <= mobileWidthThreshold);
-    }, [windowWidth]);
+    }, [showDropdown]);
 
     // Hide menus when view changes
     useEffect(() => {
