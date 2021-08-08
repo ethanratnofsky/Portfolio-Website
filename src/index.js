@@ -14,7 +14,7 @@ import About from "./routes/About";
 import ContactMe from "./routes/ContactMe";
 import Home from "./routes/Home";
 
-import "./index.css";
+import "./styles/index.css";
 
 const mobileWidthThreshold = 890; // The maximum number of pixels the window must be to be determined as mobile view
 

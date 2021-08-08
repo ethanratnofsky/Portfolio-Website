@@ -1,6 +1,6 @@
 import { ReactComponent as CartoonEthan } from "../images/cartoon_ethan.svg"
 
-import "./Home.css"
+import "../styles/Home.css"
 
 function Home({ showMobileView }) {
     return (

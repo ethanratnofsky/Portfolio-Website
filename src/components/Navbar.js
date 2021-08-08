@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-import Hamburger from "./Hamburger.js"
-import "./Navbar.css";
+import Hamburger from "./Hamburger"
+import "../styles/Navbar.css";
 import {ReactComponent as LogoSignature} from '../images/logo_signature.svg';
 
 function Navbar({ showMobileView }) {

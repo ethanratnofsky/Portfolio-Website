@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import './Greeting.css';
+import '../styles/Greeting.css';
 
 function Greeting({ onFinished }) {
     useEffect(() => {

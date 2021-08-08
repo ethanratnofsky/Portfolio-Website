@@ -1,4 +1,4 @@
-import "./Hamburger.css";
+import "../styles/Hamburger.css";
 
 function Hamburger({ onClick, isActive }) {
     function handleClick() {
