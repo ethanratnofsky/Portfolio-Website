@@ -1,4 +1,7 @@
 import { ReactComponent as CartoonEthan } from "../images/cartoon_ethan.svg"
+import { ReactComponent as GitHubIcon } from "../images/github.svg"
+import { ReactComponent as LinkedInIcon } from "../images/linkedin.svg"
+import { ReactComponent as GmailIcon } from "../images/gmail.svg"
 
 import "../styles/Home.css"
 
@@ -15,6 +18,11 @@ function Home() {
                     I am a passionate developer, curious entrepreneur, and creative artist.
                     Explore my website for the proof in the pudding!
                 </p>
+                <div className="social-links" >
+                    <a href="https://github.com/ethanratnofsky" target="_blank" rel="noreferrer" ><GitHubIcon /></a>
+                    <a href="https://www.linkedin.com/in/ethan-ratnofsky/" target="_blank" rel="noreferrer" ><LinkedInIcon /></a>
+                    <a href="/#" ><GmailIcon /></a>
+                </div>
             </div>
         </div>
     )

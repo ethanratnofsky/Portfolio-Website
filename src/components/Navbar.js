@@ -59,8 +59,6 @@ function Navbar({ showMobileView }) {
                         onBlur={handleHideDropdown}
                         onMouseEnter={handleShowDropdown}
                         onMouseLeave={handleHideDropdown} >Gallery</button></li>
-                <li><Link to="/about" >About</Link></li>
-                <li><Link to="/contact-me" >Contact Me</Link></li>
                 <li><Link to="/#" >Resumé</Link></li>
             </ul>
             <ul className={"dropdown" + (showDropdown ? " show" : "")}

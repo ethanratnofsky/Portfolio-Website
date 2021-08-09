@@ -6,13 +6,11 @@ import reportWebVitals from "./reportWebVitals";
 import Greeting from "./components/Greeting";
 import Navbar from "./components/Navbar";
 
+import Home from "./routes/Home";
 import Projects from "./routes/Projects";
 import Experience from "./routes/Experience";
 import GraphicDesign from "./routes/GraphicDesign";
 import Photography from "./routes/Photography";
-import About from "./routes/About";
-import ContactMe from "./routes/ContactMe";
-import Home from "./routes/Home";
 
 import "./styles/index.css";
 import "./styles/animations.css";
@@ -62,12 +60,6 @@ function App() {
                     </Route>
                     <Route path="/photography" >
                         <Photography />
-                    </Route>
-                    <Route path="/about" >
-                        <About />
-                    </Route>
-                    <Route path="/contact-me" >
-                        <ContactMe />
                     </Route>
                     <Route path="/" >
                         <Home showMobileView={showMobileView} />

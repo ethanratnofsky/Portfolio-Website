@@ -36,6 +36,19 @@
     margin-top: 0;
 }
 
+.home .social-links {
+    display: flex;
+    align-self: center;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem;
+    width: 50%;
+}
+
+.home .social-links > a > * {
+    width: 30px;
+}
+
 /* Mobile View Styling */
 .mobile .home {
     flex-direction: column;
