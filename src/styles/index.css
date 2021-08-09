@@ -13,3 +13,9 @@ code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
         monospace;
 }
+
+.content {
+    position: absolute;
+    top: 4rem;
+    height: calc(100% - 4rem);
+}

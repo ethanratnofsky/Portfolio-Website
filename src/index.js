@@ -49,29 +49,31 @@ function App() {
         <>
             <Navbar showMobileView={showMobileView} />
             
-            <Switch>
-                <Route path="/projects" >
-                    <Projects />
-                </Route>
-                <Route path="/experience" >
-                    <Experience />
-                </Route>
-                <Route path="/graphic-design" >
-                    <GraphicDesign />
-                </Route>
-                <Route path="/photography" >
-                    <Photography />
-                </Route>
-                <Route path="/about" >
-                    <About />
-                </Route>
-                <Route path="/contact-me" >
-                    <ContactMe />
-                </Route>
-                <Route path="/" >
-                    <Home showMobileView={showMobileView} />
-                </Route>
-            </Switch>
+            <div className={"content" + (showMobileView ? " mobile" : "")} >
+                <Switch>
+                    <Route path="/projects" >
+                        <Projects />
+                    </Route>
+                    <Route path="/experience" >
+                        <Experience />
+                    </Route>
+                    <Route path="/graphic-design" >
+                        <GraphicDesign />
+                    </Route>
+                    <Route path="/photography" >
+                        <Photography />
+                    </Route>
+                    <Route path="/about" >
+                        <About />
+                    </Route>
+                    <Route path="/contact-me" >
+                        <ContactMe />
+                    </Route>
+                    <Route path="/" >
+                        <Home showMobileView={showMobileView} />
+                    </Route>
+                </Switch>
+            </div>
         </>
     );
 }
