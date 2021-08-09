@@ -70,7 +70,7 @@ nav ul.menu {
 
 nav ul.dropdown {
     z-index: 1;
-    right: 17.25rem;
+    right: 4.25rem;
     top: -4rem;
     box-shadow: 0 0 4px black;
     visibility: hidden;
