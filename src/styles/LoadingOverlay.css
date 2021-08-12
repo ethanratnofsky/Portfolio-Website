@@ -16,7 +16,7 @@
     align-items: center;
     justify-content: center;
     animation: fade-out 500ms 3500ms forwards;
-    position: absolute;
+    position: fixed;
     z-index: 1000;
 }
 
