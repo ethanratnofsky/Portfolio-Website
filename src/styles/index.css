@@ -17,5 +17,19 @@ code {
 .content {
     position: absolute;
     top: 4rem;
+    width: 100%;
     height: calc(100% - 4rem);
+    /* hide scrollbar but allow scrolling (https://blog.hubspot.com/website/hide-scrollbar-css) */
+    -ms-overflow-style: none; /* for Internet Explorer, Edge */
+    scrollbar-width: none; /* for Firefox */
+    overflow-y: scroll; 
+}
+
+/* hide scrollbar but allow scrolling (https://blog.hubspot.com/website/hide-scrollbar-css) */
+.content::-webkit-scrollbar {
+    display: none; /* for Chrome, Safari, and Opera */
+}
+
+.content .page-title {
+    text-align: center;
 }
