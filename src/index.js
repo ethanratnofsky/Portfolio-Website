@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import reportWebVitals from "./reportWebVitals";
-import Greeting from "./components/Greeting";
+import LoadingOverlay from "./components/LoadingOverlay";
 import Navbar from "./components/Navbar";
 
 import Home from "./routes/Home";
@@ -18,13 +18,8 @@ import "./styles/animations.css";
 const mobileWidthThreshold = 890; // The maximum number of pixels the window must be to be determined as mobile view
 
 function App() {
-    const [showGreeting, setShowGreeting] = useState(true);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [showMobileView, setShowMobileView] = useState(null);
-
-    const handleOnFinished = () => {
-        setShowGreeting(false);
-    };
 
     // Handle window resize
     useEffect(() => {
@@ -43,25 +38,26 @@ function App() {
         setShowMobileView(windowWidth <= mobileWidthThreshold);
     }, [windowWidth]);
 
-    return (showGreeting ? <Greeting onFinished={handleOnFinished} /> :
+    return (
         <>
+            <LoadingOverlay />
             <Navbar showMobileView={showMobileView} />
             
             <div className={"content" + (showMobileView ? " mobile" : "")} >
                 <Switch>
-                    <Route path="/projects" >
+                    <Route exact path="/projects" >
                         <Projects />
                     </Route>
-                    <Route path="/experience" >
+                    <Route exact path="/experience" >
                         <Experience />
                     </Route>
-                    <Route path="/graphic-design" >
+                    <Route exact path="/graphic-design" >
                         <GraphicDesign />
                     </Route>
-                    <Route path="/photography" >
+                    <Route exact path="/photography" >
                         <Photography />
                     </Route>
-                    <Route path="/" >
+                    <Route exact path="/" >
                         <Home />
                     </Route>
                 </Switch>

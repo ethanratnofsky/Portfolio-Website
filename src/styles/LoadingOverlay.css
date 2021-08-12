@@ -1,0 +1,33 @@
+@keyframes loading-bar-animation {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 8rem;
+    }
+}
+
+.loading-overlay-container {
+    background: white;
+    min-height: 100vh;
+    min-width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fade-out 500ms 3500ms forwards;
+    position: absolute;
+    z-index: 1000;
+}
+
+/* TODO: Animate signature */
+.loading-overlay-container > #logo-signature {
+    height: 2rem;
+    animation: fade-in 1s both, fade-out 500ms 3s forwards;
+    margin: 1rem 0 0.75rem 0;
+}
+
+.loading-overlay-container > .loading-bar {
+    border-bottom: 0.25rem dotted black;
+    animation: fade-in 1s both, loading-bar-animation 2s 1s both, fade-out 500ms 3s forwards;
+}
