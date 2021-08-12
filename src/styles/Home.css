@@ -1,4 +1,4 @@
-.home {
+.home-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -8,7 +8,7 @@
     overflow: hidden;
 }
 
-.home #cartoon-ethan {
+.home-container #cartoon-ethan {
     height: 100%;
     position: absolute;
     bottom: -5rem;
@@ -16,7 +16,7 @@
     animation: fade-in 750ms, slide-up 750ms;
 }
 
-.home .info-container {
+.home-container .info-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -31,12 +31,12 @@
     animation: fade-in 750ms, slide-left 750ms;
 }
 
-.home .info-container > h1,
-.home .info-container > p {
+.home-container .info-container > h1,
+.home-container .info-container > p {
     margin-top: 0;
 }
 
-.home .social-links {
+.home-container .social-links {
     display: flex;
     align-self: center;
     justify-content: space-between;
@@ -47,16 +47,16 @@
     top: 1rem;
 }
 
-.home .social-links > a > * {
+.home-container .social-links > a > * {
     width: 30px;
 }
 
 /* Mobile View Styling */
-.mobile .home {
+.mobile .home-container {
     flex-direction: column;
 }
 
-.mobile .home #cartoon-ethan {
+.mobile .home-container #cartoon-ethan {
     position: static;
     margin-top: 3%;
     height: unset;
@@ -64,7 +64,7 @@
     animation: unset;
 }
 
-.mobile .home .info-container {
+.mobile .home-container .info-container {
     transform: translateX(0);
     text-align: center;
     width: auto;

@@ -7,7 +7,7 @@ import "../styles/Home.css"
 
 function Home() {
     return (
-        <div className="home">
+        <div className="home-container">
             <CartoonEthan />
             <div className="info-container" >
                 <h1>Hi, I'm Ethan Ratnofsky!</h1>
