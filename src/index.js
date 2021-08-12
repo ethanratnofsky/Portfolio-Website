@@ -62,7 +62,7 @@ function App() {
                         <Photography />
                     </Route>
                     <Route path="/" >
-                        <Home showMobileView={showMobileView} />
+                        <Home />
                     </Route>
                 </Switch>
             </div>
