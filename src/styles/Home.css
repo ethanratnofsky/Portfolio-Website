@@ -43,6 +43,8 @@
     align-items: center;
     margin: 1rem;
     width: 50%;
+    position: relative;
+    top: 1rem;
 }
 
 .home .social-links > a > * {
