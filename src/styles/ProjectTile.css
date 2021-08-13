@@ -1,0 +1,26 @@
+.project-tile {
+    background: white;
+    box-shadow: 0 0 0.25rem black;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    margin: 1rem;
+}
+
+.project-tile .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: 0.5rem;
+}
+
+.project-tile .project-header .project-title {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+.project-tile .project-image {
+    width: 32rem;
+    height: 18rem;
+    background: gray;
+    margin-top: 1rem;
+}
