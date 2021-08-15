@@ -1,128 +1,141 @@
-nav {
+.navbar {
     position: fixed;
     z-index: 1;
     top: 0;
-}
-
-nav .bar {
-    background: white;
-    box-shadow: 0 0 4px black;
     height: 4rem;
     width: 100%;
-    position: fixed;
-    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: space-between;
     animation: slide-down 500ms;
 }
 
-nav a.brand {
-    margin-inline: 2rem;
+.navbar .logo {
+    position: relative;
+    left: 2rem;
 }
 
-nav a.brand > #logo-signature {
+.navbar .logo > svg {
     height: 2rem;
 }
 
-nav ul {
-    position: fixed;
+/* Hamburger Styling */
+:not(.mobile) .hamburger {
+    display: none;
+}
+
+.mobile .hamburger {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 2rem;
+    position: relative;
+    right: 1rem;
+}
+
+.hamburger > div {
+    background: black;
+    margin: 0.25rem;
+    height: 2px;
+    width: 100%;
+    transition: transform 500ms, width 500ms;
+}
+
+.hamburger:hover {
+    cursor: pointer;
+}
+
+.hamburger.active > div.top {
+    transform: translateY(10px) rotate(-315deg);
+}
+
+.hamburger.active > div.middle {
+    width: 0;
+}
+
+.hamburger.active > div.bottom {
+    transform: translateY(-10px) rotate(315deg);
+}
+
+/* NavbarLink Styling */
+.navbar-link {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.navbar-link > a {
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 0.5rem;
+}
+
+.navbar-link > .underline {
+    height: 0.2rem;
+    background: orangered;
+    visibility: hidden;
+}
+
+.navbar-link:hover > a,
+.navbar-link:focus-within > a {
+    outline: none;
+    color: orangered;
+}
+
+.navbar-link:hover > .underline,
+.navbar-link:focus-within > .underline {
+    visibility: visible;
+    animation: slide-up 250ms both;
+}
+
+/* Menu Styling */
+.navbar ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-nav li {
+.navbar ul li {
     display: inline-block;
-    text-align: center;
+    margin: auto 1rem;
 }
 
-nav li > a,
-nav li > button {
-    display: inline-block;
-    margin: 0;
-    padding: 1.4375rem 1.25rem;
-    background: white;
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.5s;
-}
-
-nav li > a:hover,
-nav li > a:focus,
-nav li > button:hover,
-nav li > button:focus {
-    background: lightgray;
-    cursor: pointer;
-    outline: none;
-}
-
-nav li > button {
-    cursor: pointer;
-    font: inherit;
-    border: none;
-}
-
-nav ul.menu {
-    z-index: 3;
-    right: 0;
-    animation: slide-down 500ms;
-}
-
-nav ul.dropdown {
-    z-index: 1;
-    right: 4.25rem;
-    top: -4rem;
-    box-shadow: 0 0 4px black;
-    visibility: hidden;
-    transition: transform 500ms, visibility 500ms;
-}
-
-nav ul.dropdown > li {
-    display: block;
-}
-
-nav ul.dropdown > li > a {
-    width: 7rem;
-}
-
-nav ul.dropdown.show {
-    visibility: visible;
-    transform: translateY(100%);
+.navbar .menu {
+    position: relative;
+    right: 1rem;
 }
 
 /* Mobile View Styling */
-nav.mobile ul.menu {
+.mobile .navbar .menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    background: white;
+    top: 2rem;
+    right: 2rem;
+    height: 0;
+    width: 0;
+    border-radius: 100%;
+    transition: top 500ms, right 500ms, height 500ms, width 500ms, border-radius 500ms;
+}
+
+.mobile .navbar .hamburger.active + .menu {
     top: 4rem;
-    z-index: 2;
-    box-shadow: 0 0 4px black;
+    right: 0;
+    height: calc(100vh - 4rem);
+    width: 100vw;
+    border-radius: 0;
+}
+
+.mobile .navbar .menu > li {
+    display: revert;
+    margin: 1rem 0;
+    text-align: center;
     visibility: hidden;
-    right: -12.5rem;
-    transition: transform 500ms, visibility 500ms;
 }
 
-nav.mobile ul.menu.active {
-    visibility: visible;
-    transform: translateX(-100%);
-}
-
-nav.mobile ul.menu > li {
-    display: block;
-}
-
-nav.mobile ul.menu > li > a {
-    width: 10rem;
-}
-
-nav.mobile ul.menu > li > button {
-    width: 12.5rem;
-}
-
-nav.mobile ul.dropdown {
-    right: 3rem;
-    top: 12rem;
-}
-
-nav.mobile ul.dropdown.show {
-    transform: translateX(-100%);
+.mobile .navbar .hamburger.active + .menu > li {
+    animation: fade-in 500ms 500ms forwards;
 }

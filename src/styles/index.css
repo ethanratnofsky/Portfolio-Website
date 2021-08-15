@@ -14,7 +14,7 @@ code {
         monospace;
 }
 
-.content {
+.page-content {
     position: absolute;
     top: 4rem;
     width: 100%;
@@ -26,10 +26,10 @@ code {
 }
 
 /* hide scrollbar but allow scrolling (https://blog.hubspot.com/website/hide-scrollbar-css) */
-.content::-webkit-scrollbar {
+.page-content::-webkit-scrollbar {
     display: none; /* for Chrome, Safari, and Opera */
 }
 
-.content .page-title {
+.page-content .page-title {
     text-align: center;
 }

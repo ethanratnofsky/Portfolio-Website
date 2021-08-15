@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar";
 import Home from "./routes/Home";
 import Projects from "./routes/Projects";
 import Experience from "./routes/Experience";
+import Gallery from "./routes/Gallery";
 import GraphicDesign from "./routes/GraphicDesign";
 import Photography from "./routes/Photography";
 
@@ -39,11 +40,12 @@ function App() {
     }, [windowWidth]);
 
     return (
-        <>
+        <div className={"content" + (showMobileView ? " mobile" : "")} >
             <LoadingOverlay />
-            <Navbar showMobileView={showMobileView} />
+
+            <Navbar />
             
-            <div className={"content" + (showMobileView ? " mobile" : "")} >
+            <div className="page-content" >
                 <Switch>
                     <Route exact path="/projects" >
                         <Projects />
@@ -51,10 +53,13 @@ function App() {
                     <Route exact path="/experience" >
                         <Experience />
                     </Route>
-                    <Route exact path="/graphic-design" >
+                    <Route exact path="/gallery" >
+                        <Gallery />
+                    </Route>
+                    <Route exact path="/gallery/graphic-design" >
                         <GraphicDesign />
                     </Route>
-                    <Route exact path="/photography" >
+                    <Route exact path="/gallery/photography" >
                         <Photography />
                     </Route>
                     <Route exact path="/" >
@@ -62,7 +67,7 @@ function App() {
                     </Route>
                 </Switch>
             </div>
-        </>
+        </div>
     );
 }
 

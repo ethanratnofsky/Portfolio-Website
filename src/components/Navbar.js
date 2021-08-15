@@ -1,73 +1,44 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import Hamburger from "./Hamburger"
 import "../styles/Navbar.css";
 import {ReactComponent as LogoSignature} from '../images/logo_signature.svg';
 
-function Navbar({ showMobileView }) {
+function Hamburger({ onClick, isActive }) {
+    return (
+        <div onClick={onClick} className={"hamburger" + (isActive ? " active" : "")} >
+            <div className="top" />
+            <div className="middle" />
+            <div className="bottom" />
+        </div>
+    );
+};
+
+function NavbarLink({ label, href, onClick }) {
+    return (
+        <div className="navbar-link" >
+            <Link to={href} onClick={onClick} >{label}</Link>
+            <div className="underline" />
+        </div>
+    );
+};
+
+function Navbar() {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
-    const [showDropdown, setShowDropdown] = useState(false);
 
-    const dropdownTriggerElement = useRef(null);
-
-    function handleHamburgerClick() {
+    function toggleShowMobileMenu() {
         setShowMobileMenu(prevShowMobileMenu => !prevShowMobileMenu);
     };
 
-    function handleShowDropdown() {
-        setShowDropdown(true);
-    };
-
-    function handleHideDropdown() {
-        setShowDropdown(false);
-    };
-
-    useEffect(() => {
-        // Handle mobile touch events to show/hide dropdown menu
-        function handleTouchEnd(e) {
-            if (!showDropdown && e.target === dropdownTriggerElement.current) {
-                setShowDropdown(true);
-            }
-            else if (showDropdown && e.target !== dropdownTriggerElement.current) {
-                setShowDropdown(false);
-            };
-        };
-
-        return () => {
-            window.removeEventListener("touchend", handleTouchEnd);
-        };
-    }, [showDropdown]);
-
-    // Hide menus when view changes
-    useEffect(() => {
-        setShowMobileMenu(false);
-        setShowDropdown(false);
-    }, [showMobileView]);
-
     return (
-        <nav className={showMobileView ? "mobile" : ""} >
-            <div className="bar" >
-                <Link className="brand" to="/"><LogoSignature /></Link>
-                {showMobileView ? <Hamburger onClick={handleHamburgerClick} isActive={showMobileMenu} /> : null}
-            </div>
-            <ul className={"menu" + (showMobileMenu ? " active" : "")} >
-                <li><Link to="/projects" >Projects</Link></li>
-                <li><Link to="/experience" >Experience</Link></li>
-                <li><button ref={dropdownTriggerElement}
-                        onFocus={handleShowDropdown}
-                        onBlur={handleHideDropdown}
-                        onMouseEnter={handleShowDropdown}
-                        onMouseLeave={handleHideDropdown} >Gallery</button></li>
-                <li><Link to="/#" >Resumé</Link></li>
-            </ul>
-            <ul className={"dropdown" + (showDropdown ? " show" : "")}
-                onFocus={handleShowDropdown}
-                onBlur={handleHideDropdown}
-                onMouseEnter={handleShowDropdown}
-                onMouseLeave={handleHideDropdown} >
-                <li><Link to="/graphic-design" >Graphic Design</Link></li>
-                <li><Link to="/photography" >Photography</Link></li>
+        <nav className="navbar" >
+            <Link className="logo" to="/" onClick={() => setShowMobileMenu(false)} ><LogoSignature /></Link>
+            <Hamburger onClick={toggleShowMobileMenu} isActive={showMobileMenu} />
+            <ul className="menu" >
+                <li><NavbarLink label="Projects" href="/projects" onClick={toggleShowMobileMenu} /></li>
+                <li><NavbarLink label="Experience" href="/experience" onClick={toggleShowMobileMenu} /></li>
+                <li><NavbarLink label="Gallery" href="/gallery" onClick={toggleShowMobileMenu} /></li>
+                <li><NavbarLink label="Resumé" href="/#" onClick={toggleShowMobileMenu} /></li>
             </ul>
         </nav>
     );
