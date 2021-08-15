@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import "../styles/Navbar.css";
 import {ReactComponent as LogoSignature} from '../images/logo_signature.svg';
@@ -17,7 +17,7 @@ function Hamburger({ onClick, isActive }) {
 function NavbarLink({ label, href, onClick }) {
     return (
         <div className="navbar-link" >
-            <Link to={href} onClick={onClick} >{label}</Link>
+            <NavLink to={href} onClick={onClick} activeClassName="active" >{label}</NavLink>
             <div className="underline" />
         </div>
     );
@@ -32,13 +32,13 @@ function Navbar() {
 
     return (
         <nav className="navbar" >
-            <Link className="logo" to="/" onClick={() => setShowMobileMenu(false)} ><LogoSignature /></Link>
+            <NavLink className="logo" to="/" onClick={() => setShowMobileMenu(false)} ><LogoSignature /></NavLink>
             <Hamburger onClick={toggleShowMobileMenu} isActive={showMobileMenu} />
             <ul className="menu" >
                 <li><NavbarLink label="Projects" href="/projects" onClick={toggleShowMobileMenu} /></li>
                 <li><NavbarLink label="Experience" href="/experience" onClick={toggleShowMobileMenu} /></li>
                 <li><NavbarLink label="Gallery" href="/gallery" onClick={toggleShowMobileMenu} /></li>
-                <li><NavbarLink label="Resume" href="/#" onClick={toggleShowMobileMenu} /></li>
+                <li><NavbarLink label="Resume" href="/resume" onClick={toggleShowMobileMenu} /></li>
             </ul>
         </nav>
     );

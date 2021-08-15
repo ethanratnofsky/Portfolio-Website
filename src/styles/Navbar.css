@@ -76,6 +76,15 @@
     visibility: hidden;
 }
 
+.navbar-link > a.active {
+    color: orangered;
+    font-weight: bold;
+}
+
+.navbar-link > a.active + .underline {
+    visibility: visible;
+}
+
 .navbar-link:hover > a,
 .navbar-link:focus-within > a {
     outline: none;
