@@ -5,13 +5,10 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Navbar from "./components/Navbar";
-
 import Home from "./routes/Home";
 import Projects from "./routes/Projects";
 import Experience from "./routes/Experience";
 import Gallery from "./routes/Gallery";
-import GraphicDesign from "./routes/GraphicDesign";
-import Photography from "./routes/Photography";
 
 import "./styles/index.css";
 import "./styles/animations.css";
@@ -47,20 +44,14 @@ function App() {
             
             <div className="page-content" >
                 <Switch>
-                    <Route exact path="/projects" >
+                    <Route path="/projects" >
                         <Projects />
                     </Route>
                     <Route exact path="/experience" >
                         <Experience />
                     </Route>
-                    <Route exact path="/gallery" >
+                    <Route path="/gallery" >
                         <Gallery />
-                    </Route>
-                    <Route exact path="/gallery/graphic-design" >
-                        <GraphicDesign />
-                    </Route>
-                    <Route exact path="/gallery/photography" >
-                        <Photography />
                     </Route>
                     <Route exact path="/" >
                         <Home />

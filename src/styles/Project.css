@@ -1,4 +1,4 @@
-.project-tile {
+.project-container {
     background: white;
     box-shadow: 0 0 0.25rem black;
     border-radius: 0.5rem;
@@ -6,19 +6,19 @@
     margin: 1rem;
 }
 
-.project-tile .project-header {
+.project-container .project-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-block-end: 0.5rem;
 }
 
-.project-tile .project-header .project-title {
+.project-container .project-header .project-title {
     margin-block-start: 0;
     margin-block-end: 0;
 }
 
-.project-tile .project-image {
+.project-container .project-image {
     width: 32rem;
     height: 18rem;
     background: gray;

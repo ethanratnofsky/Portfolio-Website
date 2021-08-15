@@ -38,7 +38,7 @@ function Navbar() {
                 <li><NavbarLink label="Projects" href="/projects" onClick={toggleShowMobileMenu} /></li>
                 <li><NavbarLink label="Experience" href="/experience" onClick={toggleShowMobileMenu} /></li>
                 <li><NavbarLink label="Gallery" href="/gallery" onClick={toggleShowMobileMenu} /></li>
-                <li><NavbarLink label="Resumé" href="/#" onClick={toggleShowMobileMenu} /></li>
+                <li><NavbarLink label="Resume" href="/#" onClick={toggleShowMobileMenu} /></li>
             </ul>
         </nav>
     );

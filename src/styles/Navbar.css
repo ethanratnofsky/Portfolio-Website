@@ -71,7 +71,7 @@
 }
 
 .navbar-link > .underline {
-    height: 0.2rem;
+    height: 0.15rem;
     background: orangered;
     visibility: hidden;
 }

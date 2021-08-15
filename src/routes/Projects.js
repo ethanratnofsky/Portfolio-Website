@@ -1,20 +1,24 @@
-import ProjectTile from "../components/ProjectTile"
+import { Link, Route, Switch, useRouteMatch } from "react-router-dom";
 
-import "../styles/Projects.css"
+import Project from "../components/Project";
+import "../styles/Projects.css";
 
 function Projects() {
+    let { path, url } = useRouteMatch();
+
     return (
-        <div className="projects" >
+        <div className="projects-container" >
             <h1 className="page-title" >Projects</h1>
-            <div className="tiles-container" >
-                <ProjectTile title="Title" description="Description" deliverables="" year="2021" link="https://google.com" />
-                <ProjectTile title="Title" description="Description" deliverables="" year="2021" link="https://google.com" />
-                <ProjectTile title="Title" description="Description" deliverables="" year="2021" link="https://google.com" />
-                <ProjectTile title="Title" description="Description" deliverables="" year="2021" link="https://google.com" />
-                <ProjectTile title="Title" description="Description" deliverables="" year="2021" link="https://google.com" />
-            </div>
+            <Link to={`${url}/project1`} >Project 1</Link>
+            <Link to={`${url}/project2`} >Project 2</Link>
+
+            <Switch>
+                <Route exact path={`${path}/:projectID`} >
+                    <Project />
+                </Route>
+            </Switch>
         </div>
-    )
+    );
 };
 
 export default Projects;
