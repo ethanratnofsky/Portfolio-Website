@@ -1,6 +1,42 @@
-.projects-container .tiles-container {
-    margin: 1rem;
+.projects-container {
+    height: 100%;
+    width: 100%;
+}
+
+.projects-container .projects-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    font-size: 28px;
+    transition: transform 500ms;
+    animation: fade-in 500ms forwards;
+}
+
+.projects-container .projects-menu > li {
+    margin-block-start: 1rem;
+    margin-block-end: 1rem;
+}
+
+.projects-container .projects-menu > li > a {
+    text-decoration: none;
+    color: inherit;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.projects-container .projects-menu > li > a:hover,
+.projects-container .projects-menu > li > a:focus {
+    color: orangered;
+    outline: none;
+}
+
+.projects-container .projects-menu.hidden {
+    transform: translateX(-100%);
 }

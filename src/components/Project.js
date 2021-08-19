@@ -1,49 +1,101 @@
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 
 import "../styles/Project.css"
 
-function Project() {
-    let title = "Title";
-    let year = "Year";
-    let description = "Description";
-    let deliverables = "Deliverables";
-    let link = "https://google.com";
+import { ReactComponent as GitHubIcon } from "../images/github.svg"
+import { ReactComponent as ExternalLinkIcon } from "../images/external_link.svg"
+import PlaylistBridgeImage from "../images/playlist_bridge.png"
+
+function Project({ setShowingProject }) {
+    const backButtonElement = (
+        <div className="back-button" >
+            <Link to="/projects" >
+                <div className="arrow" >{"\u2190"}</div>
+                Back to Projects
+            </Link>
+        </div>
+    );
+
+    useEffect(() => {
+        setShowingProject(true);
+        return () => {
+            setShowingProject(false);
+        }
+    }, [setShowingProject]);
+
+    let title = "No Project Title";
+    let year = "Unknown";
+    let description = "No description given.";
+    let skills = ["None"];
+    let github = false;
+    let link = false;
     let imgSrc = false;
 
     let { projectID } = useParams();
     switch (projectID) {
-        case "project1":
-            title = "Project 1";
-            year = "2021";
-            description = "This is a description.";
-            deliverables = "HTML, CSS, JavaScript";
-            link = "https://google.com";
-            imgSrc = "";
+        case "playlist-bridge":
+            title = "Playlist Bridge";
+            year = "2020";
+            description = <>
+                <i>Playlist Bridge</i> is a web application which was built to convert music playlists from one streaming service to another.
+                The development of the web application was inspired by a request from one of my good friends to share my music playlist with him.
+                However, said friend streamed music on <a href="https://www.apple.com/apple-music/" target="_blank" rel="noreferrer" >Apple Music</a> and my playlist was created on <a href="https://tidal.com/" target="_blank" rel="noreferrer" >TIDAL</a>.
+                Since we did not use the same music streaming service, we were not able to easily share music with one another.
+                Also motivated by my then recent aquisition of beginner web development skills from my <u>internship in the summer of 2020</u>, I decided to start the construction of a web application that would handle bridging the gap between music streaming services.
+                Enter <i>Playlist Bridge</i>.
+            </>;
+            skills = ["Python", "HTML", "CSS", "JavaScript", "REST API"];
+            github = "https://github.com/ethanratnofsky/Playlist-Bridge"
+            link = "https://playlistbridge.herokuapp.com";
+            imgSrc = PlaylistBridgeImage;
             break;
         case "project2":
-            title = "Project 2";
-            year = "2000";
-            description = "This is an ooooold project.";
-            deliverables = "HTML, CSS, JavaScript";
-            link = "https://google.com";
-            imgSrc = "";
+            title = "Insert Project Title";
+            year = "YEAR";
+            description = "Insert project description.";
+            skills = ["Insert", "Skills", "Here"];
+            link = "https://example.com";
+            imgSrc = null;
             break;
         default:
-            return <h1>No Project Found.</h1>
+            return (
+                <div className="project-container not-found">
+                    {backButtonElement}
+                    <div className="message" >
+                        <h1>404 Project Not Found</h1>
+                        <p>Uh oh! Looks like this project doesn't exist...<i>yet</i>. 😉</p>
+                    </div>
+                </div>
+            );
     };
 
     return (
         <div className="project-container" >
-            <div className="project-header" >
-                <h2 className="project-title" >{title}</h2>
-                <div className="project-year" >{year}</div>
+            {backButtonElement}
+            <div className="project-header">
+                <div>
+                    <h1 className="project-title" >{title}</h1>
+                    <div className="project-year" >{year}</div>
+                </div>
+                <ul className="project-links" >
+                    {github ? <li><a href={github} target="_blank" rel="noreferrer" ><GitHubIcon /></a></li> : null}
+                    {link ? <li><a href={link} target="_blank" rel="noreferrer" ><ExternalLinkIcon /></a></li> : null}
+                </ul>
             </div>
-            <div className="project-description" ><b>Description:</b> {description}</div>
-            <div className="project-deliverables" ><b>Deliverables:</b> {deliverables}</div>
-            <div className="project-link" ><b>Link:</b> <a href={link} target="_blank" rel="noreferrer" >{link}</a></div>
+            <div className="project-details" >
+                <div className="project-description" >
+                    <h4 className="label" >Description</h4>
+                    {description}
+                </div>
+                <ul className="project-skills" >
+                    <h4 className="label" >Skills</h4> 
+                    {skills.map((skill, i) => <li className="project-skill" key={i} >{skill}</li>)}
+                </ul>
+            </div>
             {imgSrc ? <img className="project-image" src={imgSrc} alt={title} /> : <div className="project-image" />}
         </div>
     );
-}
+};
 
 export default Project;
