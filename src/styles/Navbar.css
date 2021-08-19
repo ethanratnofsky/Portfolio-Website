@@ -34,7 +34,7 @@
 }
 
 .hamburger > div {
-    background: black;
+    background: var(--secondary-color);
     margin: 0.25rem;
     height: 2px;
     width: 100%;
@@ -72,7 +72,7 @@
 
 .navbar-link > .underline {
     height: 0.15rem;
-    background: orangered;
+    background: var(--tertiary-color);
     visibility: hidden;
 }
 
@@ -83,7 +83,7 @@
 .navbar-link:hover > a,
 .navbar-link:focus-within > a {
     outline: none;
-    color: orangered;
+    color: var(--tertiary-color);
 }
 
 .navbar-link:hover > .underline,
@@ -116,7 +116,7 @@
     justify-content: center;
     align-items: center;
     position: absolute;
-    background: white;
+    background: var(--primary-color);
     top: 2rem;
     right: 2rem;
     height: 0;

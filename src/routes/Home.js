@@ -19,9 +19,9 @@ function Home() {
                     Explore my website for the proof in the pudding!
                 </p>
                 <div className="social-links" >
-                    <a href="https://github.com/ethanratnofsky" target="_blank" rel="noreferrer" ><GitHubIcon /></a>
-                    <a href="https://www.linkedin.com/in/ethan-ratnofsky/" target="_blank" rel="noreferrer" ><LinkedInIcon /></a>
-                    <a href="/#" ><GmailIcon /></a>
+                    <a className="icon-link" href="https://github.com/ethanratnofsky" target="_blank" rel="noreferrer" ><GitHubIcon /></a>
+                    <a className="icon-link" href="https://www.linkedin.com/in/ethan-ratnofsky/" target="_blank" rel="noreferrer" ><LinkedInIcon /></a>
+                    <a className="icon-link" href="/#" ><GmailIcon /></a>
                 </div>
             </div>
         </div>

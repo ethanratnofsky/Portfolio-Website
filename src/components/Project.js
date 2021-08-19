@@ -79,8 +79,8 @@ function Project({ setShowingProject }) {
                     <div className="project-year" >{year}</div>
                 </div>
                 <ul className="project-links" >
-                    {github ? <li><a href={github} target="_blank" rel="noreferrer" ><GitHubIcon /></a></li> : null}
-                    {link ? <li><a href={link} target="_blank" rel="noreferrer" ><ExternalLinkIcon /></a></li> : null}
+                    {github ? <li><a className="icon-link" href={github} target="_blank" rel="noreferrer" ><GitHubIcon /></a></li> : null}
+                    {link ? <li><a className="icon-link" href={link} target="_blank" rel="noreferrer" ><ExternalLinkIcon /></a></li> : null}
                 </ul>
             </div>
             <div className="project-details" >

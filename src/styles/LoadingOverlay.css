@@ -8,7 +8,7 @@
 }
 
 .loading-overlay-container {
-    background: white;
+    background: var(--primary-color);
     min-height: 100vh;
     min-width: 100vw;
     display: flex;
@@ -25,9 +25,10 @@
     height: 2rem;
     animation: fade-in 1s both, fade-out 500ms 3s forwards;
     margin: 1rem 0 0.75rem 0;
+    fill: var(--secondary-color);
 }
 
 .loading-overlay-container > .loading-bar {
-    border-bottom: 0.25rem dotted black;
+    border-bottom: 0.25rem dotted var(--secondary-color);
     animation: fade-in 1s both, loading-bar-animation 2s 1s both, fade-out 500ms 3s forwards;
 }

@@ -58,7 +58,7 @@
 
 .project-container .back-button > a:hover,
 .project-container .back-button > a:focus {
-    color: orangered;
+    color: var(--tertiary-color);
 }
 
 .project-container .back-button > a:hover .arrow,

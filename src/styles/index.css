@@ -1,6 +1,13 @@
+:root {
+    /* Color Palette Reference: https://www.pinterest.com/pin/awesome-color-palette-333-by-awsmcolor--632896553887100842/ */
+    --primary-color: #242121;
+    --secondary-color: #F8F3E3;
+    --tertiary-color: #F8C25C;
+}
+
 body {
-    background-color: white;
-    color: black;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -32,4 +39,17 @@ code {
 
 .page-content .page-title {
     text-align: center;
+}
+
+.icon-link:focus {
+    outline: none;
+}
+
+.icon-link > svg {
+    fill: var(--secondary-color);
+}
+
+.icon-link:hover > svg,
+.icon-link:focus > svg {
+    fill: var(--tertiary-color);
 }

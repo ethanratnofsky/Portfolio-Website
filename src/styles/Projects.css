@@ -33,7 +33,7 @@
 
 .projects-container .projects-menu > li > a:hover,
 .projects-container .projects-menu > li > a:focus {
-    color: orangered;
+    color: var(--tertiary-color);
     outline: none;
 }
 

@@ -28,7 +28,7 @@ function Navbar() {
 
     return (
         <nav className="navbar" >
-            <NavLink className="logo" to="/" onClick={() => setShowMobileMenu(false)} ><LogoSignature /></NavLink>
+            <NavLink className="logo icon-link" to="/" onClick={() => setShowMobileMenu(false)} ><LogoSignature /></NavLink>
             <Hamburger onClick={() => setShowMobileMenu(prev => !prev)} isActive={showMobileMenu} />
             <ul className="menu" >
                 <li><NavbarLink label="Projects" href="/projects" onClick={() => setShowMobileMenu(false)} /></li>
