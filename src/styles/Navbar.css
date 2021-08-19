@@ -45,6 +45,10 @@
     cursor: pointer;
 }
 
+.hamburger:hover > div {
+    background: var(--tertiary-color);
+}
+
 .hamburger.active > div.top {
     transform: translateY(10px) rotate(-315deg);
 }
@@ -67,13 +71,15 @@
 .navbar-link > a {
     text-decoration: none;
     color: inherit;
-    margin-bottom: 0.5rem;
+    height: 1.5rem;
 }
 
-.navbar-link > .underline {
-    height: 0.15rem;
+.navbar-link .underline {
+    height: 0.25rem;
     background: var(--tertiary-color);
     visibility: hidden;
+    position: relative;
+    top: 0.25rem;
 }
 
 .navbar-link > a.active {
@@ -86,8 +92,8 @@
     color: var(--tertiary-color);
 }
 
-.navbar-link:hover > .underline,
-.navbar-link:focus-within > .underline {
+.navbar-link:hover .underline,
+.navbar-link:focus-within .underline {
     visibility: visible;
     animation: slide-up 250ms both;
 }

@@ -17,8 +17,10 @@ function Hamburger({ onClick, isActive }) {
 function NavbarLink({ label, href, onClick }) {
     return (
         <div className="navbar-link" >
-            <NavLink to={href} onClick={e => {e.target.blur(); onClick();}} activeClassName="active" >{label}</NavLink>
-            <div className="underline" />
+            <NavLink to={href} onClick={e => {e.target.blur(); onClick();}} activeClassName="active" >
+                {label}
+                <div className="underline" />
+            </NavLink>
         </div>
     );
 };
