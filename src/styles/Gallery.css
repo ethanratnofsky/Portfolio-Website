@@ -1,0 +1,13 @@
+.gallery-container {
+    height: 100%;
+    width: 100%;
+}
+
+.gallery-container .gallery-menu {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+}

@@ -3,14 +3,17 @@ import { Link, Route, Switch, useRouteMatch } from "react-router-dom";
 import GraphicDesign from "./GraphicDesign";
 import Photography from "./Photography";
 
+import "../styles/Gallery.css";
+
 function Gallery() {
     let { path, url } = useRouteMatch();
 
     return (
         <div className="gallery-container" >
-            <h1 className="page-title" >Gallery</h1>
-            <Link to={`${url}/graphic-design`} >Graphic Design</Link>
-            <Link to={`${url}/photography`} >Photography</Link>
+            <div className="gallery-menu" >
+                <Link to={`${url}/graphic-design`} >Graphic Design</Link>
+                <Link to={`${url}/photography`} >Photography</Link>
+            </div>
 
             <Switch>
                 <Route exact path={`${path}/graphic-design`} >
