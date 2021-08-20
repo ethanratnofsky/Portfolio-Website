@@ -8,6 +8,7 @@
     align-items: center;
     justify-content: space-between;
     animation: slide-down 500ms;
+    box-shadow: 0 0.25rem 0.25rem var(--primary-color);
 }
 
 .navbar .logo {
