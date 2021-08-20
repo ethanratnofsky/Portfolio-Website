@@ -16,7 +16,7 @@
     animation: fade-in 750ms, slide-up 750ms;
 }
 
-.home-container .info-container {
+.home-container .background-info-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -31,8 +31,8 @@
     animation: fade-in 750ms, slide-left 750ms;
 }
 
-.home-container .info-container > h1,
-.home-container .info-container > p {
+.home-container .background-info-container > h1,
+.home-container .background-info-container > p {
     margin-top: 0;
 }
 
@@ -64,7 +64,7 @@
     animation: unset;
 }
 
-.mobile .home-container .info-container {
+.mobile .home-container .background-info-container {
     text-align: center;
     width: auto;
     position: unset;
