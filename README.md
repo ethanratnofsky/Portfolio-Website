@@ -1,5 +1,5 @@
 # Portfolio Website
-This GitHub repository houses the codebase for my personal website. The contents of my website include my personal achievements, portfolio, and resumé.
+This GitHub repository houses the codebase for my personal website. The contents of my website include my personal achievements, portfolio, and resume.
 ## Languages, Libraries, and Frameworks
 - JavaScript
     - [React](https://reactjs.org/)
