@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 
 import reportWebVitals from "./reportWebVitals";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Navbar from "./components/Navbar";
 import Home from "./routes/Home";
 import Projects from "./routes/Projects";
-import Experience from "./routes/Experience";
-import Gallery from "./routes/Gallery";
+// import Experience from "./routes/Experience";
+// import Gallery from "./routes/Gallery";
+// import Gallery from "./routes/Resume";
+import Message from "./components/Message";
 
 import "./styles/index.css";
 import "./styles/animations.css";
@@ -48,13 +50,25 @@ function App() {
                         <Projects />
                     </Route>
                     <Route exact path="/experience" >
-                        <Experience />
+                        <Redirect to="/coming-soon" />
+                        {/* TODO: <Experience /> */}
                     </Route>
                     <Route path="/gallery" >
-                        <Gallery />
+                        <Redirect to="/coming-soon" />
+                        {/* TODO: <Gallery /> */}
+                    </Route>
+                    <Route path="/resume" >
+                        <Redirect to="/coming-soon" />
+                        {/* TODO: <Resume /> */}
+                    </Route>
+                    <Route exact path="/coming-soon" >
+                        <Message message="Coming Soon! 🥳" submessage="Woah! You're here a little early...check back in a bit - this content is in development!" />
                     </Route>
                     <Route exact path="/" >
                         <Home />
+                    </Route>
+                    <Route>
+                        <Message message="⚠️ 404 Page Not Found" submessage={<>Hmm...it seems like this page doesn't exist. Go back to <a href="/" rel="noreferrer" >safety</a>!</>} />
                     </Route>
                 </Switch>
             </div>

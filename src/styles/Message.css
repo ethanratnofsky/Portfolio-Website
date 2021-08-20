@@ -1,0 +1,24 @@
+.message-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.message-container .message {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.message-container .submessage {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 18px;
+}
+
+.message-container a {
+    color: inherit;
+}

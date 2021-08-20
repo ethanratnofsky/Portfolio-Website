@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import Message from "../components/Message";
+
 import "../styles/Project.css"
 
 import { ReactComponent as GitHubIcon } from "../images/github.svg";
@@ -90,12 +92,9 @@ function Project({ setShowingProject }) {
             break;
         default:
             return (
-                <div className="project-container not-found">
+                <div className="project-container">
                     {backButtonElement}
-                    <div className="message" >
-                        <h1>404 Project Not Found</h1>
-                        <p>Uh oh! Looks like this project doesn't exist...<i>yet</i>. 😉</p>
-                    </div>
+                    <Message message="⚠️ 404 Project Not Found" submessage={<>Uh oh! Looks like this project doesn't exist...<i>yet</i>. 😉</>} />
                 </div>
             );
     };

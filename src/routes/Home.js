@@ -21,7 +21,8 @@ function Home() {
                 <div className="social-links" >
                     <a className="icon-link" href="https://github.com/ethanratnofsky" target="_blank" rel="noreferrer" ><GitHubIcon title="Ethan Ratnofsky | GitHub" /></a>
                     <a className="icon-link" href="https://www.linkedin.com/in/ethan-ratnofsky/" target="_blank" rel="noreferrer" ><LinkedInIcon title="Ethan Ratnofsky | LinkedIn" /></a>
-                    <a className="icon-link" href="/#" ><GmailIcon title="Ethan Ratnofsky | Mail" /></a>
+                    {/* TODO: Secure mailing system? */}
+                    <a className="icon-link" href="/coming-soon" ><GmailIcon title="Ethan Ratnofsky | Mail" /></a>
                 </div>
             </div>
         </div>
