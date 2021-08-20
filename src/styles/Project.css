@@ -3,7 +3,7 @@
     flex-direction: column;
     position: absolute;
     top: 0;
-    flex-grow: 1;
+    min-height: 100%;
     width: 100%;
     animation: slide-left 500ms forwards;
     box-sizing: border-box;
@@ -13,7 +13,6 @@
 .project-container.not-found {
     justify-content: center;
     align-items: center;
-    height: 100%;
 }
 
 .project-container.not-found .message {
@@ -59,6 +58,7 @@
 .project-container .back-button > a:hover,
 .project-container .back-button > a:focus {
     color: var(--tertiary-color);
+    outline: none;
 }
 
 .project-container .back-button > a:hover .arrow,
@@ -66,8 +66,8 @@
     animation: bounce-left 500ms;
     animation-timing-function: cubic-bezier(0, -1, 1, 2);
 }
-/* *** */
 
+/* Project Information Styling */
 .project-container .project-header {
     display: flex;
 }
@@ -132,9 +132,43 @@
     margin: 0.25rem 0;
 }
 
-.project-container .project-image {
+/* Project Image Styling */
+.project-container > .project-image,
+.project-container .website-image-container {
     align-self: center;
     width: 75%;
+    box-shadow: 0 0 0.25rem black;
+}
+
+.project-container .website-image-container {
+    align-self: center;
+    width: 75%;
+    background: #454444;
+    border-radius: 8px;
+    box-shadow: 0 0 10px black;
+    overflow: hidden;
+}
+
+.project-container .website-image-container .dots {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 48px;
+    position: relative;
+    left: 12px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.project-container .website-image-container .dots .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: #676666;
+    border-radius: 10px;
+}
+
+.project-container .website-image-container .project-image {
+    width: 100%;
 }
 
 .project-container div.project-image {
@@ -168,8 +202,9 @@
     margin: 0.5rem 0;
 }
 
-.mobile .project-container .project-image {
-    width: 100%;
+.mobile .project-container > .project-image,
+.mobile .project-container .website-image-container {
+    width: 105%;
 }
 
 .mobile .project-container div.project-image {

@@ -3,9 +3,11 @@ import { Link, useParams } from "react-router-dom";
 
 import "../styles/Project.css"
 
-import { ReactComponent as GitHubIcon } from "../images/github.svg"
-import { ReactComponent as ExternalLinkIcon } from "../images/external_link.svg"
-import PlaylistBridgeImage from "../images/playlist_bridge.png"
+import { ReactComponent as GitHubIcon } from "../images/github.svg";
+import { ReactComponent as ExternalLinkIcon } from "../images/external_link.svg";
+
+import PlaylistBridgeImage from "../images/playlist_bridge.png";
+import PortfolioWebsiteImage from "../images/portfolio_website.png";
 
 function Project({ setShowingProject }) {
     const backButtonElement = (
@@ -17,23 +19,55 @@ function Project({ setShowingProject }) {
         </div>
     );
 
+    // Control state for showing project menu vs. project
     useEffect(() => {
         setShowingProject(true);
         return () => {
             setShowingProject(false);
-        }
+        };
     }, [setShowingProject]);
 
+    // Default values for project information
     let title = "No Project Title";
     let year = "Unknown";
     let description = "No description given.";
-    let skills = ["None"];
+    let skills = [];
     let github = false;
     let link = false;
     let imgSrc = false;
+    let isWebsite = false;
 
+    // Switch for determining project information to display
     let { projectID } = useParams();
     switch (projectID) {
+        /*
+        case "template":
+            title = "TITLE";
+            year = "YEAR";
+            description = "DESCRIPTION";
+            skills = ["SKILLS"];
+            github = "https://github.com/ethanratnofsky/";
+            link = "https://example.com";
+            imgSrc = false;
+            isWebsite = false;
+            break;
+        */
+        case "portfolio-website":
+            title = "Portfolio Website";
+            year = "2021";
+            description = <>
+                You're lookin' at it! I built this website to showcase my skills and experience in a unique and creative way.
+                In fact, the only external libraries that are used in this project are the JavaScript libraries <a href="https://reactjs.org/" target="_blank" rel="noreferrer" >React</a> and <a href="https://reactrouter.com/" target="_blank" rel="noreferrer" >React Router</a>.
+                The React JavaScript library uses <a href="https://reactjs.org/docs/introducing-jsx.html" target="_blank" rel="noreferrer" >JavaScript XML (JSX)</a> for rendering document elements, so no template engine is required.
+                And, yes, although it takes more time and effort, no CSS frameworks are in use - only pure custom CSS. 
+                The benefits of using minimal external libraries/frameworks are greater control of design and deeper knowledge of programming concepts.
+            </>;
+            skills = ["Web Development", "HTML", "CSS", "JavaScript"];
+            github = "https://github.com/ethanratnofsky/Portfolio-Website";
+            link = "/";
+            imgSrc = PortfolioWebsiteImage;
+            isWebsite = true;
+            break;
         case "playlist-bridge":
             title = "Playlist Bridge";
             year = "2020";
@@ -44,19 +78,15 @@ function Project({ setShowingProject }) {
                 Since we did not use the same music streaming service, we were not able to easily share music with one another.
                 Also motivated by my then recent aquisition of beginner web development skills from my <u>internship in the summer of 2020</u>, I decided to start the construction of a web application that would handle bridging the gap between music streaming services.
                 Enter <i>Playlist Bridge</i>.
+                This project uses a Python backend built on the <a href="https://flask.palletsprojects.com/en/2.0.x/" target="_blank" rel="noreferrer" >Flask</a> web framework.
+                Consequently, the template engine <a href="https://jinja.palletsprojects.com/en/3.0.x/" target="_blank" rel="noreferrer" >Jinja2</a> and JavaScript library <a href="https://jquery.com/" target="_blank" rel="noreferrer" >jQuery</a> are also in use.
+                The <a href="https://getbootstrap.com/docs/4.6/getting-started/introduction/" target="_blank" rel="noreferrer" >Bootstrap 4</a> CSS framework is used as a supplement to custom pure CSS for frontend styling.
             </>;
-            skills = ["Python", "HTML", "CSS", "JavaScript", "REST API"];
-            github = "https://github.com/ethanratnofsky/Playlist-Bridge"
+            skills = ["Web Development", "Python", "HTML", "CSS", "JavaScript", "REST API"];
+            github = "https://github.com/ethanratnofsky/Playlist-Bridge";
             link = "https://playlistbridge.herokuapp.com";
             imgSrc = PlaylistBridgeImage;
-            break;
-        case "project2":
-            title = "Insert Project Title";
-            year = "YEAR";
-            description = "Insert project description.";
-            skills = ["Insert", "Skills", "Here"];
-            link = "https://example.com";
-            imgSrc = null;
+            isWebsite = true;
             break;
         default:
             return (
@@ -90,10 +120,20 @@ function Project({ setShowingProject }) {
                 </div>
                 <ul className="project-skills" >
                     <h4 className="label" >Skills</h4> 
-                    {skills.map((skill, i) => <li className="project-skill" key={i} >{skill}</li>)}
+                    {skills.length !== 0 ? skills.map((skill, i) => <li className="project-skill" key={i} >{skill}</li>) : <li className="project-skill" >None</li>}
                 </ul>
             </div>
-            {imgSrc ? <img className="project-image" src={imgSrc} alt={title} /> : <div className="project-image" />}
+            {imgSrc ? 
+                ( isWebsite ? <div className="website-image-container" >
+                    <div className="dots">
+                        <div className="dot" />
+                        <div className="dot" />
+                        <div className="dot" />
+                    </div>
+                    <img className="project-image" src={imgSrc} alt={title} /> 
+                </div>
+                : <img className="project-image" src={imgSrc} alt={title} /> )
+            : <div className="project-image" />}
         </div>
     );
 };

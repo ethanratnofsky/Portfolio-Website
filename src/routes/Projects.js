@@ -12,11 +12,9 @@ function Projects() {
     return (
         <div className="projects-container" >
             <ul className={"projects-menu" + (showingProject ? " hidden" : "")} >
+                {/* <li><Link to={`${url}/template`} >Template</Link></li> */}
+                <li><Link to={`${url}/portfolio-website`} >Portfolio Website</Link></li>
                 <li><Link to={`${url}/playlist-bridge`} >Playlist Bridge</Link></li>
-                <li><Link to={`${url}/project2`} >Project 2</Link></li>
-                <li><Link to={`${url}/project3`} >Project 3</Link></li>
-                <li><Link to={`${url}/project4`} >Project 4</Link></li>
-                <li><Link to={`${url}/project5`} >Project 5</Link></li>
             </ul>
 
             <Switch>
