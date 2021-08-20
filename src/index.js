@@ -5,12 +5,12 @@ import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Navbar from "./components/Navbar";
+import Message from "./components/Message";
 import Home from "./routes/Home";
 import Projects from "./routes/Projects";
 // import Experience from "./routes/Experience";
 // import Gallery from "./routes/Gallery";
-// import Gallery from "./routes/Resume";
-import Message from "./components/Message";
+// import Resume from "./routes/Resume";
 
 import "./styles/index.css";
 import "./styles/animations.css";
