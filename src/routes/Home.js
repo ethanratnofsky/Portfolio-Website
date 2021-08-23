@@ -1,7 +1,9 @@
-import { ReactComponent as CartoonEthan } from "../images/cartoon_ethan.svg"
-import { ReactComponent as GitHubIcon } from "../images/github.svg"
-import { ReactComponent as LinkedInIcon } from "../images/linkedin.svg"
-import { ReactComponent as GmailIcon } from "../images/gmail.svg"
+import { Link } from "react-router-dom";
+
+import { ReactComponent as CartoonEthan } from "../images/cartoon_ethan.svg";
+import { ReactComponent as GitHubIcon } from "../images/github.svg";
+import { ReactComponent as LinkedInIcon } from "../images/linkedin.svg";
+import { ReactComponent as GmailIcon } from "../images/gmail.svg";
 
 import "../styles/Home.css"
 
@@ -22,7 +24,8 @@ function Home() {
                     <a className="icon-link" href="https://github.com/ethanratnofsky" target="_blank" rel="noreferrer" ><GitHubIcon title="Ethan Ratnofsky | GitHub" /></a>
                     <a className="icon-link" href="https://www.linkedin.com/in/ethan-ratnofsky/" target="_blank" rel="noreferrer" ><LinkedInIcon title="Ethan Ratnofsky | LinkedIn" /></a>
                     {/* TODO: Secure mailing system? */}
-                    <a className="icon-link" href="/coming-soon" ><GmailIcon title="Ethan Ratnofsky | Mail" /></a>
+                    <Link className="icon-link" to="/coming-soon" ><GmailIcon title="Ethan Ratnofsky | Mail" /></Link>
+                    {/* <a className="icon-link" href="/coming-soon" ><GmailIcon title="Ethan Ratnofsky | Mail" /></a> */}
                 </div>
             </div>
         </div>
