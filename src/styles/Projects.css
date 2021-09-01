@@ -29,12 +29,14 @@
     color: inherit;
     font-weight: bold;
     text-transform: uppercase;
+    transition: font-size 500ms;
 }
 
 .projects-container .projects-menu > li > a:hover,
 .projects-container .projects-menu > li > a:focus {
     color: var(--tertiary-color);
     outline: none;
+    font-size: 3rem;
 }
 
 .projects-container .projects-menu.hidden {
