@@ -64,10 +64,46 @@ function Project({ setShowingProject }) {
                 And, yes, although it takes more time and effort, no CSS frameworks are in use - only pure custom CSS. 
                 The benefits of using minimal external libraries/frameworks are greater control of design and deeper knowledge of programming concepts.
             </>;
-            skills = ["Web Development", "HTML", "CSS", "JavaScript"];
+            skills = ["Web Development", "HTML", "CSS", "JavaScript", "ReactJS"];
             github = "https://github.com/ethanratnofsky/Portfolio-Website";
             link = "/";
             imgSrc = PortfolioWebsiteImage;
+            isWebsite = true;
+            break;
+        case "plasmid-visualizer":
+            title = "Plasmid Visualizer";
+            year = "2021";
+            description = <>
+                During my final summer as a Software Engineer Intern <a href="https://www.abbvie.com/" target="_blank" rel="noreferrer" ><i>AbbVie</i>'s</a> Bioresearch Center, I worked with two other student interns to develop an entire full stack applicatio from scratch.
+                As a small team, we reported to two project managers who simply provided us with a general project specification as well as the resources necessary for the project's success.
+                The goal of this project was to develop a web application with an interactive interface to visualize DNA sequences using a privately managed database.
+                While the development of the project was primarily collaborative, most of my responsibilities included designing and implementing the backend server using a REST API.
+                Consequently, I also managed and intitialized the internal custom database that was used for the application's functionality.
+                While most of my focus for this project was on the backend development, I was able to exercise some of my frontend development skills to create temporary UIs for testing connection to the backend.
+                My experience with this project enabled me to practice my skills and grow as a web developer in a professional, collaborative environment.
+            </>;
+            skills = ["Web Development", "REST API", "Python", "HTML", "CSS", "JavaScript", "ReactJS", "PostgreSQL"];
+            // github = "https://github.com/ethanratnofsky/";
+            // link = "https://example.com";
+            // imgSrc = false;
+            isWebsite = true;
+            break;
+        case "mass-spectrometry-toolkit-2":
+            title = "Mass Spectrometry Toolkit 2.0";
+            year = "2020-2021";
+            description = <>
+                During the prime season of the pandemic, that is the summer and winter of 2020 as well as part of the spring of 2021, I was given the opportunity to work remotely for <a href="https://www.abbvie.com/" target="_blank" rel="noreferrer" ><i>AbbVie</i>'s</a> Bioresearch Center as a Software Engineer Intern.
+                The many projects I was assigned to included a revamp of an existing internal web application which was used by scientists to analyze data output from a mass spectrometer.
+                The majority of my responsibilities for this project consisted of redesigning the frontend UI/UX.
+                For example, I created a new color scheme, added an auto-completion feature for a searchable dropdown menu, reorganization of UI components, and restoration of button functionality.
+                I am grateful for the opportunity that I had to take part in this project because it introduced me to the fundamentals related to web development including the <a href="https://flask.palletsprojects.com/en/2.0.x/" target="_blank" rel="noreferrer" >Flask</a> web framework and JavaScript library <a href="https://jquery.com/" target="_blank" rel="noreferrer" >jQuery</a>.
+                I was also briefly introduced to <a href="https://www.docker.com/" target="_blank" rel="noreferrer" >Docker</a> for isolated container management as well as <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer" >PostgreSQL</a> for elementary database management of user information.
+                Ultimately, this project helped me, significantly, to develop the my preliminary skills as a web developer.
+            </>;
+            skills = ["Web Development", "REST API", "Python", "HTML", "CSS", "JavaScript", "Docker", "RegEx", "PostgreSQL"];
+            // github = "https://github.com/ethanratnofsky/";
+            // link = "https://example.com";
+            // imgSrc = false;
             isWebsite = true;
             break;
         case "playlist-bridge":
@@ -84,7 +120,7 @@ function Project({ setShowingProject }) {
                 Consequently, the template engine <a href="https://jinja.palletsprojects.com/en/3.0.x/" target="_blank" rel="noreferrer" >Jinja2</a> and JavaScript library <a href="https://jquery.com/" target="_blank" rel="noreferrer" >jQuery</a> are also in use.
                 The <a href="https://getbootstrap.com/docs/4.6/getting-started/introduction/" target="_blank" rel="noreferrer" >Bootstrap 4</a> CSS framework is used as a supplement to custom pure CSS for frontend styling.
             </>;
-            skills = ["Web Development", "Python", "HTML", "CSS", "JavaScript", "REST API"];
+            skills = ["Web Development", "REST API", "Python", "HTML", "CSS", "JavaScript", "Git"];
             github = "https://github.com/ethanratnofsky/Playlist-Bridge";
             link = "https://playlistbridge.herokuapp.com";
             imgSrc = PlaylistBridgeImage;
@@ -132,7 +168,7 @@ function Project({ setShowingProject }) {
                     <img className="project-image" src={imgSrc} alt={title} /> 
                 </div>
                 : <img className="project-image" src={imgSrc} alt={title} /> )
-            : <div className="project-image" />}
+            : null}
         </div>
     );
 };

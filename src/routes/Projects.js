@@ -14,6 +14,8 @@ function Projects() {
             <ul className={"projects-menu" + (showingProject ? " hidden" : "")} >
                 {/* <li><Link to={`${url}/template`} >Template</Link></li> */}
                 <li><Link to={`${url}/portfolio-website`} >Portfolio Website</Link></li>
+                <li><Link to={`${url}/plasmid-visualizer`} >Plasmid Visualizer</Link></li>
+                <li><Link to={`${url}/mass-spectrometry-toolkit-2`} >Mass Spectrometry Toolkit 2.0</Link></li>
                 <li><Link to={`${url}/playlist-bridge`} >Playlist Bridge</Link></li>
             </ul>
 
