@@ -9,5 +9,76 @@
     align-items: center;
     height: 100%;
     width: 100%;
+}
+
+.gallery-container .gallery-menu .gallery-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--secondary-color);
+    border-radius: 2rem;
+    height: 80%;
+    width: 45%;
+    text-decoration: none;
     text-align: center;
+    color: var(--secondary-color);
+    transition: all 300ms;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.gallery-container .gallery-menu .gallery-card .overlay {
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    border-radius: 2rem;
+    opacity: 0.5;
+    transition: opacity 500ms;
+}
+
+.gallery-container .gallery-menu .gallery-card:hover,
+.gallery-container .gallery-menu .gallery-card:focus {
+    height: 81%;
+    width: 46%;
+    outline: none;
+    border-color: var(--tertiary-color);
+    color: var(--tertiary-color);
+    text-decoration: underline;
+}
+
+.gallery-container .gallery-menu .gallery-card:hover .overlay,
+.gallery-container .gallery-menu .gallery-card:focus .overlay {
+    opacity: 0;
+}
+
+.gallery-container .gallery-menu .gallery-card.graphic-design {
+    background-image: url(../images/gallery/NinjaNahteyLogo2017.jpg);
+    animation: slide-right 500ms forwards, fade-in 500ms forwards;
+}
+
+.gallery-container .gallery-menu .gallery-card.photography {
+    background-image: url(../images/gallery/COVIDSZNPhotography.jpg);
+    animation: slide-left 500ms forwards, fade-in 500ms forwards;
+}
+
+.gallery-container .gallery-menu .gallery-card h2 {
+    position: absolute;
+    text-shadow: 0 0 10px black;
+}
+
+/* Mobile View Styling */
+.mobile .gallery-container .gallery-menu {
+    flex-direction: column;
+}
+
+.mobile .gallery-container .gallery-menu .gallery-card {
+    height: 45%;
+    width: 80%;
+}
+
+.mobile .gallery-container .gallery-menu .gallery-card:hover,
+.mobile .gallery-container .gallery-menu .gallery-card:focus {
+    height: 46%;
+    width: 81%;
 }

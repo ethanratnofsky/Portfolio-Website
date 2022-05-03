@@ -1,0 +1,50 @@
+.graphic-design-container {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    min-height: 100%;
+    width: 100%;
+    animation: fade-in 500ms forwards;
+    box-sizing: border-box;
+    padding: 1rem 4rem 2rem 4rem;
+}
+
+/* Back Button Styling */
+.graphic-design-container .back-button {
+    width: max-content;
+    align-self: flex-end;
+}
+
+.graphic-design-container .back-button .arrow {
+    display: inline-block;
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+}
+
+.graphic-design-container .back-button > a {
+    text-decoration: none;
+    color: inherit;
+    font-weight: bold;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+}
+
+.graphic-design-container .back-button > a:hover,
+.graphic-design-container .back-button > a:focus {
+    color: var(--tertiary-color);
+    outline: none;
+}
+
+.graphic-design-container .back-button > a:hover .arrow,
+.graphic-design-container .back-button > a:focus .arrow {
+    animation: bounce-left 500ms;
+    animation-timing-function: cubic-bezier(0, -1, 1, 2);
+}
+
+/* Mobile View Styling */
+.mobile .graphic-design-container {
+    padding: 1rem 2rem 2rem 2rem;
+}

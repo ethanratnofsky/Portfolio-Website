@@ -9,7 +9,7 @@ import Message from "./components/Message";
 import Home from "./routes/Home";
 import Projects from "./routes/Projects";
 // import Experience from "./routes/Experience";
-// import Gallery from "./routes/Gallery";
+import Gallery from "./routes/Gallery";
 // import Resume from "./routes/Resume";
 
 import "./styles/index.css";
@@ -51,15 +51,16 @@ function App() {
                     </Route>
                     <Route exact path="/experience" >
                         <Redirect to="/coming-soon" />
-                        {/* TODO: <Experience /> */}
+                        {/* TODO: 
+                        <Experience /> */}
                     </Route>
                     <Route path="/gallery" >
-                        <Redirect to="/coming-soon" />
-                        {/* TODO: <Gallery /> */}
+                        <Gallery />
                     </Route>
                     <Route path="/resume" >
                         <Redirect to="/coming-soon" />
-                        {/* TODO: <Resume /> */}
+                        {/* TODO: 
+                        <Resume /> */}
                     </Route>
                     <Route exact path="/coming-soon" >
                         <Message message="Coming Soon! 🥳" submessage="Woah! You're here a little early...check back in a bit - this content is in development!" />

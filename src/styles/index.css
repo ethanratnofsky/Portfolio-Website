@@ -3,6 +3,10 @@
     --primary-color: #242121;
     --secondary-color: #F8F3E3;
     --tertiary-color: #F8C25C;
+
+    /* --primary-color: lightgray;
+    --secondary-color: black;
+    --tertiary-color: white; */
 }
 
 body {
