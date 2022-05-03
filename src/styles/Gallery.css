@@ -44,7 +44,6 @@
     outline: none;
     border-color: var(--tertiary-color);
     color: var(--tertiary-color);
-    text-decoration: underline;
 }
 
 .gallery-container .gallery-menu .gallery-card:hover .overlay,
