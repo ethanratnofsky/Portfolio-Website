@@ -16,13 +16,10 @@
     animation: fade-in 750ms, slide-up 750ms;
 }
 
-.home-container .background-info-container {
+.home-container .info-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: var(--primary-color);
-    box-shadow: 0 0 1rem 2rem var(--primary-color);
-    border-radius: 0.5rem;
     width: 35%;
     position: relative;
     left: 25%;
@@ -31,12 +28,18 @@
     animation: fade-in 750ms, slide-left 750ms;
 }
 
-.home-container .background-info-container > h1,
-.home-container .background-info-container > p {
+.home-container .info-container .background-info {
+    background: var(--primary-color);
+    box-shadow: 0 0 1rem 2rem var(--primary-color);
+    border-radius: 0.5rem;
+}
+
+.home-container .info-container .background-info > h1,
+.home-container .info-container .background-info > p {
     margin-top: 0;
 }
 
-.home-container .social-links {
+.home-container .info-container .social-links {
     display: flex;
     align-self: center;
     justify-content: space-between;
@@ -47,7 +50,7 @@
     top: 1rem;
 }
 
-.home-container .social-links svg {
+.home-container .info-container .social-links svg {
     width: 30px;
 }
 
@@ -64,7 +67,7 @@
     animation: unset;
 }
 
-.mobile .home-container .background-info-container {
+.mobile .home-container .info-container {
     text-align: center;
     width: auto;
     position: unset;
