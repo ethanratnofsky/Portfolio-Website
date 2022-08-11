@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 
 import "../styles/Navbar.css";
 import {ReactComponent as LogoSignature} from '../images/logo_signature.svg';
-import ResumePDF from "../docs/EthanRatnofskyResume.pdf";
+import ResumeButton from "./ResumeButton";
 
 function Hamburger({ onClick, isActive }) {
     return (
@@ -37,14 +37,7 @@ function Navbar() {
                 <li><NavbarLink label="Projects" href="/projects" onClick={() => setShowMobileMenu(false)} /></li>
                 <li><NavbarLink label="Experience" href="/experience" onClick={() => setShowMobileMenu(false)} /></li>
                 <li><NavbarLink label="Gallery" href="/gallery" onClick={() => setShowMobileMenu(false)} /></li>
-                <li>
-                    <div className="navbar-link" onClick={() => {document.activeElement.blur(); setShowMobileMenu(false);}} >
-                        <a href={ResumePDF} target="_blank" rel="noreferrer" >
-                            Resume
-                            <div className="underline" />
-                        </a>
-                    </div>
-                </li>
+                <li><ResumeButton /></li>
             </ul>
         </nav>
     );
