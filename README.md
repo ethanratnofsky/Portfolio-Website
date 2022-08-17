@@ -1,5 +1,5 @@
 # Portfolio Website
-This GitHub repository houses the codebase for my personal portfolio website. The contents of my website include my personal achievements, portfolio, and resume. The deployed website is available at [https://www.ethanratnofsky.com/].
+This GitHub repository houses the codebase for my personal portfolio website. The contents of my website include my personal achievements, portfolio, and resume. The deployed website is available at https://www.ethanratnofsky.com/.
 ## Languages, Libraries, and Frameworks
 - JavaScript
     - [React](https://reactjs.org/)
