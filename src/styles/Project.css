@@ -77,14 +77,6 @@
     margin: 0.5rem;
 }
 
-.project-container .project-blurb {
-    margin: 15px 40px;
-}
-
-.project-container .project-blurb a {
-    color: inherit;
-}
-
 .project-container .project-skills {
     list-style-type: none;
     margin: 15px 0;
@@ -102,25 +94,34 @@
     color: var(--tertiary-color);
 }
 
-.project-container .project-demos {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+.project-container .project-blurb {
+    margin: 15px 40px;
+}
+
+.project-container .project-blurb a {
+    color: inherit;
+}
+
+.project-container .project-content-row {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
     align-items: center;
+    font-size: 24px;
+    margin-block: 2rem;
 }
 
-.project-container .project-demos .project-demo {
-    width: 65%;
-    aspect-ratio: 16/9;
-    margin: 10px 15px;
+.project-container .project-content-row.reverse {
+    flex-direction: row-reverse;
 }
 
-.project-container .project-demos .project-demo > iframe {
-    width: 100%;
-    height: 100%;
+.project-container .project-content-row > .website-image-container,
+.project-container .project-content-row > .project-image,
+.project-container .project-content-row > .project-demo {
+    flex: 1.25;
+}
+
+.project-container .project-content-row > div {
+    flex: 1;
+    margin: 10px 30px;
 }
 
 /* Project Image Styling */
@@ -178,12 +179,14 @@
     flex-direction: column;
 }
 
-.mobile .project-container .project-blurb {
-    margin: 10px 5px;
+.mobile .project-container .project-content-row {
+    flex-direction: column;
+    font-size: 20px;
+    margin-block: 0.5rem;
 }
 
-.mobile .project-container .project-demos .project-demo {
-    width: 100%;
+.mobile .project-container .project-blurb {
+    margin: 10px 5px;
 }
 
 .mobile .project-container .project-details h4 {

@@ -70,34 +70,28 @@ const Project = () => {
             <ul className='project-skills'>
                 {skills.map((skill, i) => <li className='project-skill' key={i}>{skill}</li>)}
             </ul>
-            <div className='project-blurb'>
-                {blurbs[0]}
-            </div>
-            {demos &&
-                <ul className='project-demos'>
-                    {demos.map((demo, i) => <li className='project-demo' key={i}>{demo}</li>)}
-                </ul>
-            }
-            {Array(Math.max(blurbs.length - 1, images.length)).fill().map((_, i) => <>
-                {blurbs[i + 1] !== undefined && 
-                    <div className='project-blurb' key={i}>
-                        {blurbs[i + 1]}
+
+            <div className='project-content'>
+                {Array(Math.max(blurbs.length, demos.length + images.length)).fill().map((_, i) => (
+                    <div key={i} className={`project-content-row${i % 2 === 0 ? '' : ' reverse'}`}>
+                        {blurbs[i] && <div className='project-blurb'>{blurbs[i]}</div>}
+                        {demos[i] ? <div className='project-demo'>{demos[i]}</div>
+                            : 
+                            images[i - demos.length] && (isWebsite ? 
+                                <div className='website-image-container'>
+                                    <div className='dots'>
+                                        <div className='dot' />
+                                        <div className='dot' />
+                                        <div className='dot' />
+                                    </div>
+                                    <img className='project-image' src={images[i]} alt={title} /> 
+                                </div>
+                                : <img className='project-image' src={images[i]} alt={title} />
+                            )
+                        }
                     </div>
-                }
-                {images[i] !== undefined && 
-                    (isWebsite ? 
-                        <div className='website-image-container'>
-                            <div className='dots'>
-                                <div className='dot' />
-                                <div className='dot' />
-                                <div className='dot' />
-                            </div>
-                            <img className='project-image' src={images[i]} alt={title} /> 
-                        </div>
-                        : <img className='project-image' src={images[i]} alt={title} />
-                    )
-                }
-            </>)}
+                ))}
+            </div>
         </div>
     );
 }
