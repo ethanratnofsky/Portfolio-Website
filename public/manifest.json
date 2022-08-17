@@ -1,6 +1,7 @@
 {
-    "short_name": "React App",
-    "name": "Create React App Sample",
+    "short_name": "Ethan Ratnofsky",
+    "name": "Portfolio Website for Ethan Ratnofsky",
+    "homepage": "https://www.ethanratnofsky.com",
     "icons": [
         {
             "src": "favicon.ico",
@@ -8,7 +9,6 @@
             "type": "image/x-icon"
         }
     ],
-    "start_url": ".",
     "display": "standalone",
     "theme_color": "#000000",
     "background_color": "#ffffff"

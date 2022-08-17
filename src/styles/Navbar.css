@@ -8,6 +8,7 @@
     align-items: center;
     justify-content: space-between;
     animation: slide-down 500ms;
+    background-color: var(--primary-color);
     box-shadow: 0 0.25rem 0.25rem var(--primary-color);
 }
 
@@ -32,6 +33,7 @@
     width: 2rem;
     position: relative;
     right: 1rem;
+    z-index: 1;
 }
 
 .hamburger > div {
@@ -114,6 +116,24 @@
 .navbar .menu {
     position: relative;
     right: 1rem;
+}
+
+/* Resume Button */
+.resume-button > a {
+    border: 2px solid var(--tertiary-color);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: var(--tertiary-color);
+}
+
+.resume-button:hover > a,
+.resume-button:focus-within > a {
+    outline: none;
+    color: var(--secondary-color);
+    background-color: var(--tertiary-color);
+    /* border-color: var(--secondary-color); */
 }
 
 /* Mobile View Styling */

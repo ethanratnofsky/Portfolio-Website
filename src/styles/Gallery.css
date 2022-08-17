@@ -52,12 +52,10 @@
 }
 
 .gallery-container .gallery-menu .gallery-card.graphic-design {
-    background-image: url(../images/gallery/NinjaNahteyLogo2017.jpg);
     animation: slide-right 500ms forwards, fade-in 500ms forwards;
 }
 
 .gallery-container .gallery-menu .gallery-card.photography {
-    background-image: url(../images/gallery/COVIDSZNPhotography.jpg);
     animation: slide-left 500ms forwards, fade-in 500ms forwards;
 }
 

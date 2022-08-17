@@ -77,36 +77,50 @@
     margin: 0.5rem;
 }
 
-.project-container .project-details {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-    margin-bottom: 2rem;
+.project-container .project-blurb {
+    margin: 15px 40px;
 }
 
-.project-container .label {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-}
-
-.project-container .project-description {
-    max-width: 75%;
-}
-
-.project-container .project-description a {
+.project-container .project-blurb a {
     color: inherit;
 }
 
 .project-container .project-skills {
     list-style-type: none;
-    margin: 0 4rem;
-    padding: 0
+    margin: 15px 0;
+    padding: 0;
 }
 
 .project-container .project-skills .project-skill {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
     font-size: 0.9rem;
-    margin: 0.25rem 0;
+    display: inline-block;
+    padding: 8px 10px;
+    margin: 2px 5px;
+    border: 1px solid var(--tertiary-color);
+    border-radius: 0.75rem;
+    color: var(--tertiary-color);
+}
+
+.project-container .project-demos {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.project-container .project-demos .project-demo {
+    width: 65%;
+    aspect-ratio: 16/9;
+    margin: 10px 15px;
+}
+
+.project-container .project-demos .project-demo > iframe {
+    width: 100%;
+    height: 100%;
 }
 
 /* Project Image Styling */
@@ -124,6 +138,7 @@
     border-radius: 8px;
     box-shadow: 0 0 10px black;
     overflow: hidden;
+    margin-block: 10px;
 }
 
 .project-container .website-image-container .dots {
@@ -159,24 +174,20 @@
 }
 
 .mobile .project-container .project-header {
-    margin-top: 1rem;
-}
-
-.mobile .project-container .project-details {
+    margin-top: 0.75rem;
     flex-direction: column;
-    margin: 0.5rem 0;
 }
 
-.mobile .project-container .project-description {
-    max-width: 100%;
+.mobile .project-container .project-blurb {
+    margin: 10px 5px;
+}
+
+.mobile .project-container .project-demos .project-demo {
+    width: 100%;
 }
 
 .mobile .project-container .project-details h4 {
     margin: 1rem auto;
-}
-
-.mobile .project-container .project-skills {
-    margin: 0.5rem 0;
 }
 
 .mobile .project-container > .project-image,

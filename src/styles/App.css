@@ -18,18 +18,7 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-        monospace;
-}
-
-.page-content {
-    position: absolute;
-    top: 4rem;
-    width: 100%;
-    height: calc(100% - 4rem);
+    height: 100vh;
     /* hide scrollbar but allow scrolling (https://blog.hubspot.com/website/hide-scrollbar-css) */
     -ms-overflow-style: none; /* for Internet Explorer, Edge */
     scrollbar-width: none; /* for Firefox */
@@ -37,8 +26,26 @@ code {
 }
 
 /* hide scrollbar but allow scrolling (https://blog.hubspot.com/website/hide-scrollbar-css) */
-.page-content::-webkit-scrollbar {
+body::-webkit-scrollbar {
     display: none; /* for Chrome, Safari, and Opera */
+}
+
+#app {
+    height: 100%;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.page-content {
+    position: absolute;
+    top: 5rem;
+    width: 100%;
+    flex: 1;
+    height: calc(100% - 5rem);
 }
 
 .page-content .page-title {
