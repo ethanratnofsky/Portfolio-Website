@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Routes, Route, Navigate } from 'react-router-dom';
+import { Link, Routes, Route } from 'react-router-dom';
 
 // Components
 import LoadingOverlay from './LoadingOverlay';
@@ -78,7 +78,7 @@ const App = () => {
                         <Route path=':projectID' element={<Project />} />
                         <Route index element={<ProjectsMenu />} />
                     </Route>
-                    <Route path='experience' element={<Navigate to='/coming-soon' />} />
+                    <Route path='experience' element={<Experience />} />
                     <Route path='gallery' element={<Gallery />} />
                     <Route path='coming-soon' element={<Message message='Coming Soon! 🥳' submessage={'Woah! You\'re here a little early...check back in a bit - this content is in development!'} />} />
                     <Route path='*' element={<Message message='⚠️ 404 Page Not Found' submessage={<>Hmm...it seems like this page doesn't exist. Go back to <Link to='/' rel='noreferrer' >safety</Link>!</>} />} />

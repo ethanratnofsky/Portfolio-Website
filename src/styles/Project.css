@@ -109,7 +109,7 @@
     margin-block: 2rem;
 }
 
-.project-container .project-content-row.reverse {
+.project-container .project-content-row:nth-child(even) {
     flex-direction: row-reverse;
 }
 

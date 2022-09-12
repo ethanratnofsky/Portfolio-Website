@@ -1,0 +1,111 @@
+.experience-container {
+    display: flex;
+    justify-content: center;
+    min-height: 100%;
+}
+
+.experience-container .experience-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-top: 2rem;
+    width: 80%;
+    max-width: 800px;
+    border-left: 4px solid var(--tertiary-color);
+    height: fit-content;
+}
+
+.experience-container .experience-list .experience-item .timeline-spot {
+    position: relative;
+    top: -13px;
+    left: -13px;
+    height: 15px;
+    width: 15px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 4px solid var(--tertiary-color);
+    background-color: var(--primary-color);
+}
+
+.experience-container .experience-list .experience-item {
+    margin-block: 1rem;
+}
+
+.experience-container .experience-list .experience-item-card {
+    position: relative;
+    top: -26px;
+    display: flex;
+    margin-left: 2rem;
+    background: var(--primary-color);
+    border-radius: 8px;
+    box-shadow: 0 0 10px black;
+}
+
+.experience-container .experience-list .experience-item:nth-child(1) {
+    margin-top: 0;
+}
+
+.experience-container .experience-list .experience-item .experience-item-logo {
+    width: 5rem;
+    height: 5rem;
+    aspect-ratio: 1;
+    border-radius: 10%;
+    margin: 1rem;
+}
+
+.experience-item .experience-item-content {
+    margin: 1rem;
+    flex: 1;
+}
+
+.experience-item .experience-item-content .experience-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.experience-item .experience-item-header .right-header {
+    text-align: right;
+}
+
+.experience-item .experience-item-header .experience-item-company {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: inherit;
+}
+
+.experience-item .experience-item-header .experience-item-company:hover {
+    color: var(--tertiary-color);
+}
+
+.experience-item .experience-item-header .experience-item-title {
+    font-style: italic;
+}
+
+.experience-item-skills {
+    list-style-type: none;
+    margin: 15px 0;
+    padding: 0;
+}
+
+.experience-item-skills .experience-item-skill {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-size: 0.9rem;
+    display: inline-block;
+    padding: 8px 10px;
+    margin: 2px 5px;
+    border: 1px solid var(--tertiary-color);
+    border-radius: 0.75rem;
+    color: var(--tertiary-color);
+}
+
+.experience-item-bullets {
+    padding-left: 1rem;
+    margin-top: 1rem;
+}
+
+/* Mobile View Styling */
+.mobile .experience-item-logo {
+    display: none;
+}

@@ -73,7 +73,7 @@ const Project = () => {
 
             <div className='project-content'>
                 {Array(Math.max(blurbs.length, demos.length + images.length)).fill().map((_, i) => (
-                    <div key={i} className={`project-content-row${i % 2 === 0 ? '' : ' reverse'}`}>
+                    <div key={i} className='project-content-row'>
                         {blurbs[i] && <div className='project-blurb'>{blurbs[i]}</div>}
                         {demos[i] ? <div className='project-demo'>{demos[i]}</div>
                             : 

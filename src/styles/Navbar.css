@@ -126,6 +126,7 @@
     font-weight: bold;
     text-decoration: none;
     color: var(--tertiary-color);
+    transition: color 250ms, background-color 250ms;
 }
 
 .resume-button:hover > a,

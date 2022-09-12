@@ -26,15 +26,25 @@ import PlaylistBridgeImage from './images/playlist_bridge.png';
 */
 
 const PROJECTS = [
+    // TOOD: Insert Kinetik Project   
     {
         id: 'flopaholic',
         title: 'Flopaholic',
         year: '2022',
         github: 'https://github.com/ethanratnofsky/Flopaholic',
         link: 'https://ethanratnofsky.github.io/Flopaholic/',
-        skills: ['HTML', 'CSS', 'JavaScript', 'ReactJS', 'React Router'],
+        skills: ['Web Development', 'HTML', 'CSS', 'JavaScript', 'React', 'React Router', 'GitHub Pages', 'GitHub Pages'],
         blurbs: [
-            'A React web application that allows users to simulate Texas Hold\'em poker hands and test their knowledge of hand rankings.',
+            <>
+                Flopholic is a React web application that allows users to simulate Texas Hold\'em poker hands and test their knowledge of hand rankings.
+                The application features a custom, random card generator and a custom algorithm for determining the ranking of a given hand.
+                It also includes many configurable settings for the user to customize their experience.
+            </>,
+            <>
+                A game version of the application is also currently in development. The game features different game modes and customizable settings.
+                The future vision for the game is to implement leaderboards, other game modes, and statistics tracking.
+                The game is currently available at <a href='https://ethanratnofsky.github.io/Flopaholic/#/game' target='_blank' rel='noreferrer'>https://ethanratnofsky.github.io/Flopaholic/#/game</a>.
+            </>
         ],
         images: [],
         demos: [],
@@ -44,9 +54,9 @@ const PROJECTS = [
         id: 'UFAR',
         title: 'United Front Against Riverblindness',
         year: '2021-2022',
-        github: '',
-        link: '',
-        skills: [],
+        github: 'https://github.com/ChangePlusPlusVandy/UFAR-frontend',
+        link: 'https://www.riverblindness.org/',
+        skills: ['Mobile Development', 'JavaScript', 'React Native', 'Node.js', 'MongoDB', 'Git'],
         blurbs: [],
         images: [],
         demos: [],
@@ -58,7 +68,7 @@ const PROJECTS = [
         year: '2021-2022',
         github: 'https://github.com/ethanratnofsky/Portfolio-Website',
         link: 'https://www.ethanratnofsky.com/',
-        skills: ['HTML', 'CSS', 'JavaScript', 'ReactJS', 'React Router'],
+        skills: ['Web Development', 'HTML', 'CSS', 'JavaScript', 'React', 'React Router', 'GitHub Pages'],
         blurbs: [
             <>
                 You're lookin' at it! I built this website to showcase my skills and experience in a unique and creative way.
@@ -80,7 +90,7 @@ const PROJECTS = [
         year: '2021',
         github: '',
         link: '',
-        skills: ['Web Development', 'REST API' ,'Python', 'HTML', 'CSS', 'JavaScript', 'ReactJS', 'PostgresQL'],
+        skills: ['Web Development', 'REST API' ,'Python', 'HTML', 'CSS', 'JavaScript', 'React', 'PostgresQL'],
         blurbs: [
             <>
                 During my final summer as a Software Engineer Intern <a href='https://www.abbvie.com/' target='_blank' rel='noreferrer' ><i>AbbVie</i>'s</a> Bioresearch Center, I worked with two other student interns to develop an entire full stack applicatio from scratch.
