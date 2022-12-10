@@ -72,12 +72,11 @@ const Project = () => {
             </ul>
 
             <div className='project-content'>
-                {Array(Math.max(blurbs.length, demos.length + images.length)).fill().map((_, i) => (
+                {Array(Math.max(blurbs.length, images.length)).fill().map((_, i) => (
                     <div key={i} className='project-content-row'>
                         {blurbs[i] && <div className='project-blurb'>{blurbs[i]}</div>}
-                        {demos[i] ? <div className='project-demo'>{demos[i]}</div>
-                            : 
-                            images[i - demos.length] && (isWebsite ? 
+                        {
+                            images[i] && (isWebsite ? 
                                 <div className='website-image-container'>
                                     <div className='dots'>
                                         <div className='dot' />
@@ -91,6 +90,7 @@ const Project = () => {
                         }
                     </div>
                 ))}
+                {demos.map((demo, i) => <div className='project-demo' key={i}>{demo}</div>)}
             </div>
         </div>
     );
