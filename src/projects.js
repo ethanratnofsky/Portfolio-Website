@@ -356,13 +356,13 @@ const PROJECTS = [
                     <i>AbbVie</i>'s
                 </a>{" "}
                 Bioresearch Center, I worked with two other student interns to
-                develop an entire full stack applicatio from scratch. As a small
-                team, we reported to two project managers who simply provided us
-                with a general project specification as well as the resources
-                necessary for the project's success. The goal of this project
-                was to develop a web application with an interactive interface
-                to visualize DNA sequences using a privately managed database.
-                While the development of the project was primarily
+                develop an entire full stack application from scratch. As a
+                small team, we reported to two project managers who simply
+                provided us with a general project specification as well as the
+                resources necessary for the project's success. The goal of this
+                project was to develop a web application with an interactive
+                interface to visualize DNA sequences using a privately managed
+                database. While the development of the project was primarily
                 collaborative, most of my responsibilities included designing
                 and implementing the backend server using a REST API.
                 Consequently, I also managed and intitialized the internal
