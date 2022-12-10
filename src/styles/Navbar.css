@@ -150,7 +150,8 @@
     height: 0;
     width: 0;
     border-radius: 100%;
-    transition: top 500ms, right 500ms, height 500ms, width 500ms, border-radius 500ms;
+    transition: top 500ms, right 500ms, height 500ms, width 500ms,
+        border-radius 500ms;
 }
 
 .mobile .navbar .hamburger.active + .menu {

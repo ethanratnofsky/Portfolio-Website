@@ -84,7 +84,8 @@
 }
 
 .project-container .project-skills .project-skill {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+        monospace;
     font-size: 0.9rem;
     display: inline-block;
     padding: 8px 10px;
@@ -115,7 +116,10 @@
 }
 
 .project-container .project-content-row > .website-image-container,
-.project-container .project-content-row > .website-image-container > .project-image,
+.project-container
+    .project-content-row
+    > .website-image-container
+    > .project-image,
 .project-container .project-content-row > .project-demo {
     flex: 1.25;
 }
@@ -167,7 +171,7 @@
 
 .project-container div.project-image {
     background: lightgray;
-    height: calc((75vw - 4rem) * 0.5625)
+    height: calc((75vw - 4rem) * 0.5625);
 }
 
 .project-content-row > .project-image {

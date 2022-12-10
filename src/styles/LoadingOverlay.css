@@ -30,5 +30,6 @@
 
 .loading-overlay-container > .loading-bar {
     border-bottom: 0.25rem dotted var(--secondary-color);
-    animation: fade-in 1s both, loading-bar-animation 2s 1s both, fade-out 500ms 3s forwards;
+    animation: fade-in 1s both, loading-bar-animation 2s 1s both,
+        fade-out 500ms 3s forwards;
 }

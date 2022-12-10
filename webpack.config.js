@@ -1,11 +1,11 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-    entry: './src/index.js',
+    entry: "./src/index.js",
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        path: path.resolve(__dirname, "dist"),
+        filename: "bundle.js",
     },
     module: {
         rules: [
@@ -14,50 +14,47 @@ module.exports = {
                 issuer: /\.[jt]sx?$/,
                 use: [
                     {
-                        loader: '@svgr/webpack',
+                        loader: "@svgr/webpack",
                         options: {
                             svgo: false,
-                            titleProp: true
-                        }
-                    }
+                            titleProp: true,
+                        },
+                    },
                 ],
             },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: 'babel-loader'
-                }
+                    loader: "babel-loader",
+                },
             },
             {
                 test: /\.css$/,
-                use: [
-                    'style-loader',
-                    'css-loader'
-                ]
+                use: ["style-loader", "css-loader"],
             },
             {
                 test: /\.(pdf|png|jpg|gif)$/,
                 use: [
                     {
-                        loader: 'file-loader',
+                        loader: "file-loader",
                         options: {
-                            name: '[name].[ext]',
-                            outputPath: 'assets/images/'
-                        }
-                    }
-                ]
+                            name: "[name].[ext]",
+                            outputPath: "assets/images/",
+                        },
+                    },
+                ],
             },
-        ]
+        ],
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './public/index.html',
-            favicon: './public/favicon.ico',
-        })
+            template: "./public/index.html",
+            favicon: "./public/favicon.ico",
+        }),
     ],
     devServer: {
         historyApiFallback: true,
     },
-    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-}
+    mode: process.env.NODE_ENV === "production" ? "production" : "development",
+};

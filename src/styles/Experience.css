@@ -90,7 +90,8 @@
 }
 
 .experience-item-skills .experience-item-skill {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+        monospace;
     font-size: 0.9rem;
     display: inline-block;
     padding: 8px 10px;
