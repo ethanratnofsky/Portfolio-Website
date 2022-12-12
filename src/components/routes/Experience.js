@@ -14,11 +14,20 @@ const Experience = () => {
                     <li className="experience-item" key={index}>
                         <div className="timeline-spot" />
                         <div className="experience-item-card">
-                            <img
-                                className="experience-item-logo"
-                                src={experience.logo}
-                                alt={experience.company}
-                            />
+                            <div className="experience-item-logo-container">
+                                <a
+                                    className="experience-item-logo-link"
+                                    href={experience.website}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    <img
+                                        className="experience-item-logo"
+                                        src={experience.logo}
+                                        alt={experience.company}
+                                    ></img>
+                                </a>
+                            </div>
                             <div className="experience-item-content">
                                 <div className="experience-item-header">
                                     <div className="left-header">

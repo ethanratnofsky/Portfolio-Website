@@ -63,8 +63,8 @@ const Project = () => {
     return (
         <div className="project-container">
             <BackButton />
-            <div className="project-header">
-                <div>
+            <div className="project-header-row">
+                <div className="project-header">
                     <h1 className="project-title">{title}</h1>
                     <div className="project-year">{year}</div>
                 </div>

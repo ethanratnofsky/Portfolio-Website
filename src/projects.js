@@ -2,16 +2,16 @@ import React from "react"; // for JSX
 
 // Images
 import FlopaholicImage from "./images/flopaholic.png";
-import Flopaholic2Image from "./images/flopaholic2.png";
+import FlopaholicImage2 from "./images/flopaholic2.png";
 import HouseVandyImage from "./images/house_vandy.png";
-import HouseVandy2Image from "./images/house_vandy2.png";
-import HouseVandy3Image from "./images/house_vandy3.png";
+import HouseVandyImage2 from "./images/house_vandy2.png";
+import HouseVandyImage3 from "./images/house_vandy3.png";
 import PortfolioWebsiteImage from "./images/portfolio_website.png";
 import PlaylistBridgeImage from "./images/playlist_bridge.png";
 import ReVUImage from "./images/revu.png";
-import ReVU2Image from "./images/revu2.png";
-import ReVU3Image from "./images/revu3.png";
-import ReVU4Image from "./images/revu4.png";
+import ReVUImage2 from "./images/revu2.png";
+import ReVUImage3 from "./images/revu3.png";
+import ReVUImage4 from "./images/revu4.png";
 
 /* Template for Project Object
 {
@@ -84,7 +84,7 @@ const PROJECTS = [
                 and the four individual web scraping scripts.
             </>,
         ],
-        images: [HouseVandyImage, HouseVandy2Image, HouseVandy3Image],
+        images: [HouseVandyImage, HouseVandyImage2, HouseVandyImage3],
         demos: [
             <iframe
                 src="https://www.youtube.com/embed/3MtrtXvxNvY"
@@ -176,8 +176,14 @@ const PROJECTS = [
                 scratch, and deploying it to the App Store.
             </>,
         ],
-        images: [ReVUImage, ReVU2Image, ReVU3Image, ReVU4Image],
-        demos: [], // TODO: Add demo video from CS-4278
+        images: [ReVUImage, ReVUImage2, ReVUImage3, ReVUImage4],
+        demos: [
+            <iframe
+                src="https://www.youtube.com/embed/2tMv6iRc1cE"
+                title="ReVU (Demo)"
+                allowFullScreen
+            />,
+        ],
         isWebsite: false,
     },
     // TODO: Insert Kinetik project?
@@ -221,7 +227,7 @@ const PROJECTS = [
                 .
             </>,
         ],
-        images: [FlopaholicImage, Flopaholic2Image],
+        images: [FlopaholicImage, FlopaholicImage2],
         demos: [],
         isWebsite: true,
     },

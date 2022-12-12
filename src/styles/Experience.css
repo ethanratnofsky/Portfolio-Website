@@ -10,7 +10,7 @@
     padding: 0;
     padding-top: 2rem;
     width: 80%;
-    max-width: 800px;
+    max-width: 900px;
     border-left: 4px solid var(--tertiary-color);
     height: fit-content;
 }
@@ -37,12 +37,17 @@
     display: flex;
     margin-left: 2rem;
     background: var(--primary-color);
+    filter: brightness(90%);
     border-radius: 8px;
-    box-shadow: 0 0 10px black;
+    box-shadow: 0 0 5px black;
 }
 
 .experience-container .experience-list .experience-item:nth-child(1) {
     margin-top: 0;
+}
+
+.experience-item-logo-container {
+    margin: 1rem;
 }
 
 .experience-container .experience-list .experience-item .experience-item-logo {
@@ -50,7 +55,6 @@
     height: 5rem;
     aspect-ratio: 1;
     border-radius: 10%;
-    margin: 1rem;
 }
 
 .experience-item .experience-item-content {
@@ -68,11 +72,24 @@
     text-align: right;
 }
 
+.experience-item-dates {
+    font-size: 0.9rem;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 0.25rem;
+}
+
+.experience-item-location {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
 .experience-item .experience-item-header .experience-item-company {
     font-size: 1.5rem;
     font-weight: bold;
     text-decoration: none;
     color: inherit;
+    margin-right: 1rem;
 }
 
 .experience-item .experience-item-header .experience-item-company:hover {

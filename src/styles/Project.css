@@ -45,11 +45,17 @@
 }
 
 /* Project Information Styling */
-.project-container .project-header {
+.project-container .project-header-row {
     display: flex;
 }
 
-.project-container .project-header > div > * {
+.project-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.project-container .project-header > * {
     display: inline-block;
 }
 
@@ -180,6 +186,7 @@
     width: auto;
     display: flex;
     justify-self: center;
+    box-shadow: 0 0 10px black;
 }
 
 /* Project Demo Styling */
