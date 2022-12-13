@@ -66,8 +66,13 @@
     height: 1.5rem;
 }
 
+.snowflake-toggle:hover {
+    animation: bounce-out 300ms forwards;
+    animation-timing-function: cubic-bezier(0, -1, 1, 2);
+}
+
 .snowflake-strike {
-    height: 4px;
+    height: 3px;
     width: 80%;
     background-color: #cf142b;
     border-radius: 2px;
