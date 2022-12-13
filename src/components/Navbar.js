@@ -23,9 +23,9 @@ const Hamburger = ({ onClick, isActive }) => {
 };
 
 // Custom Navbar Link Component
-const NavbarLink = ({ label, href }) => {
+const NavbarLink = ({ label, href, onClick }) => {
     return (
-        <div className="navbar-link">
+        <div className="navbar-link" onClick={onClick}>
             <NavLink to={href}>
                 {label}
                 <div className="underline" />
