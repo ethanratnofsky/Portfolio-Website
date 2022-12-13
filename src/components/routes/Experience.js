@@ -13,7 +13,10 @@ const Experience = () => {
                 {EXPERIENCES.map((experience, index) => (
                     <li className="experience-item" key={index}>
                         <div className="timeline-spot" />
-                        <div className="experience-item-card">
+                        <div
+                            className="experience-item-card"
+                            style={{ animationDelay: 200 * index + "ms" }}
+                        >
                             <div className="experience-item-logo-container">
                                 <a
                                     className="experience-item-logo-link"

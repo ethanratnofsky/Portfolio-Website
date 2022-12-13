@@ -8,7 +8,6 @@ const Snowflakes = ({
     maxSize = 4,
     minDuration = 10,
     maxDuration = 15,
-    zIndex = 100,
 }) => {
     const [showSnowflakes, setShowSnowflakes] = useState(true);
 
@@ -26,9 +25,8 @@ const Snowflakes = ({
                     Math.random() * (maxDuration - minDuration) + minDuration;
 
                 const snowflakeContainerStyle = {
-                    top: -size * 1.5 + "px",
+                    top: -size * 2 + "px",
                     left: Math.random() * 100 + "vw",
-                    zIndex,
                     animationDelay: Math.random() * 15000 + "ms", // Fall delay
                     animationDuration: duration + "s",
                 };

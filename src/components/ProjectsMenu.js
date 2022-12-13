@@ -11,7 +11,7 @@ const ProjectsMenu = () => {
     return (
         <ul className="projects-menu">
             {PROJECTS.map(({ id, title }, index) => (
-                <li key={index}>
+                <li key={index} style={{ animationDelay: 100 * index + "ms" }}>
                     <Link to={id}>{title}</Link>
                 </li>
             ))}

@@ -40,6 +40,8 @@
     filter: brightness(90%);
     border-radius: 8px;
     box-shadow: 0 0 5px black;
+    opacity: 0;
+    animation: slide-up 500ms forwards, fade-in 500ms forwards;
 }
 
 .experience-container .experience-list .experience-item:nth-child(1) {

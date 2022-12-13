@@ -11,12 +11,13 @@
     width: 100%;
     font-size: 28px;
     transition: transform 500ms;
-    animation: fade-in 500ms forwards;
 }
 
 .projects-menu > li {
     margin-block-start: 1rem;
     margin-block-end: 1rem;
+    opacity: 0;
+    animation: slide-up 500ms forwards, fade-in 500ms forwards;
 }
 
 .projects-menu > li > a {
