@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, Routes, Route } from "react-router-dom";
 
 // Components
-import LoadingOverlay from "./LoadingOverlay";
 import Message from "./Message";
 import Navbar from "./Navbar";
 import Project from "./Project";
@@ -69,7 +68,6 @@ const App = () => {
 
     return (
         <div className={`app-container${showMobileView ? " mobile" : ""}`}>
-            <LoadingOverlay />
             <Navbar />
             <div className="page-content">
                 <Routes>
