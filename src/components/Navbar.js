@@ -49,17 +49,20 @@ const ResumeButton = () => {
 const Navbar = () => {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
+    const toggleMobileMenu = () => setShowMobileMenu((prev) => !prev);
+    const hideMobileMenu = () => setShowMobileMenu(false);
+
     return (
         <nav className="navbar">
             <NavLink
                 className="logo icon-link"
                 to="/"
-                onClick={() => setShowMobileMenu(false)}
+                onClick={hideMobileMenu}
             >
                 <LogoSignature />
             </NavLink>
             <Hamburger
-                onClick={() => setShowMobileMenu((prev) => !prev)}
+                onClick={toggleMobileMenu}
                 isActive={showMobileMenu}
             />
             <ul className="menu">
@@ -67,21 +70,21 @@ const Navbar = () => {
                     <NavbarLink
                         label="Projects"
                         href="/projects"
-                        onClick={() => setShowMobileMenu(false)}
+                        onClick={hideMobileMenu}
                     />
                 </li>
                 <li>
                     <NavbarLink
                         label="Experience"
                         href="/experience"
-                        onClick={() => setShowMobileMenu(false)}
+                        onClick={hideMobileMenu}
                     />
                 </li>
                 <li>
                     <NavbarLink
                         label="Gallery"
                         href="/gallery"
-                        onClick={() => setShowMobileMenu(false)}
+                        onClick={hideMobileMenu}
                     />
                 </li>
                 <li>

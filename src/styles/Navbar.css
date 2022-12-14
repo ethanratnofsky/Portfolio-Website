@@ -75,18 +75,19 @@
     text-decoration: none;
     color: inherit;
     height: 1.5rem;
+    font-weight: bold;
 }
 
 .navbar-link .underline {
-    height: 0.25rem;
+    height: 2px;
     background: var(--tertiary-color);
     visibility: hidden;
     position: relative;
-    top: 0.25rem;
+    top: 1px;
 }
 
 .navbar-link > a.active {
-    font-weight: bold;
+    color: var(--tertiary-color);
 }
 
 .navbar-link:hover > a,
@@ -98,24 +99,22 @@
 .navbar-link:hover .underline,
 .navbar-link:focus-within .underline {
     visibility: visible;
-    animation: slide-up 250ms both;
+    animation: slide-right 250ms both;
 }
 
 /* Menu Styling */
-.navbar ul {
+ul.menu {
     list-style-type: none;
     padding: 0;
     margin: 0;
-}
-
-.navbar ul li {
-    display: inline-block;
-    margin: auto 1rem;
-}
-
-.navbar .menu {
     position: relative;
     right: 1rem;
+}
+
+ul.menu li {
+    display: inline-block;
+    margin: auto 15px;
+    font-size: 16px;
 }
 
 /* Resume Button */
