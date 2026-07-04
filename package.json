@@ -27,6 +27,8 @@
     },
     "devDependencies": {
         "@astrojs/check": "^0.9.4",
+        "fontkit": "^2.0.4",
+        "png-to-ico": "^3.0.1",
         "prettier": "^3.5.0",
         "prettier-plugin-astro": "^0.14.0",
         "typescript": "^5.8.0"

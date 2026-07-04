@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import fontkit from "fontkit";
+import * as fontkit from "fontkit";
 import sharp from "sharp";
 import pngToIco from "png-to-ico";
 
@@ -104,9 +104,12 @@ const box = {
 // Signature (amber) bottom-center, drawn from the real logo paths.
 const sigSrc = readFileSync(path.join(root, "src/assets/brand/logo_signature.svg"), "utf8");
 const sigPaths = [...sigSrc.matchAll(/<path[^>]*d="([^"]+)"/g)].map((m) => m[1]);
+// The source paths sit in a translated group — carry the offset over.
+const sigOffset = sigSrc.match(/transform="translate\(([-\d.]+)[ ,]([-\d.]+)\)"/);
+const sigTranslate = sigOffset ? `translate(${sigOffset[1]} ${sigOffset[2]})` : "";
 const sigScale = 240 / 1846.49;
 const sigX = (W - 240) / 2;
-const sigY = 508;
+const sigY = 480;
 
 const ogSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">
 <rect width="${W}" height="${H}" fill="${COLORS.bg}"/>
@@ -114,7 +117,7 @@ ${gridLines}
 <g transform="translate(${(W - kicker.width) / 2}, 178)">${toPaths(kicker, COLORS.accent)}</g>
 <rect x="${box.x}" y="${box.y}" width="${box.w}" height="${box.h}" fill="none" stroke="${COLORS.dash}" stroke-width="1.5" stroke-dasharray="7 6"/>
 <g transform="translate(${nx}, ${ny})">${toPaths(name, COLORS.ink, true)}</g>
-<g transform="translate(${sigX}, ${sigY}) scale(${sigScale})">${sigPaths.map((d) => `<path d="${d}" fill="${COLORS.accent}"/>`).join("")}</g>
+<g transform="translate(${sigX}, ${sigY}) scale(${sigScale}) ${sigTranslate}">${sigPaths.map((d) => `<path d="${d}" fill="${COLORS.accent}"/>`).join("")}</g>
 <g transform="translate(${(W - tagline.width) / 2}, 590)">${toPaths(tagline, COLORS.muted)}</g>
 </svg>`;
 
