@@ -1,0 +1,262 @@
+---
+import Signature from "./Signature.astro";
+import { NAV_ITEMS, SITE } from "../data/site";
+
+interface Props {
+    variant?: "home" | "study";
+}
+
+const { variant = "home" } = Astro.props;
+---
+
+<header class:list={["site-nav", "hairline-bottom", variant]}>
+    <a href="/" class="nav-logo" aria-label="Ethan Ratnofsky — home">
+        <Signature />
+    </a>
+
+    <nav class="nav-links" aria-label="Primary">
+        {
+            variant === "study" ? (
+                <>
+                    <a class="nav-link back-link" href="/#work">
+                        ← All drawings
+                    </a>
+                    <a class="nav-link" href="/#about">
+                        About
+                    </a>
+                    <a class="nav-link" href="/#contact">
+                        Contact
+                    </a>
+                </>
+            ) : (
+                NAV_ITEMS.map((item) => (
+                    <a class="nav-link" href={item.href} data-section={item.href.slice(2)}>
+                        {item.label}
+                    </a>
+                ))
+            )
+        }
+        <a class="btn btn-outline resume-btn" href={SITE.resumePath} target="_blank" rel="noreferrer">
+            Resume ↓
+        </a>
+        <button
+            class="theme-toggle"
+            aria-label="Toggle color theme"
+            title="Theme follows system; click to override"></button>
+        <button
+            class="menu-toggle"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="mobile-menu">≡</button>
+    </nav>
+
+    <div class="mobile-menu" id="mobile-menu" hidden>
+        <nav aria-label="Menu">
+            {
+                (variant === "study"
+                    ? [{ label: "← ALL DRAWINGS", href: "/#work" }, ...NAV_ITEMS.slice(3)]
+                    : [...NAV_ITEMS]
+                ).map((item) => (
+                    <a class="mobile-link" href={item.href}>
+                        {item.label}
+                    </a>
+                ))
+            }
+            <a class="mobile-link accent" href={SITE.resumePath} target="_blank" rel="noreferrer">
+                RESUME ↓
+            </a>
+        </nav>
+    </div>
+</header>
+
+<style>
+    .site-nav {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 26px var(--space-gutter);
+        z-index: 20;
+    }
+
+    .nav-logo {
+        color: var(--ink);
+        display: block;
+    }
+
+    .site-nav.study .nav-logo :global(.signature-svg) {
+        height: 20px;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .nav-link {
+        font-family: var(--font-mono);
+        font-size: var(--text-mono-label);
+        letter-spacing: var(--track-label);
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--muted);
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .nav-link:hover,
+    .nav-link[aria-current] {
+        color: var(--ink);
+    }
+
+    .back-link {
+        color: var(--accent);
+    }
+
+    .back-link:hover {
+        color: var(--accent-hover);
+    }
+
+    .theme-toggle {
+        font-size: 17px;
+        line-height: 1;
+        color: var(--muted);
+        padding: 8px;
+        margin: -8px;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .theme-toggle:hover {
+        color: var(--ink);
+    }
+
+    .theme-toggle::before {
+        content: "◐";
+    }
+
+    :global([data-theme="light"]) .theme-toggle::before {
+        content: "◑";
+    }
+
+    .menu-toggle {
+        display: none;
+        font-family: var(--font-mono);
+        font-size: 20px;
+        line-height: 1;
+        color: var(--ink);
+        padding: 10px;
+        margin: -10px;
+    }
+
+    .mobile-menu {
+        position: fixed;
+        inset: 0;
+        top: 73px;
+        background: var(--bg);
+        z-index: 15;
+        padding: var(--space-4) var(--space-gutter);
+    }
+
+    .mobile-menu nav {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-link {
+        font-family: var(--font-mono);
+        font-size: 14px;
+        letter-spacing: var(--track-label);
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--ink);
+        padding: 18px 0;
+        border-bottom: 1px solid var(--hairline);
+    }
+
+    .mobile-link.accent {
+        color: var(--accent);
+    }
+
+    @media (max-width: 900px) {
+        .site-nav {
+            padding-top: 18px;
+            padding-bottom: 18px;
+        }
+
+        .nav-logo :global(.signature-svg) {
+            height: 16px;
+        }
+
+        .nav-link,
+        .resume-btn {
+            display: none;
+        }
+
+        .menu-toggle {
+            display: block;
+        }
+    }
+</style>
+
+<script>
+    // Theme override: click persists; stored choice beats system preference.
+    const toggle = document.querySelector<HTMLButtonElement>(".theme-toggle");
+    toggle?.addEventListener("click", () => {
+        const isLight = document.documentElement.getAttribute("data-theme") === "light";
+        const next = isLight ? "dark" : "light";
+        if (next === "light") {
+            document.documentElement.setAttribute("data-theme", "light");
+        } else {
+            document.documentElement.removeAttribute("data-theme");
+        }
+        try {
+            localStorage.setItem("theme", next);
+        } catch {
+            /* private mode — override just won't persist */
+        }
+    });
+
+    // Mobile full-screen menu.
+    const menuToggle = document.querySelector<HTMLButtonElement>(".menu-toggle");
+    const menu = document.getElementById("mobile-menu");
+    const setMenu = (open: boolean) => {
+        if (!menu || !menuToggle) return;
+        menu.hidden = !open;
+        menuToggle.setAttribute("aria-expanded", String(open));
+        menuToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+        menuToggle.textContent = open ? "✕" : "≡";
+        document.body.style.overflow = open ? "hidden" : "";
+    };
+    menuToggle?.addEventListener("click", () => setMenu(menu?.hidden ?? false));
+    menu?.addEventListener("click", (e) => {
+        if ((e.target as HTMLElement).closest("a")) setMenu(false);
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && menu && !menu.hidden) setMenu(false);
+    });
+
+    // Scroll-spy: mark the section currently in view (home page only).
+    const links = [...document.querySelectorAll<HTMLAnchorElement>(".nav-link[data-section]")];
+    const sections = links
+        .map((l) => document.getElementById(l.dataset.section ?? ""))
+        .filter((s): s is HTMLElement => s !== null);
+    if (sections.length > 0) {
+        const spy = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    if (!entry.isIntersecting) continue;
+                    for (const link of links) {
+                        if (link.dataset.section === entry.target.id) {
+                            link.setAttribute("aria-current", "true");
+                        } else {
+                            link.removeAttribute("aria-current");
+                        }
+                    }
+                }
+            },
+            { rootMargin: "-40% 0px -55% 0px" },
+        );
+        sections.forEach((s) => spy.observe(s));
+    }
+</script>

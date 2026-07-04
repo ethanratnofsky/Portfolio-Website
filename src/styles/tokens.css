@@ -1,0 +1,101 @@
+/* ethanratnofsky.com — "Compile the Draft" design tokens
+   Dark is the default theme. Light applies via [data-theme="light"]. */
+
+:root {
+  /* surfaces */
+  --bg: #171310;
+  --panel: #1E1914;
+  --card: #171310;
+
+  /* text */
+  --ink: #F0E8DA;
+  --muted: #9A8C7B;
+  --faint: #6E6357;
+  --tag: #C8B99F;
+
+  /* accent */
+  --accent: #D9A05B;
+  --accent-hover: #E8B76F;
+  --accent-contrast: #171310;
+
+  /* lines */
+  --line: rgba(240, 232, 218, 0.15);
+  --hairline: rgba(240, 232, 218, 0.10);
+  --dash: rgba(217, 160, 91, 0.35);
+  --grid-line: rgba(240, 232, 218, 0.05);
+  --cross: rgba(217, 160, 91, 0.28);
+
+  /* chrome */
+  --chip-bg: rgba(26, 21, 17, 0.72);
+  --scrim: rgba(13, 11, 9, 0.55);
+  --shadow-panel: none;
+  --shadow-modal: 0 30px 80px rgba(0, 0, 0, 0.6);
+
+  /* type */
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* scale (desktop) */
+  --text-display: clamp(40px, 6.2vw, 92px);
+  --text-h2: 44px;
+  --text-h3: 24px;
+  --text-chapter: 34px;
+  --text-body: 16.5px;
+  --text-small: 14.5px;
+  --text-mono-label: 11px;
+  --text-mono-micro: 9.5px;
+  --text-terminal: 12.5px;
+  --leading-display: 1.06;
+  --leading-body: 1.7;
+  --track-label: 0.16em;
+  --track-kicker: 0.22em;
+
+  /* space */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-grid: 56px;   /* drafting grid cell (44px mobile) */
+  --space-gutter: 64px; /* page gutter (20px mobile) */
+  --space-section: 88px;
+
+  /* radius */
+  --radius-sheet: 0;
+  --radius-button: 3px;
+  --radius-terminal: 7px;
+  --radius-modal: 8px;
+  --radius-pill: 999px;
+
+  /* motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-hover: 150ms;
+  --dur-reveal: 700ms;
+  --dur-grid-line: 500ms;
+  --caret-blink: 1.1s;
+}
+
+[data-theme="light"] {
+  --bg: #F6F0E4;
+  --panel: #ECE4D2;
+  --card: #FBF7EE;
+
+  --ink: #221C13;
+  --muted: #8A7C69;
+  --faint: #B3A48D;
+  --tag: #8A7C69;
+
+  --accent: #9A6E2E;
+  --accent-hover: #AE7F3B;
+  --accent-contrast: #F6F0E4;
+
+  --line: rgba(34, 28, 19, 0.15);
+  --hairline: rgba(34, 28, 19, 0.10);
+  --dash: rgba(154, 110, 46, 0.40);
+  --grid-line: rgba(34, 28, 19, 0.05);
+  --cross: rgba(154, 110, 46, 0.28);
+
+  --chip-bg: rgba(246, 240, 228, 0.80);
+  --scrim: rgba(34, 28, 19, 0.35);
+  --shadow-panel: 0 10px 30px rgba(34, 28, 19, 0.06);
+}

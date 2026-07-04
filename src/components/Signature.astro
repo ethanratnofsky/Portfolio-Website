@@ -1,0 +1,31 @@
+---
+// Ethan's signature wordmark, inlined so it recolors via CSS `currentColor`
+// (ivory/ink in the nav, amber/bronze as the hero "ink" — all free via tokens).
+import raw from "../assets/brand/logo_signature.svg?raw";
+
+interface Props {
+    /** Accessible name; omit for decorative usages (aria-hidden). */
+    title?: string;
+    class?: string;
+}
+
+const { title, class: className = "" } = Astro.props;
+
+const svg = raw
+    .replace(/<title>.*?<\/title>/s, title ? `<title>${title}</title>` : "")
+    .replace(
+        'id="logo-signature"',
+        `class="signature-svg ${className}" role="img" focusable="false"${title ? "" : ' aria-hidden="true"'}`,
+    )
+    .replace('<g id="signature">', '<g fill="currentColor">')
+    .replace(/\s+id="(first-name|last-name)"/g, "");
+---
+
+<Fragment set:html={svg} />
+
+<style is:global>
+    .signature-svg {
+        height: 22px;
+        width: auto;
+    }
+</style>

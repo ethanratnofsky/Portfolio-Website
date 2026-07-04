@@ -1,0 +1,61 @@
+---
+interface Props {
+    sheet: string;
+    title: string;
+    aside?: string;
+}
+
+const { sheet, title, aside } = Astro.props;
+---
+
+<header class="section-header reveal">
+    <div class="section-title">
+        <p class="kicker">{sheet}</p>
+        <h2>
+            {title}{aside && <em class="aside"> {aside}</em>}
+        </h2>
+    </div>
+    <div class="section-header-right">
+        <slot />
+    </div>
+</header>
+
+<style>
+    .section-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: var(--space-4);
+    }
+
+    .kicker {
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        font-size: var(--text-h2);
+    }
+
+    .aside {
+        font-size: 22px;
+        color: var(--muted);
+    }
+
+    .section-header-right {
+        padding-bottom: 6px;
+    }
+
+    @media (max-width: 640px) {
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .aside {
+            display: block;
+            font-size: 17px;
+        }
+    }
+</style>

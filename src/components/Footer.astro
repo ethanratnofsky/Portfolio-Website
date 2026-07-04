@@ -1,0 +1,82 @@
+---
+import Signature from "./Signature.astro";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer hairline-top">
+    <p class="mono-micro footer-cell">
+        <span class="ext">Drawn by code, approved by hand — </span>© {year} E.R.
+    </p>
+    <button class="footer-sig" aria-label="Replay the hero draft animation" title="Replay the draft">
+        <Signature />
+    </button>
+    <p class="mono-micro footer-cell right">
+        <span class="ext">Set in Instrument Serif, Instrument Sans &amp; IBM Plex Mono</span>
+        <span class="short">Drawn by code</span>
+    </p>
+</footer>
+
+<style>
+    .site-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 22px var(--space-gutter);
+    }
+
+    .footer-cell {
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        color: var(--faint);
+    }
+
+    .footer-cell.right {
+        text-align: right;
+    }
+
+    .short {
+        display: none;
+    }
+
+    .footer-sig {
+        color: var(--ink);
+        opacity: 0.55;
+        transition: opacity var(--dur-hover) var(--ease);
+    }
+
+    .footer-sig :global(.signature-svg) {
+        height: 15px;
+    }
+
+    .footer-sig:hover {
+        opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+        .ext {
+            display: none;
+        }
+
+        .short {
+            display: inline;
+        }
+
+        .footer-sig :global(.signature-svg) {
+            height: 12px;
+        }
+    }
+</style>
+
+<script>
+    // Easter egg: clicking the signature replays the hero draft.
+    document.querySelector(".footer-sig")?.addEventListener("click", () => {
+        if (document.getElementById("top")) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            window.dispatchEvent(new CustomEvent("compile:replay"));
+        } else {
+            window.location.href = "/?replay";
+        }
+    });
+</script>

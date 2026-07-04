@@ -1,0 +1,29 @@
+---
+// STUB — replaced by the work-sheet build step (full case-study template +
+// "sheet queued" variant per the handoff).
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+
+export async function getStaticPaths() {
+    const projects = await getCollection("projects");
+    return projects.map((project) => ({
+        params: { slug: project.id },
+        props: { project },
+    }));
+}
+
+const { project } = Astro.props;
+---
+
+<Base title={`${project.data.title} — Ethan Ratnofsky`} navVariant="study" ogType="article">
+    <main class="study-stub">
+        <h1>{project.data.title}</h1>
+    </main>
+</Base>
+
+<style>
+    .study-stub {
+        padding: var(--space-section) var(--space-gutter);
+        min-height: 50vh;
+    }
+</style>

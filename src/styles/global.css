@@ -1,0 +1,221 @@
+/* Global base + shared vocabulary for "Compile the Draft".
+   Design tokens live in tokens.css (source of truth: docs/handoff). */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 2px;
+}
+
+::selection {
+    background: var(--accent);
+    color: var(--accent-contrast);
+}
+
+/* ------- responsive token overrides ------- */
+
+@media (max-width: 900px) {
+    :root {
+        --text-h2: 36px;
+        --space-gutter: 32px;
+        --space-section: 64px;
+    }
+}
+
+@media (max-width: 640px) {
+    :root {
+        --text-h2: 28px;
+        --text-chapter: 26px;
+        --text-body: 15px;
+        --space-gutter: 20px;
+        --space-grid: 44px;
+        --space-section: 44px;
+    }
+}
+
+/* ------- shared vocabulary ------- */
+
+.mono-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+}
+
+.mono-micro {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.kicker {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: var(--track-kicker);
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.btn {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: var(--radius-button);
+    padding: 15px 26px;
+    transition:
+        background var(--dur-hover) var(--ease),
+        border-color var(--dur-hover) var(--ease),
+        color var(--dur-hover) var(--ease);
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: var(--accent-contrast);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-outline {
+    border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+    color: var(--ink);
+    padding: 9px 14px;
+    white-space: nowrap;
+}
+
+.btn-outline:hover {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.chip {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--tag);
+    border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    border-radius: var(--radius-button);
+    padding: 6px 10px;
+}
+
+.hairline-top {
+    border-top: 1px solid var(--hairline);
+}
+
+.hairline-bottom {
+    border-bottom: 1px solid var(--hairline);
+}
+
+/* Faint drafting-grid background (static; the hero draws its own line by line). */
+.grid-bg {
+    background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: var(--space-grid) var(--space-grid);
+}
+
+/* Scroll reveal: fade + rise 12px, once, ~15% threshold (wired in Base layout).
+   Only hides content when JS is running (html.js). */
+html.js .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+        opacity var(--dur-reveal) var(--ease),
+        transform var(--dur-reveal) var(--ease);
+}
+
+html.js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0.001s !important;
+    }
+}

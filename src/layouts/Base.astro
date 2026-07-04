@@ -1,0 +1,106 @@
+---
+import "@fontsource/instrument-serif";
+import "@fontsource/instrument-serif/400-italic.css";
+import "@fontsource/instrument-sans/400.css";
+import "@fontsource/instrument-sans/500.css";
+import "@fontsource/instrument-sans/600.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "../styles/tokens.css";
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { SITE } from "../data/site";
+
+interface Props {
+    title?: string;
+    description?: string;
+    navVariant?: "home" | "study";
+    ogType?: "website" | "article";
+}
+
+const {
+    title = SITE.title,
+    description = SITE.description,
+    navVariant = "home",
+    ogType = "website",
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/og.png", Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonical} />
+        <meta name="theme-color" content="#171310" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#F6F0E4" media="(prefers-color-scheme: light)" />
+
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content={ogType} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:site_name" content={SITE.name} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
+
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="sitemap" href="/sitemap-index.xml" />
+
+        {/* Theme + js flag — must run before first paint; dark is the default (no attribute). */}
+        <script is:inline>
+            (function () {
+                document.documentElement.classList.add("js");
+                try {
+                    var stored = localStorage.getItem("theme");
+                    var theme =
+                        stored ||
+                        (window.matchMedia("(prefers-color-scheme: light)").matches
+                            ? "light"
+                            : "dark");
+                    if (theme === "light") {
+                        document.documentElement.setAttribute("data-theme", "light");
+                    }
+                } catch (e) {
+                    /* default: dark */
+                }
+            })();
+        </script>
+    </head>
+    <body>
+        <Nav variant={navVariant} />
+        <slot />
+        <Footer />
+
+        {/* Scroll reveals: fade + rise once at ~15% visibility; settle instantly under reduced motion. */}
+        <script>
+            const els = document.querySelectorAll(".reveal");
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                els.forEach((el) => el.classList.add("is-visible"));
+            } else {
+                const io = new IntersectionObserver(
+                    (entries) => {
+                        for (const entry of entries) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add("is-visible");
+                                io.unobserve(entry.target);
+                            }
+                        }
+                    },
+                    { threshold: 0.15, rootMargin: "0px 0px -5% 0px" },
+                );
+                els.forEach((el) => io.observe(el));
+            }
+        </script>
+    </body>
+</html>
