@@ -1,17 +1,875 @@
 ---
-// STUB — replaced by the hero build step (full "Compile the Draft" timeline island).
+// SHEET 01 — the hero, "Compile the Draft" (handoff Hero Prototype ported ~1:1;
+// layout per full-site screen #6a). A terminal drafts the page: typed build log,
+// grid cascade, name in a dashed spec box, live-measured dimension ruler,
+// signature ink, then an interactive prompt.
+import Signature from "../Signature.astro";
+
+// Build-time sign-off date, e.g. "JUL 2026".
+const now = new Date();
+const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCase()} ${now.getFullYear()}`;
 ---
 
-<section id="hero" class="sheet" aria-label="Introduction">
-    <h1>Ethan Ratnofsky.</h1>
-    <p>
-        Full-stack engineer in New York. I draft with a designer's eye, build with an engineer's
-        hand — and refuse to lose a pixel in between.
-    </p>
+<section id="hero" class="hero" aria-label="Introduction">
+    <div class="hero-grid" data-hero-grid aria-hidden="true"></div>
+
+    <div class="hero-cols">
+        <div class="terminal" data-terminal>
+            <div class="term-bar">
+                <div class="term-dots" aria-hidden="true">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot amber"></span>
+                </div>
+                <span class="term-title">ethan@nyc — draft</span>
+            </div>
+            <div class="term-log" data-term-log aria-live="polite">
+                <div class="term-line l1">$ ethan draft --hero</div>
+                <div class="term-line l2d d-only">▸ grid: 12-col / 56px .............. <span class="t-accent">ok</span></div>
+                <div class="term-line l2m m-only">▸ grid: 8-col / 44px ....... <span class="t-accent">ok</span></div>
+                <div class="term-line l3d d-only">▸ type: instrument serif / 92 ...... <span class="t-accent">ok</span></div>
+                <div class="term-line l3m m-only">▸ type: serif / 44 ......... <span class="t-accent">ok</span></div>
+                <div class="term-line l4d d-only">▸ dimension: measured live ........ <span class="t-accent">ok</span></div>
+                <div class="term-line l5d d-only">▸ sign-off: e. ratnofsky ....... <span class="t-accent">inking</span></div>
+                <div class="term-line l5m m-only">▸ sign-off: e.r. ....... <span class="t-accent">inking</span></div>
+                <div class="term-drafted t-accent">✓ drafted in <span data-drafted>6.2</span>s</div>
+                <div class="term-extra" data-term-extra></div>
+                <div class="term-prompt">
+                    <span class="prompt-char t-accent" aria-hidden="true">$</span>
+                    <span class="prompt-typed" data-term-typed></span>
+                    <span class="caret" aria-hidden="true"></span>
+                    <span class="prompt-hint" data-term-hint>try: help</span>
+                    <input
+                        class="term-input"
+                        data-term-input
+                        type="text"
+                        aria-label="Terminal prompt — type a command, try: help"
+                        autocomplete="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <p class="hero-kicker kicker">SOFTWARE ENGINEER — NEW YORK</p>
+            <div class="dim-ruler" data-dim-ruler aria-hidden="true">
+                <span class="tick"></span>
+                <span class="rail"><span class="rail-fill"></span></span>
+                <span class="dim-count" data-dim>760</span>
+                <span class="rail"><span class="rail-fill"></span></span>
+                <span class="tick"></span>
+            </div>
+            <div class="name-wrap">
+                <h1 class="hero-name" data-hero-name>Ethan Ratnofsky<span class="t-accent">.</span></h1>
+                <p class="spec-callout" aria-hidden="true">
+                    <span>INSTRUMENT SERIF</span>
+                    <span><span data-name-size>92</span> / <span data-name-lh>1.06</span></span>
+                    <span class="t-accent" data-ink-hex>#F0E8DA</span>
+                </p>
+            </div>
+            <p class="one-liner">
+                Full-stack engineer in New York. I draft with a designer's eye, build with an
+                engineer's hand — and refuse to lose a pixel in between.
+            </p>
+            <div class="sig-row">
+                <div class="sig-reveal"><Signature /></div>
+                <span class="sig-label">SIGNED — {signedDate}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-foot hairline-top">
+        <span class="coords" data-coords>40.7447° N — 73.9485° W</span>
+        <span class="foot-center">SHEET 01 — DRAWN BY CODE, APPROVED BY HAND</span>
+        <a class="foot-next" href="#work">SHEET 02 ↓</a>
+    </div>
+
+    <div class="cross-v" data-cross-v aria-hidden="true"></div>
+    <div class="cross-h" data-cross-h aria-hidden="true"></div>
+    <div class="cross-chip" data-cross-chip aria-hidden="true"></div>
 </section>
 
+{/* Boot before first paint: decide play vs settled (once per session; ?replay
+    forces a run and is stripped from the URL; reduced motion always settles). */}
+<script is:inline>
+    (function () {
+        var hero = document.getElementById("hero");
+        if (!hero) return;
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var wantReplay = false;
+        try {
+            var url = new URL(window.location.href);
+            if (url.searchParams.has("replay")) {
+                wantReplay = true;
+                url.searchParams.delete("replay");
+                window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+            }
+        } catch (e) {
+            /* leave URL as-is */
+        }
+        var played = false;
+        try {
+            played = sessionStorage.getItem("introPlayed") === "1";
+        } catch (e) {
+            /* storage unavailable — play */
+        }
+        if (!reduced && (wantReplay || !played)) {
+            hero.classList.add("play");
+            try {
+                sessionStorage.setItem("introPlayed", "1");
+            } catch (e) {
+                /* ignore */
+            }
+        } else {
+            hero.classList.add("done");
+        }
+    })();
+</script>
+
+<script>
+    import "./hero";
+</script>
+
+<style is:global>
+    /* Hero-scoped keyframes (namespaced — also referenced from hero.ts-built lines). */
+    @keyframes hero-blink {
+        0%,
+        49% {
+            opacity: 1;
+        }
+        50%,
+        100% {
+            opacity: 0;
+        }
+    }
+
+    @keyframes hero-type-in {
+        from {
+            width: 0;
+        }
+    }
+
+    @keyframes hero-appear {
+        from {
+            opacity: 0;
+        }
+    }
+
+    @keyframes hero-pop-in {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+    }
+
+    @keyframes hero-draw-wide {
+        from {
+            max-width: 0;
+        }
+    }
+
+    @keyframes hero-draw-tall {
+        from {
+            max-height: 0;
+        }
+    }
+</style>
+
 <style>
-    .sheet {
-        padding: var(--space-section) var(--space-gutter) 72px;
+    /* ------- section shell (SHEET 01, 800px desktop) ------- */
+
+    .hero {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 800px;
+        overflow: hidden;
+    }
+
+    @media (pointer: fine) {
+        .hero {
+            cursor: crosshair;
+        }
+    }
+
+    /* No-JS fallback: static drafting grid + no interactive prompt. */
+    :global(html:not(.js)) .hero {
+        background-image:
+            linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+            linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+        background-size: var(--space-grid) var(--space-grid);
+    }
+
+    :global(html:not(.js)) .term-prompt {
+        display: none;
+    }
+
+    .t-accent {
+        color: var(--accent);
+    }
+
+    /* ------- layer 1: the drafting grid, drawn line by line ------- */
+
+    .hero-grid {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .hero-grid :global(.grid-line) {
+        position: absolute;
+        background: var(--grid-line);
+    }
+
+    .hero-grid :global(.grid-line.v) {
+        top: 0;
+        width: 1px;
+        height: 100%;
+        max-height: 100%;
+    }
+
+    .hero-grid :global(.grid-line.h) {
+        left: 0;
+        height: 1px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .hero.play .hero-grid :global(.grid-line.v) {
+        animation: hero-draw-tall 0.5s ease-out calc(2.1s + var(--i) * 0.035s) both;
+    }
+
+    .hero.play .hero-grid :global(.grid-line.h) {
+        animation: hero-draw-wide 0.5s ease-out calc(2.35s + var(--i) * 0.05s) both;
+    }
+
+    /* Once drafted, lines render settled — no replay on resize. */
+    .hero.done .hero-grid :global(.grid-line.v),
+    .hero.done .hero-grid :global(.grid-line.h) {
+        animation: none;
+    }
+
+    /* ------- layer 2: content columns ------- */
+
+    .hero-cols {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        gap: 64px;
+        padding: 48px var(--space-gutter) 0;
+    }
+
+    /* ------- terminal (left, 430px) ------- */
+
+    .terminal {
+        width: 430px;
+        flex: none;
+        align-self: flex-start;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-terminal);
+        box-shadow: var(--shadow-panel);
+        overflow: hidden;
+        cursor: text;
+    }
+
+    .term-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--hairline);
+    }
+
+    .term-dots {
+        display: flex;
+        gap: 6px;
+    }
+
+    .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+
+    .dot.amber {
+        background: color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+
+    .term-title {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--muted);
+    }
+
+    .term-log {
+        padding: 16px 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-family: var(--font-mono);
+        font-size: var(--text-terminal);
+        max-height: 320px;
+        overflow-y: auto;
+    }
+
+    .term-line {
+        color: var(--muted);
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    /* Typed widths are coupled to char counts (steps(N) at width Nch). */
+    .l1 {
+        width: 20ch;
+    }
+
+    .l2d,
+    .l3d,
+    .l5d {
+        width: 39ch;
+    }
+
+    .l4d {
+        width: 38ch;
+    }
+
+    .l2m,
+    .l3m,
+    .l5m {
+        width: 31ch;
+    }
+
+    .m-only {
+        display: none;
+    }
+
+    .hero.play .l1 {
+        animation: hero-type-in 0.6s steps(20) 0.3s both;
+    }
+
+    .hero.play .l2d {
+        animation: hero-type-in 1s steps(39) 1.1s both;
+    }
+
+    .hero.play .l3d {
+        animation: hero-type-in 1s steps(39) 2.3s both;
+    }
+
+    .hero.play .l4d {
+        animation: hero-type-in 0.9s steps(38) 3.5s both;
+    }
+
+    .hero.play .l5d {
+        animation: hero-type-in 0.9s steps(39) 4.6s both;
+    }
+
+    .hero.play .l2m {
+        animation: hero-type-in 1s steps(31) 1.1s both;
+    }
+
+    .hero.play .l3m {
+        animation: hero-type-in 1s steps(31) 2.3s both;
+    }
+
+    .hero.play .l5m {
+        animation: hero-type-in 0.9s steps(31) 4.6s both;
+    }
+
+    .hero.play .term-drafted {
+        animation: hero-appear 0.2s 7.2s both;
+    }
+
+    /* Interactive command output (hero.ts renders the last 8 lines here). */
+    .term-extra {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .term-extra:empty {
+        display: none;
+    }
+
+    .term-extra :global(div) {
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+    }
+
+    .term-extra :global(.t-accent) {
+        color: var(--accent);
+    }
+
+    .term-extra :global(.t-muted) {
+        color: var(--muted);
+    }
+
+    .term-extra :global(.t-ink) {
+        color: var(--ink);
+    }
+
+    .term-prompt {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 16px;
+        cursor: text;
+    }
+
+    .hero.play .term-prompt {
+        animation: hero-appear 0.3s 7.6s both;
+    }
+
+    .term-prompt:has(.term-input:focus-visible) {
+        outline: 1px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .prompt-char {
+        margin-right: 8px;
+    }
+
+    .prompt-typed {
+        color: var(--ink);
+        white-space: pre;
+    }
+
+    .caret {
+        display: inline-block;
+        width: 8px;
+        height: 14px;
+        background: var(--accent);
+        margin-left: 1px;
+        animation: hero-blink var(--caret-blink) steps(1) infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .caret {
+            animation: none;
+        }
+    }
+
+    .prompt-hint {
+        color: var(--faint);
+        margin-left: 7px;
+    }
+
+    .term-input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        opacity: 0;
+        background: transparent;
+        border: none;
+        outline: none;
+        padding: 0;
+        margin: 0;
+        caret-color: transparent;
+        cursor: text;
+    }
+
+    /* ------- right column ------- */
+
+    .hero-right {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-bottom: 40px;
+    }
+
+    .hero-kicker {
+        margin-bottom: 16px;
+    }
+
+    .hero.play .hero-kicker {
+        animation: hero-appear 0.6s 3.7s both;
+    }
+
+    .dim-ruler {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 700px;
+        margin-bottom: 18px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--muted);
+    }
+
+    .hero.play .dim-ruler {
+        animation: hero-appear 0.5s 4.4s both;
+    }
+
+    .tick {
+        width: 1px;
+        height: 10px;
+        background: color-mix(in srgb, var(--accent) 60%, transparent);
+    }
+
+    .rail {
+        flex: 1;
+        display: block;
+        height: 1px;
+        background: color-mix(in srgb, var(--accent) 20%, transparent);
+        overflow: hidden;
+    }
+
+    .rail-fill {
+        display: block;
+        height: 1px;
+        width: 100%;
+        max-width: 100%;
+        background: color-mix(in srgb, var(--accent) 70%, transparent);
+    }
+
+    .hero.play .rail-fill {
+        animation: hero-draw-wide 0.8s ease-out 4.4s both;
+    }
+
+    .dim-count {
+        color: var(--accent);
+        letter-spacing: 0.1em;
+        min-width: 30px;
+        text-align: center;
+    }
+
+    .name-wrap {
+        position: relative;
+        align-self: flex-start;
+    }
+
+    .hero.play .name-wrap {
+        animation: hero-pop-in 0.7s 3.3s both;
+    }
+
+    .hero-name {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-size: var(--text-display);
+        line-height: var(--leading-display);
+        white-space: nowrap;
+        border: 1px dashed var(--dash);
+        padding: 4px 18px;
+        transition:
+            border-color var(--dur-hover) var(--ease),
+            background var(--dur-hover) var(--ease);
+    }
+
+    .hero-name:hover {
+        border-color: color-mix(in srgb, var(--accent) 80%, transparent);
+        background: color-mix(in srgb, var(--accent) 3%, transparent);
+    }
+
+    .spec-callout {
+        position: absolute;
+        right: -150px;
+        top: 6px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.9;
+        color: var(--muted);
+        border-left: 1px dotted color-mix(in srgb, var(--accent) 50%, transparent);
+        padding-left: 12px;
+        white-space: nowrap;
+    }
+
+    .spec-callout > span {
+        display: block;
+    }
+
+    .hero.play .spec-callout {
+        animation: hero-appear 0.6s 3.7s both;
+    }
+
+    .one-liner {
+        font-size: 17px;
+        line-height: 1.7;
+        color: var(--muted);
+        max-width: 500px;
+        margin-top: 26px;
+    }
+
+    .hero.play .one-liner {
+        animation: hero-appear 0.7s 3.9s both;
+    }
+
+    .sig-row {
+        margin-top: 34px;
+        display: flex;
+        align-items: flex-end;
+        gap: 14px;
+    }
+
+    .sig-reveal {
+        overflow: hidden;
+        max-width: 230px;
+        color: var(--accent);
+    }
+
+    .hero.play .sig-reveal {
+        animation: hero-draw-wide 1.5s ease-in-out 5.5s both;
+    }
+
+    .sig-reveal :global(.signature-svg) {
+        height: 34px;
+        width: 224px;
+        max-width: none;
+    }
+
+    .sig-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+        padding-bottom: 3px;
+    }
+
+    .hero.play .sig-label {
+        animation: hero-appear 0.6s 7s both;
+    }
+
+    /* ------- hero footer strip ------- */
+
+    .hero-foot {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px var(--space-gutter);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+    }
+
+    .coords {
+        cursor: crosshair;
+        white-space: nowrap;
+        flex: none;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .coords:hover {
+        color: var(--accent);
+    }
+
+    .foot-center {
+        flex: 1;
+        min-width: 0;
+        margin: 0 20px;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .foot-next {
+        color: var(--accent);
+        text-decoration: none;
+        white-space: nowrap;
+        flex: none;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .foot-next:hover {
+        color: var(--accent-hover);
+    }
+
+    /* ------- layers 0 & 3: crosshair guides + coordinate chip ------- */
+
+    .cross-v,
+    .cross-h {
+        position: absolute;
+        background: var(--cross);
+        pointer-events: none;
+        z-index: 0;
+        display: none;
+    }
+
+    .cross-v {
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        left: -200px;
+    }
+
+    .cross-h {
+        left: 0;
+        right: 0;
+        height: 1px;
+        top: -200px;
+    }
+
+    .cross-chip {
+        position: absolute;
+        left: -200px;
+        top: -200px;
+        z-index: 3;
+        display: none;
+        pointer-events: none;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        color: color-mix(in srgb, var(--accent) 85%, transparent);
+        background: var(--chip-bg);
+        border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+        border-radius: 2px;
+        padding: 3px 7px;
+        white-space: nowrap;
+    }
+
+    .hero.cross-on .cross-v,
+    .hero.cross-on .cross-h,
+    .hero.cross-on .cross-chip {
+        display: block;
+    }
+
+    /* ------- responsive ------- */
+
+    /* Handoff gap #11: the absolute callout overflows narrow frames — stack it
+       below the spec box as a single mono line (prototype's inline variant). */
+    @media (max-width: 1200px) {
+        .spec-callout {
+            position: static;
+            margin-top: 12px;
+            letter-spacing: 0.08em;
+        }
+
+        .spec-callout > span {
+            display: inline;
+        }
+
+        .spec-callout > span + span::before {
+            content: " · ";
+        }
+    }
+
+    @media (max-width: 900px) {
+        .hero {
+            height: auto;
+        }
+
+        .hero-cols {
+            flex-direction: column;
+            gap: 30px;
+            padding-top: 28px;
+        }
+
+        .terminal {
+            width: 100%;
+        }
+
+        .hero-right {
+            padding-bottom: 0;
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .d-only {
+            display: none;
+        }
+
+        .m-only {
+            display: block;
+        }
+
+        .term-bar {
+            gap: 10px;
+            padding: 8px 12px;
+        }
+
+        .term-dots {
+            gap: 5px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+        }
+
+        .term-title {
+            font-size: 10px;
+        }
+
+        .term-log {
+            padding: 12px 12px 14px;
+            gap: 6px;
+            font-size: 10.5px;
+        }
+
+        .caret {
+            width: 7px;
+            height: 12px;
+        }
+
+        .dim-ruler {
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 9px;
+        }
+
+        .tick {
+            height: 8px;
+        }
+
+        .hero-name {
+            font-size: min(44px, 11.3vw);
+            line-height: 1.08;
+            padding: 4px 12px;
+        }
+
+        .spec-callout {
+            font-size: 9px;
+            line-height: 1.8;
+            padding-left: 10px;
+            margin-top: 10px;
+        }
+
+        .one-liner {
+            font-size: 15px;
+            line-height: 1.65;
+            margin-top: 20px;
+        }
+
+        .sig-row {
+            margin-top: 24px;
+            gap: 10px;
+        }
+
+        .sig-reveal {
+            max-width: 176px;
+        }
+
+        .sig-reveal :global(.signature-svg) {
+            height: 26px;
+            width: 171px;
+        }
+
+        .sig-label {
+            font-size: 8.5px;
+            letter-spacing: 0.12em;
+            padding-bottom: 2px;
+        }
+
+        .hero-foot {
+            margin-top: 28px;
+            padding: 16px var(--space-gutter);
+            font-size: 9.5px;
+            letter-spacing: 0.1em;
+        }
+
+        .foot-center {
+            display: none;
+        }
     }
 </style>

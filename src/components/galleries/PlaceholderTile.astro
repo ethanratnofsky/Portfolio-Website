@@ -1,0 +1,40 @@
+---
+// An empty plate slot — a dashed drop-target inviting the next curated
+// export (see src/data/galleries.ts for the 2-step add-an-image flow).
+// Purely decorative: not interactive, hidden from assistive tech.
+
+interface Props {
+    /** Slot caption, e.g. "DES-0XX — TITLE / YEAR" or "FR-XX / YEAR". */
+    caption: string;
+    /** Extra slots beyond the first are hidden on mobile (≤640px). */
+    extra?: boolean;
+}
+
+const { caption, extra = false } = Astro.props;
+---
+
+<div class:list={["slot", "grid-bg", "reveal", { "slot-extra": extra }]} aria-hidden="true">
+    <span class="slot-caption mono-micro">{caption}</span>
+</div>
+
+<style>
+    .slot {
+        display: grid;
+        place-items: center;
+        min-height: calc(var(--tile-h, 260px) + 37px);
+        padding: var(--space-2);
+        border: 1px dashed var(--dash);
+        border-radius: var(--radius-sheet);
+    }
+
+    .slot-caption {
+        color: var(--faint);
+        text-align: center;
+    }
+
+    @media (max-width: 640px) {
+        .slot-extra {
+            display: none;
+        }
+    }
+</style>

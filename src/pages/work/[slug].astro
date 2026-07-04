@@ -1,8 +1,11 @@
 ---
-// STUB — replaced by the work-sheet build step (full case-study template +
-// "sheet queued" variant per the handoff).
-import { getCollection } from "astro:content";
+// Case-study template (#7a) + "sheet queued" variant (#7b). One page per
+// project — queued/none studies render the not-yet-drawn sheet so legacy
+// deep links keep working.
+import { getCollection, render } from "astro:content";
+import { Picture } from "astro:assets";
 import Base from "../../layouts/Base.astro";
+import StatusSheet from "../../components/work/StatusSheet.astro";
 
 export async function getStaticPaths() {
     const projects = await getCollection("projects");
@@ -13,17 +16,674 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props;
+const { title, year, stackLabel, links, primaryLink, textSheet, study, studyMeta } = project.data;
+const isWritten = study === "written";
+
+/* ---- head description: text-sheet quote → first body sentence → stack line ---- */
+function firstSentence(md: string | undefined): string | undefined {
+    if (!md) return undefined;
+    const text = md
+        .replace(/<!--[\s\S]*?-->/g, " ")
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(
+            (line) =>
+                line &&
+                !line.startsWith("#") &&
+                !line.startsWith("![") &&
+                !(line.startsWith("*") && line.endsWith("*")),
+        )
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+    const match = text.match(/^[^.!?]*[.!?]/);
+    return match ? match[0] : undefined;
+}
+
+const description =
+    textSheet?.quote ??
+    (isWritten ? firstSentence(project.body) : undefined) ??
+    `${title} — ${stackLabel}, ${year}.`;
+
+/* ---- rendered markdown + chapter headings (written variant) ---- */
+const rendered = isWritten ? await render(project) : undefined;
+const Content = rendered?.Content;
+const chapters = (rendered?.headings ?? []).filter((h) => h.depth === 2);
+const pullQuote = isWritten ? studyMeta?.pullQuote : undefined;
+
+/* ---- title-block ISSUE links: primary first, accent ---- */
+type IssueKey = "live" | "app" | "github";
+const issueDefs: { key: IssueKey; label: string; name: string }[] = [
+    { key: "live", label: "LIVE ↗", name: "live site" },
+    { key: "app", label: "APP ↗", name: "App Store" },
+    { key: "github", label: "GITHUB ↗", name: "GitHub" },
+];
+const issueAll = issueDefs
+    .filter((d) => links[d.key])
+    .map((d) => ({ ...d, href: links[d.key] as string }));
+const issueLinks = [
+    ...issueAll.filter((l) => l.key === primaryLink),
+    ...issueAll.filter((l) => l.key !== primaryLink),
+];
+
+/* ---- spec rail rows ---- */
+const specRows = [
+    { label: "ROLE", value: studyMeta?.role },
+    { label: "CONTEXT", value: studyMeta?.context },
+    { label: "STACK", lines: studyMeta?.stackLines },
+    { label: "DEPLOY", value: studyMeta?.deploy },
+].filter((row) => row.value || row.lines?.length);
+
+/* ---- prev/next cycle: featured cards + rev strip, by order ---- */
+const all = await getCollection("projects");
+const cycle = all
+    .filter((p) => p.data.featured || p.data.revStrip)
+    .sort((a, b) => a.data.order - b.data.order);
+const cycleIndex = cycle.findIndex((p) => p.id === project.id);
+const prev = cycleIndex >= 0 ? cycle[(cycleIndex - 1 + cycle.length) % cycle.length] : undefined;
+const next = cycleIndex >= 0 ? cycle[(cycleIndex + 1) % cycle.length] : undefined;
+
+const heroPlate = studyMeta?.heroPlate;
 ---
 
-<Base title={`${project.data.title} — Ethan Ratnofsky`} navVariant="study" ogType="article">
-    <main class="study-stub">
-        <h1>{project.data.title}</h1>
+<Base
+    title={`${title} — Ethan Ratnofsky`}
+    description={description}
+    navVariant="study"
+    ogType={isWritten ? "article" : "website"}
+>
+    <main>
+        {
+            isWritten && Content ? (
+                <article class="study">
+                    {/* ---- title block ---- */}
+                    <div class="title-block">
+                        <div class="tb-cell">
+                            <span class="tb-label">DRAWING NO.</span>
+                            <span class="tb-value">{studyMeta?.drawingNo ?? "—"}</span>
+                        </div>
+                        <div class="tb-cell">
+                            <span class="tb-label">TITLE</span>
+                            <span class="tb-value">
+                                {title.toUpperCase()}{studyMeta?.subtitle && ` — ${studyMeta.subtitle}`}
+                            </span>
+                        </div>
+                        <div class="tb-cell">
+                            <span class="tb-label">YEAR</span>
+                            <span class="tb-value">{year}</span>
+                        </div>
+                        <div class="tb-cell">
+                            <span class="tb-label">TEAM</span>
+                            <span class="tb-value">{studyMeta?.team ?? "—"}</span>
+                        </div>
+                        <div class="tb-cell">
+                            <span class="tb-label">ISSUE</span>
+                            <span class="tb-links">
+                                {issueLinks.map((l) => (
+                                    <a
+                                        class:list={[{ primary: l.key === primaryLink }]}
+                                        href={l.href}
+                                        aria-label={`${title} — ${l.name}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        {l.label}
+                                    </a>
+                                ))}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* ---- full-bleed hero plate ---- */}
+                    {heroPlate && (
+                        <div class="hero-plate">
+                            <Picture
+                                src={heroPlate.image}
+                                alt={heroPlate.alt}
+                                widths={[768, 1280, 1600, 2048]}
+                                sizes="100vw"
+                                formats={["avif", "webp"]}
+                                loading="eager"
+                                fetchpriority="high"
+                            />
+                            <div class="plate-chips">
+                                <span class="plate-chip">{heroPlate.caption}</span>
+                                {heroPlate.badge && <span class="plate-chip badge">{heroPlate.badge}</span>}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ---- spec rail + prose ---- */}
+                    <div class="study-body">
+                        <aside class="spec-rail">
+                            <div class="rail-sticky">
+                                {specRows.length > 0 && (
+                                    <div class="spec-panel">
+                                        <p class="spec-head">SPECIFICATION</p>
+                                        <dl class="spec-rows">
+                                            {specRows.map((row) => (
+                                                <div class="spec-row">
+                                                    <dt>{row.label}</dt>
+                                                    <dd>
+                                                        {row.lines
+                                                            ? row.lines.map((line, i) => (
+                                                                  <>
+                                                                      {i > 0 && <br />}
+                                                                      {line}
+                                                                  </>
+                                                              ))
+                                                            : row.value}
+                                                    </dd>
+                                                </div>
+                                            ))}
+                                        </dl>
+                                    </div>
+                                )}
+                                {chapters.length > 0 && (
+                                    <nav class="on-sheet" aria-label="On this sheet">
+                                        <p class="on-sheet-label">ON THIS SHEET</p>
+                                        <ol class="chapter-list">
+                                            {chapters.map((h, i) => (
+                                                <li>
+                                                    <a href={`#${h.slug}`}>
+                                                        {String(i + 1).padStart(2, "0")} — {h.text.toUpperCase()}
+                                                    </a>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </nav>
+                                )}
+                            </div>
+                        </aside>
+
+                        <div class:list={["prose", { "has-quote": Boolean(pullQuote) }]}>
+                            <Content />
+                            {pullQuote && (
+                                <blockquote class="pull-quote" style="order: 1;">
+                                    "{pullQuote}"
+                                </blockquote>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ---- prev / next footer strip ---- */}
+                    <footer class="study-footer">
+                        {prev && <a href={`/work/${prev.id}`}>← PREV — {prev.data.title.toUpperCase()}</a>}
+                        <span class="sf-center">
+                            {studyMeta?.drawingNo ? `${studyMeta.drawingNo} · SIGNED E.R.` : "SIGNED E.R."}
+                        </span>
+                        {next && <a href={`/work/${next.id}`}>NEXT — {next.data.title.toUpperCase()} →</a>}
+                    </footer>
+                </article>
+            ) : (
+                <StatusSheet
+                    variant="queued"
+                    slug={project.id}
+                    githubHref={links.github ?? "https://github.com/ethanratnofsky"}
+                />
+            )
+        }
     </main>
 </Base>
 
 <style>
-    .study-stub {
-        padding: var(--space-section) var(--space-gutter);
-        min-height: 50vh;
+    /* ---- title block: 5-col mono grid ---- */
+    .title-block {
+        display: grid;
+        grid-template-columns: 1fr 2fr 0.6fr 0.8fr 1.2fr;
+        border-bottom: 1px solid var(--line);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        line-height: 1.5;
+    }
+
+    .tb-cell {
+        padding: 13px 18px;
+        min-width: 0;
+    }
+
+    .tb-cell + .tb-cell {
+        border-left: 1px solid var(--hairline);
+    }
+
+    .tb-label {
+        display: block;
+        color: var(--faint);
+    }
+
+    .tb-value {
+        color: var(--ink);
+        font-size: 11.5px;
+    }
+
+    .tb-links {
+        display: inline-flex;
+        flex-wrap: wrap;
+        column-gap: 8px;
+        font-size: 11.5px;
+    }
+
+    .tb-links a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .tb-links a:hover {
+        color: var(--ink);
+    }
+
+    .tb-links a.primary {
+        color: var(--accent);
+    }
+
+    /* ---- hero plate ---- */
+    .hero-plate {
+        position: relative;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .hero-plate :global(img) {
+        width: 100%;
+        height: 460px;
+        object-fit: cover;
+        object-position: top;
+    }
+
+    .plate-chips {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: flex;
+        gap: 8px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+    }
+
+    /* Chips overlay the plate image, which never changes with the theme —
+       their colors stay literal (dark scrim + ivory/amber) in both modes. */
+    .plate-chip {
+        background: rgba(23, 19, 16, 0.85);
+        border: 1px solid rgba(240, 232, 218, 0.2);
+        padding: 5px 9px;
+        color: #f0e8da;
+    }
+
+    .plate-chip.badge {
+        border-color: rgba(223, 168, 94, 0.5);
+        color: #d9a05b;
+    }
+
+    /* ---- body: sticky spec rail + prose ---- */
+    .study-body {
+        display: flex;
+        gap: 64px;
+        padding: 64px var(--space-gutter);
+    }
+
+    .spec-rail {
+        width: 300px;
+        flex: none;
+    }
+
+    .rail-sticky {
+        position: sticky;
+        top: 24px;
+    }
+
+    .spec-panel {
+        border: 1px solid var(--line);
+        background: var(--panel);
+    }
+
+    .spec-head {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--hairline);
+    }
+
+    .spec-rows {
+        margin: 0;
+    }
+
+    .spec-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--hairline);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        line-height: 1.6;
+    }
+
+    .spec-row:last-child {
+        border-bottom: 0;
+    }
+
+    .spec-row dt {
+        color: var(--muted);
+    }
+
+    .spec-row dd {
+        margin: 0;
+        color: var(--ink);
+        text-align: right;
+    }
+
+    .on-sheet {
+        margin-top: 16px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        line-height: 2;
+    }
+
+    .on-sheet-label {
+        color: var(--faint);
+    }
+
+    .chapter-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .chapter-list a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .chapter-list a:hover {
+        color: var(--ink);
+    }
+
+    .chapter-list a.active {
+        color: var(--accent);
+    }
+
+    /* ---- prose: numbered chapters, plates, pull-quote ---- */
+    .prose {
+        flex: 1;
+        max-width: 720px;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        counter-reset: chapter;
+    }
+
+    .prose > :global(h2) {
+        counter-increment: chapter;
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        font-size: var(--text-chapter);
+        line-height: 1.15;
+        margin: 16px 0 18px;
+        scroll-margin-top: 24px;
+    }
+
+    .prose > :global(h2)::before {
+        content: counter(chapter, decimal-leading-zero);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--accent);
+        flex: none;
+    }
+
+    .prose > :global(h2:first-child) {
+        margin-top: 0;
+    }
+
+    .prose > :global(p) {
+        font-size: 16px;
+        line-height: 1.75;
+        color: var(--muted);
+        margin: 0 0 28px;
+    }
+
+    /* Inline plates: image paragraph + following em-only caption paragraph
+       framed as one panel. */
+    .prose > :global(p:has(> img)) {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-bottom: 0;
+        padding: 10px 10px 0;
+        margin-bottom: 0;
+    }
+
+    .prose > :global(p:has(> img) img) {
+        width: 100%;
+        height: auto;
+    }
+
+    .prose > :global(p:has(> img) + p:has(> em:only-child)) {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-top: 0;
+        padding: 10px 14px 12px;
+        margin-bottom: 28px;
+        font-family: var(--font-mono);
+        font-size: var(--text-mono-micro);
+        letter-spacing: 0.1em;
+        color: var(--faint);
+        line-height: normal;
+    }
+
+    .prose > :global(p:has(> img) + p:has(> em:only-child) em) {
+        font-style: normal;
+    }
+
+    /* Plates develop in on scroll (JS adds .plate-reveal). */
+    .prose :global(.plate-reveal) {
+        opacity: 0;
+        transform: translateY(12px);
+        transition:
+            opacity var(--dur-reveal) var(--ease),
+            transform var(--dur-reveal) var(--ease);
+    }
+
+    .prose :global(.plate-reveal.is-in) {
+        opacity: 1;
+        transform: none;
+    }
+
+    /* Pull-quote sits before the last chapter (#7a): flex order pulls the
+       frontmatter-rendered blockquote ahead of the final h2 + its content. */
+    .prose.has-quote > :global(h2:last-of-type),
+    .prose.has-quote > :global(h2:last-of-type ~ *) {
+        order: 2;
+    }
+
+    .prose.has-quote > :global(h2:last-of-type) {
+        margin-top: 0;
+    }
+
+    .pull-quote {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 25px;
+        line-height: 1.5;
+        color: var(--ink);
+        border-left: 2px solid var(--accent);
+        padding-left: 24px;
+        margin: 0 0 44px;
+    }
+
+    /* ---- prev / next footer strip ---- */
+    .study-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16px;
+        padding: 22px var(--space-gutter);
+        border-top: 1px solid var(--hairline);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+    }
+
+    .study-footer a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .study-footer a:hover {
+        color: var(--accent);
+    }
+
+    .sf-center {
+        color: var(--faint);
+    }
+
+    /* ---- responsive (tablet/mobile are undrawn — rail stacks above prose) ---- */
+    @media (max-width: 900px) {
+        .title-block {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .tb-cell {
+            border-top: 1px solid var(--hairline);
+        }
+
+        .tb-cell + .tb-cell {
+            border-left: 0;
+        }
+
+        .tb-cell:nth-child(-n + 2) {
+            border-top: 0;
+        }
+
+        .tb-cell:nth-child(2n) {
+            border-left: 1px solid var(--hairline);
+        }
+
+        .hero-plate :global(img) {
+            height: 360px;
+        }
+
+        .study-body {
+            flex-direction: column;
+            gap: 44px;
+        }
+
+        .spec-rail {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .rail-sticky {
+            position: static;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .hero-plate :global(img) {
+            height: 240px;
+        }
+
+        .study-body {
+            padding: 44px var(--space-gutter);
+        }
+
+        .prose > :global(p) {
+            font-size: 15px;
+        }
+
+        .pull-quote {
+            font-size: 21px;
+            padding-left: 18px;
+        }
+
+        .study-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .study-footer a {
+            padding: 4px 0;
+        }
     }
 </style>
+
+<script>
+    /* ---- spec-rail chapter tracking (#7a: active chapter in accent) ---- */
+    const chapterLinks = Array.from(
+        document.querySelectorAll<HTMLAnchorElement>(".chapter-list a"),
+    );
+    const chapterTargets = chapterLinks
+        .map((a) => {
+            const hash = a.getAttribute("href") ?? "";
+            return document.getElementById(decodeURIComponent(hash.slice(1)));
+        })
+        .filter((el): el is HTMLElement => el !== null);
+
+    if (chapterTargets.length > 0 && chapterTargets.length === chapterLinks.length) {
+        let current = 0;
+        const apply = () => {
+            chapterLinks.forEach((a, i) => {
+                a.classList.toggle("active", i === current);
+                if (i === current) a.setAttribute("aria-current", "true");
+                else a.removeAttribute("aria-current");
+            });
+        };
+        apply();
+
+        const io = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    const i = chapterTargets.indexOf(entry.target as HTMLElement);
+                    if (i < 0) continue;
+                    if (entry.isIntersecting) current = i;
+                    else if (entry.boundingClientRect.top > 0 && current === i)
+                        current = Math.max(0, i - 1);
+                }
+                apply();
+            },
+            { rootMargin: "0px 0px -55% 0px" },
+        );
+        chapterTargets.forEach((t) => io.observe(t));
+    }
+
+    /* ---- plates fade + rise into view (700ms, once) ---- */
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduceMotion) {
+        const plates = Array.from(document.querySelectorAll<HTMLElement>(".prose > p")).filter(
+            (p) => p.querySelector(":scope > img"),
+        );
+        const groups = plates.map((plate) => {
+            const els: HTMLElement[] = [plate];
+            const nextEl = plate.nextElementSibling;
+            if (nextEl instanceof HTMLElement && nextEl.querySelector(":scope > em")) {
+                els.push(nextEl);
+            }
+            els.forEach((el) => el.classList.add("plate-reveal"));
+            return els;
+        });
+        if (groups.length > 0) {
+            const plateIo = new IntersectionObserver(
+                (entries) => {
+                    for (const entry of entries) {
+                        if (!entry.isIntersecting) continue;
+                        const group = groups.find((g) => g[0] === entry.target);
+                        group?.forEach((el) => el.classList.add("is-in"));
+                        plateIo.unobserve(entry.target);
+                    }
+                },
+                { threshold: 0.15 },
+            );
+            groups.forEach((g) => {
+                const first = g[0];
+                if (first) plateIo.observe(first);
+            });
+        }
+    }
+</script>

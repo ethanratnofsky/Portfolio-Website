@@ -1,0 +1,147 @@
+---
+// Shared gallery lightbox — one native <dialog> per sheet holding a full-size
+// figure per real plate; the tile buttons (GalleryTile) pick which figure
+// shows. Native <dialog> gives us Esc-to-close and focus return to the
+// invoking tile for free; the script below adds scrim-click close.
+// No prev/next controls — with so few plates the handoff keeps the lightbox
+// minimal by design (handoff gap #13).
+import { Picture } from "astro:assets";
+import type { GalleryItem } from "../../data/galleries";
+
+interface Props {
+    /** Unique per sheet, referenced by the tiles' data-lightbox-open. */
+    id: string;
+    /** Accessible name for the dialog, e.g. "Design work lightbox". */
+    label: string;
+    items: GalleryItem[];
+}
+
+const { id, label, items } = Astro.props;
+---
+
+<dialog class="lightbox" id={id} data-lightbox aria-label={label}>
+    <button class="lightbox-close" type="button" aria-label="Close lightbox">✕</button>
+    {
+        items.map((item) => (
+            <figure class="lightbox-figure" data-plate={item.plate} hidden>
+                <Picture
+                    src={item.image}
+                    widths={[800, 1280, 1800]}
+                    sizes="90vw"
+                    formats={["avif", "webp"]}
+                    alt={item.alt}
+                    loading="lazy"
+                    decoding="async"
+                />
+                <figcaption class="lightbox-caption mono-micro">
+                    {item.plate} — {item.title} <span class="lightbox-year">/ {item.year}</span>
+                </figcaption>
+            </figure>
+        ))
+    }
+</dialog>
+
+<style>
+    .lightbox {
+        padding: 0;
+        border: none;
+        background: transparent;
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+
+    .lightbox::backdrop {
+        background: var(--scrim, rgba(13, 11, 9, 0.55));
+    }
+
+    .lightbox[open] {
+        animation: lightbox-in 0.3s var(--ease);
+    }
+
+    @keyframes lightbox-in {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+    }
+
+    .lightbox-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 1;
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--ink);
+        background: var(--chip-bg);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-button);
+        transition:
+            color var(--dur-hover) var(--ease),
+            border-color var(--dur-hover) var(--ease);
+    }
+
+    .lightbox-close:hover {
+        color: var(--accent);
+        border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+
+    .lightbox-figure {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        background: var(--panel);
+        border: 1px solid var(--line);
+    }
+
+    .lightbox-figure[hidden] {
+        display: none;
+    }
+
+    /* Natural aspect ratio (no thumbnail crop), capped at 90vw / 85vh
+       while leaving room for the caption strip inside the dialog. */
+    .lightbox-figure :global(img) {
+        width: auto;
+        height: auto;
+        max-width: calc(90vw - 2px);
+        max-height: min(85vh, calc(90vh - 40px));
+    }
+
+    .lightbox-caption {
+        padding: 12px 14px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+    }
+
+    .lightbox-year {
+        color: var(--faint);
+    }
+</style>
+
+<script>
+    // Tiles → open the sheet's dialog on the clicked plate.
+    for (const opener of document.querySelectorAll<HTMLButtonElement>("[data-lightbox-open]")) {
+        opener.addEventListener("click", () => {
+            const dialog = document.getElementById(opener.dataset.lightboxOpen ?? "");
+            if (!(dialog instanceof HTMLDialogElement)) return;
+            for (const figure of dialog.querySelectorAll<HTMLElement>("figure[data-plate]")) {
+                figure.hidden = figure.dataset.plate !== opener.dataset.plate;
+            }
+            dialog.showModal();
+        });
+    }
+
+    // Scrim click closes (the dialog box itself is fully covered by content,
+    // so a click whose target is the dialog can only be on the backdrop).
+    // Esc and focus return to the invoking tile are native <dialog> behavior.
+    for (const dialog of document.querySelectorAll<HTMLDialogElement>("dialog[data-lightbox]")) {
+        dialog.addEventListener("click", (event) => {
+            if (event.target === dialog) dialog.close();
+        });
+        dialog.querySelector(".lightbox-close")?.addEventListener("click", () => dialog.close());
+    }
+</script>

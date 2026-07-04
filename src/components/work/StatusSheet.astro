@@ -1,0 +1,242 @@
+---
+// Not-yet-drawn / 404 — one template, two variants (#7b): centered on a faint
+// drafting grid with "+" register marks, kicker, serif headline, status
+// terminal, and two buttons.
+interface Props {
+    variant: "queued" | "void";
+    /** Project id for the terminal command (queued variant). */
+    slug?: string;
+    githubHref?: string;
+}
+
+const { variant, slug, githubHref = "https://github.com/ethanratnofsky" } = Astro.props;
+const isVoid = variant === "void";
+const kicker = isVoid ? "VOID SHEET — NOTHING AT THIS NUMBER" : "SHEET QUEUED — NOT IN THE FLAT FILE YET";
+const command = isVoid ? "$ ethan draft --sheet ?" : `$ ethan draft --study ${slug}`;
+---
+
+<section class="status-sheet grid-bg">
+    <span class="mark mark-tl" aria-hidden="true">+</span>
+    <span class="mark mark-tr" aria-hidden="true">+</span>
+    <span class="mark mark-bl" aria-hidden="true">+</span>
+    <span class="mark mark-br" aria-hidden="true">+</span>
+
+    <p class="status-kicker">{kicker}</p>
+    <h1 class="status-headline">
+        {
+            isVoid ? (
+                <>This drawing doesn't exist<span class="dot">.</span></>
+            ) : (
+                <>This sheet isn't <em>drawn</em> yet<span class="dot">.</span></>
+            )
+        }
+    </h1>
+
+    <div class="terminal">
+        <div class="terminal-bar">
+            <span class="dots" aria-hidden="true"><i></i><i></i><i class="amber"></i></span>
+            <span class="terminal-title">ethan@nyc — status</span>
+        </div>
+        <div class="terminal-log">
+            <p>{command}</p>
+            {
+                isVoid ? (
+                    <>
+                        <p>▸ error 404: <span class="val">sheet not found</span></p>
+                        <p class="caret-line">$ <span class="caret" aria-hidden="true" /></p>
+                    </>
+                ) : (
+                    <>
+                        <p>▸ status: <span class="val">queued for drafting</span></p>
+                        <p class="caret-line">▸ check back soon <span class="caret" aria-hidden="true" /></p>
+                    </>
+                )
+            }
+        </div>
+    </div>
+
+    <div class="status-actions">
+        <a class="btn btn-primary" href="/#work">← BACK TO WORK</a>
+        <a class="btn-ink" href={githubHref} target="_blank" rel="noreferrer">MEANWHILE — GITHUB ↗</a>
+    </div>
+</section>
+
+<style>
+    .status-sheet {
+        position: relative;
+        min-height: 640px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 64px var(--space-gutter);
+    }
+
+    .mark {
+        position: absolute;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--ink);
+        opacity: 0.3;
+    }
+
+    .mark-tl {
+        top: 24px;
+        left: 24px;
+    }
+
+    .mark-tr {
+        top: 24px;
+        right: 24px;
+    }
+
+    .mark-bl {
+        bottom: 24px;
+        left: 24px;
+    }
+
+    .mark-br {
+        bottom: 24px;
+        right: 24px;
+    }
+
+    .status-kicker {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.24em;
+        color: var(--accent);
+        margin-bottom: 28px;
+    }
+
+    .status-headline {
+        font-size: clamp(38px, 9vw, 64px);
+        line-height: 1.1;
+        font-weight: 400;
+    }
+
+    .dot {
+        color: var(--accent);
+        font-style: normal;
+    }
+
+    .terminal {
+        width: min(460px, 100%);
+        margin-top: 36px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-terminal);
+        background: var(--panel);
+        overflow: hidden;
+        text-align: left;
+    }
+
+    .terminal-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 13px;
+        border-bottom: 1px solid var(--hairline);
+    }
+
+    .dots {
+        display: flex;
+        gap: 5px;
+    }
+
+    .dots i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+
+    .dots .amber {
+        background: color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+
+    .terminal-title {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--muted);
+    }
+
+    .terminal-log {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 13px 14px;
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        line-height: normal;
+        color: var(--muted);
+    }
+
+    .val {
+        color: var(--accent);
+    }
+
+    .caret-line {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .caret {
+        display: inline-block;
+        width: 7px;
+        height: 12px;
+        background: var(--accent);
+        animation: blink var(--caret-blink) steps(1) infinite;
+    }
+
+    @keyframes blink {
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .caret {
+            animation: none;
+        }
+    }
+
+    .status-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 36px;
+    }
+
+    /* #7b buttons run slightly tighter than the global 15/26 button. */
+    .status-actions .btn {
+        padding: 14px 24px;
+    }
+
+    .btn-ink {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: var(--text-mono-label);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: var(--ink);
+        border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
+        border-radius: var(--radius-button);
+        padding: 13px 23px;
+        transition:
+            color var(--dur-hover) var(--ease),
+            border-color var(--dur-hover) var(--ease);
+    }
+
+    .btn-ink:hover {
+        color: var(--accent);
+        border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+</style>

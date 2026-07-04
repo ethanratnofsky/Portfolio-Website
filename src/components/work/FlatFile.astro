@@ -1,0 +1,273 @@
+---
+// "The flat file" — earlier drawings archive table (#6a). On mobile it collapses
+// to an outlined toggle button ("THE FLAT FILE — ALL 9 →", #6c).
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+    projects: CollectionEntry<"projects">[];
+    total: number;
+}
+
+const { projects, total } = Astro.props;
+---
+
+<div class="flat-file">
+    <button class="flat-toggle" aria-expanded="false" aria-controls="flat-file-body">
+        THE FLAT FILE — ALL {total} →
+    </button>
+
+    <div class="flat-body" id="flat-file-body">
+        <p class="flat-label">THE FLAT FILE — EARLIER DRAWINGS</p>
+
+        {/* Real table styled as the 46px/1.4fr/1.2fr/70px/220px grid; explicit
+            roles restore table semantics lost to display: grid/contents. */}
+        <table class="flat-table" role="table">
+            <thead role="rowgroup">
+                <tr role="row">
+                    <th role="columnheader" scope="col">NO.</th>
+                    <th role="columnheader" scope="col">PROJECT</th>
+                    <th role="columnheader" scope="col">STACK</th>
+                    <th role="columnheader" scope="col">YEAR</th>
+                    <th role="columnheader" scope="col" class="c-links">LINKS</th>
+                </tr>
+            </thead>
+            <tbody role="rowgroup">
+                {
+                    projects.map((p) => (
+                        <tr role="row" class="reveal">
+                            <td role="cell" class="c-no">{p.data.flatFileNo}</td>
+                            <td role="cell" class="c-name">{p.data.title}</td>
+                            <td role="cell" class="c-stack">{p.data.stackLabel}</td>
+                            <td role="cell" class="c-year">{p.data.year}</td>
+                            <td role="cell" class="c-links">
+                                {p.data.internal ? (
+                                    <span class="internal">{p.data.internal}</span>
+                                ) : p.data.links.github ? (
+                                    <a
+                                        href={p.data.links.github}
+                                        aria-label={`${p.data.title} — GitHub`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        GH ↗
+                                    </a>
+                                ) : null}
+                            </td>
+                        </tr>
+                    ))
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .flat-file {
+        margin-top: 56px;
+    }
+
+    .flat-label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+        margin-bottom: 8px;
+    }
+
+    .flat-toggle {
+        display: none;
+        width: 100%;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        text-align: center;
+        border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+        border-radius: var(--radius-button);
+        padding: 14px;
+        transition:
+            color var(--dur-hover) var(--ease),
+            border-color var(--dur-hover) var(--ease);
+    }
+
+    .flat-toggle:hover {
+        color: var(--accent);
+        border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+
+    /* JS collapses .flat-body via [hidden] — only honored on mobile. */
+    .flat-body[hidden] {
+        display: block;
+    }
+
+    .flat-table {
+        display: block;
+        width: 100%;
+        border-collapse: collapse;
+        line-height: normal;
+    }
+
+    .flat-table thead,
+    .flat-table tbody {
+        display: contents;
+    }
+
+    .flat-table tr {
+        display: grid;
+        grid-template-columns: 46px 1.4fr 1.2fr 70px 220px;
+    }
+
+    .flat-table th,
+    .flat-table td {
+        padding: 0;
+        text-align: left;
+        font-weight: 400;
+    }
+
+    thead tr {
+        padding: 10px 12px;
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        color: var(--faint);
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
+    }
+
+    tbody tr {
+        align-items: baseline;
+        padding: 18px 12px;
+        border-bottom: 1px solid var(--hairline);
+        transition: background var(--dur-hover) var(--ease);
+    }
+
+    tbody tr:hover {
+        background: color-mix(in srgb, var(--accent) 5%, transparent);
+    }
+
+    .c-no {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--faint);
+    }
+
+    .c-name {
+        font-family: var(--font-display);
+        font-size: 21px;
+        color: var(--ink);
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    tbody tr:hover .c-name {
+        color: var(--accent);
+    }
+
+    .c-stack,
+    .c-year {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--muted);
+    }
+
+    .c-links {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        text-align: right;
+    }
+
+    .c-links a {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .c-links a:hover {
+        color: var(--ink);
+    }
+
+    .internal {
+        color: var(--faint);
+    }
+
+    @media (max-width: 640px) {
+        .flat-toggle {
+            display: block;
+        }
+
+        .flat-label {
+            display: none;
+        }
+
+        .flat-body {
+            margin-top: 20px;
+        }
+
+        .flat-body[hidden] {
+            display: none;
+        }
+
+        /* Header row: visually hidden, kept for AT. */
+        thead tr {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            padding: 0;
+            border: 0;
+        }
+
+        /* Expanded rows restack — mobile table layout is undrawn in the handoff. */
+        tbody tr {
+            grid-template-columns: 40px 1fr auto;
+            grid-template-areas:
+                "no name year"
+                "no stack stack"
+                "no links links";
+            row-gap: 6px;
+            padding: 16px 4px;
+        }
+
+        .c-no {
+            grid-area: no;
+        }
+
+        .c-name {
+            grid-area: name;
+            font-size: 19px;
+        }
+
+        .c-year {
+            grid-area: year;
+            font-size: 9.5px;
+        }
+
+        .c-stack {
+            grid-area: stack;
+            font-size: 9.5px;
+        }
+
+        .c-links {
+            grid-area: links;
+            text-align: left;
+        }
+
+        .c-links a {
+            display: inline-block;
+            padding: 6px 0;
+        }
+    }
+</style>
+
+<script>
+    /* Collapse the archive behind the toggle. [hidden] only takes effect on
+       mobile (desktop CSS overrides it), so one code path covers both. */
+    const toggle = document.querySelector<HTMLButtonElement>(".flat-toggle");
+    const body = document.getElementById("flat-file-body");
+    if (toggle && body) {
+        body.hidden = true;
+        toggle.addEventListener("click", () => {
+            body.hidden = !body.hidden;
+            toggle.setAttribute("aria-expanded", String(!body.hidden));
+        });
+    }
+</script>

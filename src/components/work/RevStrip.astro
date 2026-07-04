@@ -1,0 +1,162 @@
+---
+// "This website" rev strip — REV A thumbnail → REV D, full-width bordered row (#6a).
+import { Picture } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+    project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { year, stackLabel, links, cover, coverAlt } = project.data;
+const studyHref = `/work/${project.id}`;
+---
+
+<article class="rev-strip reveal">
+    {
+        cover && (
+            <Picture
+                src={cover}
+                alt={coverAlt ?? "REV A of this website"}
+                widths={[150, 300]}
+                sizes="150px"
+                formats={["avif", "webp"]}
+                loading="lazy"
+            />
+        )
+    }
+    <p class="rev-label">REV A — 2021</p>
+    <span class="rev-arrow" aria-hidden="true">→</span>
+    <div class="rev-main">
+        <h3>
+            <a href={studyHref}>This website — <em>REV D, you're inside it</em></a>
+        </h3>
+        <p class="rev-sub">{stackLabel} — {year}</p>
+    </div>
+    <div class="rev-links">
+        <a class="primary" href={studyHref} aria-label="This website — case study">STUDY →</a>
+        {
+            links.github && (
+                <a
+                    href={links.github}
+                    aria-label="This website — GitHub"
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    GH ↗
+                </a>
+            )
+        }
+    </div>
+</article>
+
+<style>
+    .rev-strip {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        border: 1px solid var(--line);
+        margin-top: 28px;
+        padding: 18px 24px;
+        transition: border-color var(--dur-hover) var(--ease);
+    }
+
+    .rev-strip:hover,
+    .rev-strip:focus-within {
+        border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+
+    .rev-strip :global(picture) {
+        flex: none;
+    }
+
+    .rev-strip :global(img) {
+        width: 150px;
+        height: 84px;
+        object-fit: cover;
+        object-position: top;
+        border: 1px solid var(--line);
+        filter: grayscale(60%);
+    }
+
+    .rev-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--faint);
+        white-space: nowrap;
+    }
+
+    .rev-arrow {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--accent);
+    }
+
+    .rev-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .rev-main h3 {
+        font-size: 24px;
+    }
+
+    .rev-main a {
+        color: var(--ink);
+        text-decoration: none;
+    }
+
+    .rev-sub {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+
+    .rev-links {
+        display: flex;
+        gap: 16px;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+    }
+
+    .rev-links a {
+        text-decoration: none;
+        color: var(--muted);
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .rev-links a:hover {
+        color: var(--ink);
+    }
+
+    .rev-links a.primary {
+        color: var(--accent);
+    }
+
+    /* Mobile layout is undrawn in the handoff — wrap into two rows. */
+    @media (max-width: 640px) {
+        .rev-strip {
+            flex-wrap: wrap;
+            gap: 14px 20px;
+            padding: 16px;
+        }
+
+        .rev-main {
+            flex-basis: 100%;
+        }
+
+        .rev-main h3 {
+            font-size: 20px;
+        }
+
+        .rev-links {
+            flex-basis: 100%;
+        }
+
+        .rev-links a {
+            padding: 6px 0;
+        }
+    }
+</style>

@@ -1,14 +1,81 @@
 ---
-// STUB — replaced by the galleries build step.
+// SHEET 04 — Photographs. Mixed-width plate grid (1.4fr 1fr 1fr 1.2fr):
+// real frames from src/data/galleries.ts plus dashed placeholder slots.
 import SectionHeader from "../SectionHeader.astro";
+import GalleryTile from "./GalleryTile.astro";
+import PlaceholderTile from "./PlaceholderTile.astro";
+import Lightbox from "./Lightbox.astro";
+import { photographs } from "../../data/galleries";
+import { SITE } from "../../data/site";
+
+// Dashed slots fill the last 4-column row; they vanish as real frames land.
+const placeholderCount = (4 - (photographs.length % 4)) % 4;
 ---
 
-<section id="photo" class="sheet" aria-label="Photographs">
-    <SectionHeader sheet="SHEET 04" title="Photographs" />
+<section id="photo" class="sheet hairline-top" aria-label="Photographs">
+    <SectionHeader sheet="SHEET 04" title="Photographs" aside="— 35mm & digital, mostly personal">
+        <a class="shelf-link" href={SITE.flickr} target="_blank" rel="noreferrer">
+            FLICKR — FULL ROLL ↗
+        </a>
+    </SectionHeader>
+
+    <div class="gallery-grid">
+        {
+            photographs.map((item) => (
+                <GalleryTile
+                    item={item}
+                    lightboxId="photo-lightbox"
+                    widths={[400, 800]}
+                    sizes="(max-width: 640px) calc(100vw - 40px), (max-width: 900px) 50vw, 30vw"
+                />
+            ))
+        }
+        {
+            Array.from({ length: placeholderCount }, (_, i) => (
+                <PlaceholderTile caption="FR-XX / YEAR" extra={i > 0} />
+            ))
+        }
+    </div>
+
+    <Lightbox id="photo-lightbox" label="Photographs lightbox" items={photographs} />
 </section>
 
 <style>
     .sheet {
         padding: var(--space-section) var(--space-gutter) 72px;
+    }
+
+    .shelf-link {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .shelf-link:hover,
+    .shelf-link:focus-visible {
+        text-decoration: underline;
+    }
+
+    .gallery-grid {
+        --tile-h: 300px;
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+        gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+        .gallery-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .gallery-grid {
+            --tile-h: 240px;
+            grid-template-columns: 1fr;
+        }
     }
 </style>

@@ -39,18 +39,22 @@ studyMeta:
     pullQuote: "The scrapers run every 24 hours — the data is never staler than a day, and nobody refreshes four websites again."
 ---
 
-<!-- BODY = case study. Chapters (## headings) become the "ON THIS SHEET" nav.
-     The verbatim chapter copy lives in the handoff prototype (#7a) and is
-     ported by the work-sheet build step. -->
+<!-- Chapter copy verbatim from handoff prototype #7a. Chapters (## headings)
+     become the "ON THIS SHEET" nav; the pull-quote renders from
+     studyMeta.pullQuote (do not duplicate it here). -->
 
 ## The problem
 
-PLACEHOLDER — ported from handoff prototype.
+Vanderbilt students hunting for off-campus housing were juggling four separate apartment-complex websites with no way to compare price, size, or availability side by side. The listings changed daily; the tabs multiplied.
 
 ## The build
 
-PLACEHOLDER — ported from handoff prototype.
+Custom scrapers collect listings from all four complexes nightly on a cron schedule, normalize them into MongoDB, and serve a REST API the React frontend filters instantly — price, beds, baths, square footage. Everything runs as six Docker containers on a Chameleon Cloud VM.
+
+![PLATE II — FILTERING & COMPARISON](../../assets/projects/house-vandy/house_vandy2.png)
+
+*PLATE II — FILTERING & COMPARISON*
 
 ## The outcome
 
-PLACEHOLDER — ported from handoff prototype.
+Designed the system architecture with two teammates and shipped it end to end — scrapers to UI — for Principles of Cloud Computing. The deployment survived the semester without a restart; the pattern (scrape → normalize → serve) became my default for data-aggregation side projects.

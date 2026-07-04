@@ -1,0 +1,388 @@
+---
+// Featured "working drawing" card — image variant + text-sheet variant (#6a/#6c).
+import { Picture } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+    project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { title, year, stackLabel, links, primaryLink, cover, coverAlt, coverPosition, textSheet, study } =
+    project.data;
+
+type LinkKey = "live" | "app" | "github" | "study";
+
+interface CardLink {
+    key: LinkKey;
+    label: string;
+    href: string;
+    external: boolean;
+}
+
+const linkNames: Record<LinkKey, string> = {
+    live: "live site",
+    app: "App Store",
+    github: "GitHub",
+    study: "case study",
+};
+
+const allLinks: CardLink[] = [];
+if (links.live) allLinks.push({ key: "live", label: "LIVE ↗", href: links.live, external: true });
+if (links.app) allLinks.push({ key: "app", label: "APP ↗", href: links.app, external: true });
+if (links.github) allLinks.push({ key: "github", label: "GH ↗", href: links.github, external: true });
+if (study !== "none")
+    allLinks.push({ key: "study", label: "STUDY →", href: `/work/${project.id}`, external: false });
+
+/* Primary link first, the rest keep their live/app/gh/study order (#6a). */
+const cardLinks = [
+    ...allLinks.filter((l) => l.key === primaryLink),
+    ...allLinks.filter((l) => l.key !== primaryLink),
+];
+
+/* Card media/title target: the study when it exists, else the primary link. */
+const studyHref = study !== "none" ? `/work/${project.id}` : undefined;
+const primary = allLinks.find((l) => l.key === primaryLink);
+const media = studyHref
+    ? { href: studyHref, external: false, name: "case study" }
+    : primary
+      ? { href: primary.href, external: primary.external, name: linkNames[primary.key] }
+      : undefined;
+---
+
+<article class="work-card reveal" style={`--cover-pos: ${coverPosition ?? "top"}`}>
+    {
+        media && (
+            <a
+                class:list={["card-media", { "is-text": !cover && textSheet }]}
+                href={media.href}
+                aria-label={`${title} — ${media.name}`}
+                target={media.external ? "_blank" : undefined}
+                rel={media.external ? "noreferrer" : undefined}
+            >
+                {cover ? (
+                    <Picture
+                        src={cover}
+                        alt={coverAlt ?? title}
+                        widths={[480, 768, 1200]}
+                        sizes="(max-width: 640px) calc(100vw - 40px), (max-width: 900px) calc(100vw - 64px), 642px"
+                        formats={["avif", "webp"]}
+                        loading="lazy"
+                    />
+                ) : (
+                    textSheet && (
+                        <>
+                            <p class="ts-kicker">{textSheet.kicker}</p>
+                            <p class="ts-quote">"{textSheet.quote}"</p>
+                        </>
+                    )
+                )}
+            </a>
+        )
+    }
+
+    {/* Desktop title-block strip: PROJECT / STACK / DATE / ISSUE (#6a). */}
+    <div class="card-meta">
+        <div class="meta-cell">
+            <span class="meta-label">PROJECT</span>
+            {
+                media ? (
+                    <a
+                        class="card-title"
+                        href={media.href}
+                        target={media.external ? "_blank" : undefined}
+                        rel={media.external ? "noreferrer" : undefined}
+                    >
+                        {title}
+                    </a>
+                ) : (
+                    <span class="card-title">{title}</span>
+                )
+            }
+        </div>
+        <div class="meta-cell">
+            <span class="meta-label">STACK / DATE</span>
+            <span class="meta-value">{stackLabel} — {year}</span>
+        </div>
+        <div class="meta-cell">
+            <span class="meta-label">ISSUE</span>
+            <span class="card-links">
+                {
+                    cardLinks.map((l) => (
+                        <a
+                            class:list={["card-link", { primary: l.key === primaryLink }]}
+                            href={l.href}
+                            aria-label={`${title} — ${linkNames[l.key]}`}
+                            target={l.external ? "_blank" : undefined}
+                            rel={l.external ? "noreferrer" : undefined}
+                        >
+                            {l.label}
+                        </a>
+                    ))
+                }
+            </span>
+        </div>
+    </div>
+
+    {/* Compact mobile meta: title + year, stack + links (#6c). */}
+    <div class:list={["card-meta-m", { "is-text": !cover && textSheet }]}>
+        {
+            !cover && textSheet ? (
+                <div class="mm-row">
+                    <span class="mm-stack">{title.toUpperCase()} — {year}</span>
+                    <span class="mm-links">
+                        {cardLinks.map((l) => (
+                            <a
+                                class:list={["card-link", { primary: l.key === primaryLink }]}
+                                href={l.href}
+                                aria-label={`${title} — ${linkNames[l.key]}`}
+                                target={l.external ? "_blank" : undefined}
+                                rel={l.external ? "noreferrer" : undefined}
+                            >
+                                {l.label}
+                            </a>
+                        ))}
+                    </span>
+                </div>
+            ) : (
+                <>
+                    <div class="mm-row">
+                        {media ? (
+                            <a
+                                class="mm-title"
+                                href={media.href}
+                                target={media.external ? "_blank" : undefined}
+                                rel={media.external ? "noreferrer" : undefined}
+                            >
+                                {title}
+                            </a>
+                        ) : (
+                            <span class="mm-title">{title}</span>
+                        )}
+                        <span class="mm-year">{year}</span>
+                    </div>
+                    <div class="mm-row">
+                        <span class="mm-stack">{stackLabel}</span>
+                        <span class="mm-links">
+                            {cardLinks.map((l) => (
+                                <a
+                                    class:list={["card-link", { primary: l.key === primaryLink }]}
+                                    href={l.href}
+                                    aria-label={`${title} — ${linkNames[l.key]}`}
+                                    target={l.external ? "_blank" : undefined}
+                                    rel={l.external ? "noreferrer" : undefined}
+                                >
+                                    {l.label}
+                                </a>
+                            ))}
+                        </span>
+                    </div>
+                </>
+            )
+        }
+    </div>
+</article>
+
+<style>
+    .work-card {
+        border: 1px solid var(--line);
+        background: var(--card);
+        transition: border-color var(--dur-hover) var(--ease);
+    }
+
+    .work-card:hover,
+    .work-card:focus-within {
+        border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+
+    .card-media {
+        display: block;
+        overflow: hidden;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .card-media :global(img) {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        object-position: var(--cover-pos, top);
+        transition: transform 600ms var(--ease);
+    }
+
+    .work-card:hover .card-media :global(img) {
+        transform: scale(1.02);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .work-card:hover .card-media :global(img) {
+            transform: none;
+        }
+    }
+
+    /* --- text-sheet variant (Her Future Coalition) --- */
+
+    .card-media.is-text {
+        height: 300px;
+        padding: 30px 32px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 14px;
+        text-decoration: none;
+        background-image:
+            linear-gradient(color-mix(in srgb, var(--ink) 3%, transparent) 1px, transparent 1px),
+            linear-gradient(90deg, color-mix(in srgb, var(--ink) 3%, transparent) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .ts-kicker {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+    }
+
+    .ts-quote {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 26px;
+        line-height: 1.45;
+        color: var(--ink);
+    }
+
+    /* --- desktop title-block strip --- */
+
+    .card-meta {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        line-height: normal;
+    }
+
+    .meta-cell {
+        padding: 12px 14px;
+        min-width: 0;
+    }
+
+    .meta-cell + .meta-cell {
+        border-left: 1px solid var(--hairline);
+    }
+
+    .meta-label {
+        display: block;
+        color: var(--faint);
+        margin-bottom: 3px;
+    }
+
+    .card-title {
+        font-family: var(--font-display);
+        font-size: 19px;
+        letter-spacing: 0;
+        color: var(--ink);
+        text-decoration: none;
+    }
+
+    .meta-value {
+        color: var(--muted);
+    }
+
+    .card-links,
+    .mm-links {
+        display: inline-flex;
+        flex-wrap: wrap;
+        column-gap: 8px;
+    }
+
+    .card-link {
+        color: var(--muted);
+        text-decoration: none;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .card-link:hover {
+        color: var(--ink);
+    }
+
+    .card-link.primary {
+        color: var(--accent);
+    }
+
+    /* --- compact mobile meta --- */
+
+    .card-meta-m {
+        display: none;
+    }
+
+    @media (max-width: 640px) {
+        .card-media :global(img) {
+            height: 170px;
+        }
+
+        .card-media.is-text {
+            height: auto;
+            padding: 18px 16px 10px;
+            gap: 8px;
+            border-bottom: 0;
+        }
+
+        .ts-kicker {
+            font-size: 8.5px;
+        }
+
+        .ts-quote {
+            font-size: 17px;
+        }
+
+        .card-meta {
+            display: none;
+        }
+
+        .card-meta-m {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 12px 14px;
+            line-height: normal;
+        }
+
+        .card-meta-m.is-text {
+            padding: 0 16px 16px;
+        }
+
+        .mm-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            font-family: var(--font-mono);
+            font-size: 9.5px;
+        }
+
+        .mm-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: var(--ink);
+            text-decoration: none;
+        }
+
+        .mm-year {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--faint);
+        }
+
+        .mm-stack {
+            color: var(--muted);
+        }
+
+        .mm-links {
+            column-gap: 12px;
+        }
+
+        .mm-links .card-link {
+            padding: 6px 0;
+        }
+    }
+</style>

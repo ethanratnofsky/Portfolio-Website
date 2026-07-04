@@ -1,3 +1,556 @@
 ---
-// STUB — replaced by the palette build step (mounts the ⌘K command palette island).
+import { getCollection } from "astro:content";
+import { SITE } from "../../data/site";
+
+/* ⌘K command palette (handoff screen #7c) — "draft a destination".
+   Mounted once per page; safe on any route: NAVIGATE entries use absolute
+   hrefs (/#work, /work/<id>), and same-page anchors smooth-scroll instead.
+   Opens with ⌘K / Ctrl+K anywhere, or "$" when not typing. */
+
+const studies = (await getCollection("projects"))
+    .filter((project) => project.data.study !== "none")
+    .sort((a, b) => a.data.order - b.data.order);
+
+const navigate = [
+    { num: "01", name: "The draft", path: "/#hero" },
+    { num: "02", name: "Working drawings", path: "/#work" },
+    { num: "03", name: "Design work", path: "/#design" },
+    { num: "04", name: "Photographs", path: "/#photo" },
+    { num: "05", name: "About", path: "/#about" },
+    { num: "06", name: "Contact", path: "/#contact" },
+    ...studies.map((project) => ({
+        num: project.data.flatFileNo ?? String(project.data.order).padStart(2, "0"),
+        name: project.data.title,
+        path: `/work/${project.id}`,
+    })),
+];
+
+const paletteData = { navigate, resumePath: SITE.resumePath };
 ---
+
+<dialog class="palette" aria-label="Command palette">
+    <div class="palette-header">
+        <span class="palette-prompt" aria-hidden="true">$</span>
+        <input
+            class="palette-input"
+            type="text"
+            role="combobox"
+            aria-label="Type a command or search"
+            aria-expanded="true"
+            aria-controls="palette-list"
+            aria-autocomplete="list"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+        />
+        <span class="palette-esc" aria-hidden="true">ESC</span>
+    </div>
+    <div class="palette-list" id="palette-list" role="listbox" aria-label="Commands"></div>
+    <div class="palette-footer">
+        <span>↑↓ NAVIGATE · ↵ OPEN · ESC CLOSE</span>
+        <span>FUZZY-MATCHED, TERMINAL-FLAVORED</span>
+    </div>
+</dialog>
+
+<script is:inline type="application/json" id="palette-data" set:html={JSON.stringify(paletteData)} />
+
+<style>
+    .palette {
+        width: 580px;
+        max-width: calc(100vw - 40px);
+        max-height: calc(100vh - 170px);
+        /* native <dialog> centers via inset + auto margins; pin 130px from the top */
+        margin: 130px auto auto;
+        padding: 0;
+        background: var(--panel);
+        color: var(--ink);
+        border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+        border-radius: var(--radius-modal);
+        box-shadow: var(--shadow-modal);
+    }
+
+    .palette[open] {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .palette::backdrop {
+        /* literal fallback: custom-property inheritance into ::backdrop is newer */
+        background: rgba(13, 11, 9, 0.55);
+        background: var(--scrim);
+    }
+
+    .palette-header {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--hairline);
+    }
+
+    .palette-prompt {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--accent);
+    }
+
+    .palette-input {
+        flex: 1;
+        min-width: 0;
+        background: none;
+        border: none;
+        padding: 0;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--ink);
+        caret-color: var(--accent);
+    }
+
+    .palette-input:focus {
+        /* the open palette is the focus context; the amber caret marks the field */
+        outline: none;
+    }
+
+    .palette-esc {
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        color: var(--faint);
+        border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+        border-radius: var(--radius-button);
+        padding: 3px 7px;
+    }
+
+    .palette-list {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-bottom: 2px;
+    }
+
+    .palette-list :global(.palette-group) {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        color: var(--faint);
+        padding: 12px 20px 6px;
+    }
+
+    .palette-list :global(.palette-group.is-divided) {
+        border-top: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+        margin-top: 6px;
+        padding-top: 14px;
+    }
+
+    .palette-list :global(.palette-row) {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        /* 2px left border on every row so the selection bar never shifts text */
+        padding: 12px 20px 12px 18px;
+        border-left: 2px solid transparent;
+        cursor: pointer;
+    }
+
+    .palette-list :global(.palette-row:not([aria-selected="true"]):hover) {
+        background: color-mix(in srgb, var(--accent) 5%, transparent);
+    }
+
+    .palette-list :global(.palette-row[aria-selected="true"]) {
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        border-left-color: var(--accent);
+    }
+
+    .palette-list :global(.palette-row-num) {
+        flex: none;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--faint);
+    }
+
+    .palette-list :global(.palette-row[aria-selected="true"] .palette-row-num) {
+        color: var(--accent);
+    }
+
+    .palette-list :global(.palette-row-name) {
+        font-family: var(--font-display);
+        font-size: 19px;
+        line-height: 1.15;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .palette-list :global(.palette-row[aria-selected="true"] .palette-row-name) {
+        color: var(--ink);
+    }
+
+    .palette-list :global(.palette-row-path) {
+        flex: none;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--faint);
+    }
+
+    .palette-list :global(.palette-row[aria-selected="true"] .palette-row-path) {
+        color: var(--muted);
+    }
+
+    .palette-list :global(.palette-match) {
+        color: var(--accent);
+    }
+
+    .palette-list :global(.palette-row-enter) {
+        margin-left: auto;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--muted);
+        visibility: hidden;
+    }
+
+    .palette-list :global(.palette-row[aria-selected="true"] .palette-row-enter) {
+        visibility: visible;
+    }
+
+    .palette-list :global(.palette-empty) {
+        font-family: var(--font-mono);
+        font-size: var(--text-terminal);
+        color: var(--faint);
+        padding: 18px 20px;
+    }
+
+    .palette-footer {
+        flex: none;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 20px;
+        border-top: 1px solid var(--hairline);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        color: var(--faint);
+    }
+
+    @media (max-width: 640px) {
+        .palette {
+            margin-top: 72px;
+            max-height: calc(100vh - 112px);
+        }
+    }
+</style>
+
+<script>
+    interface NavEntryData {
+        num: string;
+        name: string;
+        path: string;
+    }
+
+    interface PaletteData {
+        navigate: NavEntryData[];
+        resumePath: string;
+    }
+
+    type Entry =
+        | { kind: "nav"; num: string; name: string; path: string }
+        | { kind: "action"; id: "theme" | "resume" | "replay"; glyph: string; name: string };
+
+    interface Match {
+        entry: Entry;
+        namePos: number[];
+        pathPos: number[];
+    }
+
+    function initPalette(
+        dialog: HTMLDialogElement,
+        input: HTMLInputElement,
+        list: HTMLElement,
+        dataEl: HTMLElement,
+    ): void {
+        const data = JSON.parse(dataEl.textContent ?? "{}") as PaletteData;
+
+        const entries: Entry[] = [
+            ...data.navigate.map((entry) => ({ kind: "nav" as const, ...entry })),
+            { kind: "action", id: "theme", glyph: "◐", name: "Toggle theme" },
+            { kind: "action", id: "resume", glyph: "↓", name: "Download resume" },
+            { kind: "action", id: "replay", glyph: "⟲", name: "Replay the draft" },
+        ];
+
+        let matches: Match[] = [];
+        let selected = 0;
+        let lastFocused: HTMLElement | null = null;
+
+        const reduceMotion = () =>
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* Case-insensitive subsequence match; returns matched indices in text
+           (in order), or null when the query is not a subsequence. */
+        function fuzzyMatch(query: string, text: string): number[] | null {
+            const q = query.toLowerCase();
+            const t = text.toLowerCase();
+            const positions: number[] = [];
+            let from = 0;
+            for (const ch of q) {
+                const found = t.indexOf(ch, from);
+                if (found === -1) return null;
+                positions.push(found);
+                from = found + 1;
+            }
+            return positions;
+        }
+
+        function computeMatches(rawQuery: string): Match[] {
+            const query = rawQuery.trim();
+            const result: Match[] = [];
+            for (const entry of entries) {
+                if (query === "") {
+                    result.push({ entry, namePos: [], pathPos: [] });
+                    continue;
+                }
+                const name = entry.name;
+                const text = entry.kind === "nav" ? `${name} ${entry.path}` : name;
+                const positions = fuzzyMatch(query, text);
+                if (!positions) continue;
+                const namePos: number[] = [];
+                const pathPos: number[] = [];
+                for (const i of positions) {
+                    if (i < name.length) namePos.push(i);
+                    else if (i > name.length) pathPos.push(i - name.length - 1);
+                }
+                result.push({ entry, namePos, pathPos });
+            }
+            return result;
+        }
+
+        /* Wraps matched characters in accent <span class="palette-match">. */
+        function highlight(text: string, positions: number[], className: string): HTMLSpanElement {
+            const span = document.createElement("span");
+            span.className = className;
+            const matched = new Set(positions);
+            let buffer = "";
+            let bufferMatched = false;
+            const flush = () => {
+                if (!buffer) return;
+                if (bufferMatched) {
+                    const mark = document.createElement("span");
+                    mark.className = "palette-match";
+                    mark.textContent = buffer;
+                    span.appendChild(mark);
+                } else {
+                    span.appendChild(document.createTextNode(buffer));
+                }
+                buffer = "";
+            };
+            for (let i = 0; i < text.length; i++) {
+                const isMatch = matched.has(i);
+                if (isMatch !== bufferMatched) {
+                    flush();
+                    bufferMatched = isMatch;
+                }
+                buffer += text[i];
+            }
+            flush();
+            return span;
+        }
+
+        function applySelection(): void {
+            const rows = list.querySelectorAll<HTMLElement>(".palette-row");
+            rows.forEach((row, i) => {
+                row.setAttribute("aria-selected", i === selected ? "true" : "false");
+            });
+            const active = rows[selected];
+            if (active) {
+                input.setAttribute("aria-activedescendant", active.id);
+                active.scrollIntoView({ block: "nearest" });
+            } else {
+                input.removeAttribute("aria-activedescendant");
+            }
+        }
+
+        function buildRow(match: Match, index: number): HTMLDivElement {
+            const entry = match.entry;
+            const row = document.createElement("div");
+            row.className = "palette-row";
+            row.id = `palette-opt-${index}`;
+            row.setAttribute("role", "option");
+            row.setAttribute("aria-selected", "false");
+
+            const num = document.createElement("span");
+            num.className = "palette-row-num";
+            num.textContent = entry.kind === "nav" ? entry.num : entry.glyph;
+            row.appendChild(num);
+
+            row.appendChild(highlight(entry.name, match.namePos, "palette-row-name"));
+            if (entry.kind === "nav") {
+                row.appendChild(highlight(entry.path, match.pathPos, "palette-row-path"));
+            }
+
+            const enter = document.createElement("span");
+            enter.className = "palette-row-enter";
+            enter.textContent = "↵";
+            enter.setAttribute("aria-hidden", "true");
+            row.appendChild(enter);
+
+            // keep focus in the query input while clicking rows
+            row.addEventListener("mousedown", (e) => e.preventDefault());
+            // hover selects — mousemove (not mouseenter) so keyboard scrolling
+            // under a resting cursor doesn't steal the selection
+            row.addEventListener("mousemove", () => {
+                if (selected !== index) {
+                    selected = index;
+                    applySelection();
+                }
+            });
+            row.addEventListener("click", () => execute(match));
+            return row;
+        }
+
+        function render(): void {
+            list.textContent = "";
+            if (matches.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "palette-empty";
+                empty.setAttribute("role", "presentation");
+                empty.textContent = "no sheets match — try help";
+                list.appendChild(empty);
+                input.removeAttribute("aria-activedescendant");
+                return;
+            }
+            const frag = document.createDocumentFragment();
+            let lastKind: Entry["kind"] | null = null;
+            matches.forEach((match, index) => {
+                if (match.entry.kind !== lastKind) {
+                    const label = document.createElement("div");
+                    label.className = "palette-group" + (lastKind !== null ? " is-divided" : "");
+                    label.setAttribute("role", "presentation");
+                    label.textContent = match.entry.kind === "nav" ? "NAVIGATE" : "ACTIONS";
+                    frag.appendChild(label);
+                    lastKind = match.entry.kind;
+                }
+                frag.appendChild(buildRow(match, index));
+            });
+            list.appendChild(frag);
+            applySelection();
+        }
+
+        function navigateTo(path: string): void {
+            const hash = path.startsWith("/#") ? path.slice(2) : null;
+            const target = hash ? document.getElementById(hash) : null;
+            if (target) {
+                // same page: dialog is already closed — smooth-scroll to the sheet
+                target.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth" });
+                history.replaceState(null, "", `#${hash}`);
+            } else {
+                window.location.href = path;
+            }
+        }
+
+        function replay(): void {
+            // mirrors the footer signature easter egg
+            if (document.getElementById("top")) {
+                window.scrollTo({ top: 0, behavior: reduceMotion() ? "auto" : "smooth" });
+                window.dispatchEvent(new CustomEvent("compile:replay"));
+            } else {
+                window.location.href = "/?replay";
+            }
+        }
+
+        function execute(match: Match): void {
+            const entry = match.entry;
+            close();
+            if (entry.kind === "nav") {
+                navigateTo(entry.path);
+            } else if (entry.id === "theme") {
+                document.querySelector<HTMLButtonElement>(".theme-toggle")?.click();
+            } else if (entry.id === "resume") {
+                window.open(data.resumePath, "_blank", "noopener");
+            } else {
+                replay();
+            }
+        }
+
+        function open(): void {
+            if (dialog.open) return;
+            lastFocused =
+                document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            input.value = "";
+            matches = computeMatches("");
+            selected = 0;
+            render();
+            dialog.showModal();
+            input.focus();
+        }
+
+        function close(): void {
+            if (dialog.open) dialog.close();
+        }
+
+        // Esc closes natively (cancel → close); restore focus to the opener
+        dialog.addEventListener("close", () => {
+            if (lastFocused && lastFocused.isConnected) {
+                lastFocused.focus({ preventScroll: true });
+            }
+            lastFocused = null;
+        });
+
+        // backdrop click closes (clicks on ::backdrop target the dialog itself)
+        dialog.addEventListener("click", (e) => {
+            if (e.target === dialog) close();
+        });
+
+        input.addEventListener("input", () => {
+            matches = computeMatches(input.value);
+            selected = 0;
+            render();
+        });
+
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                e.preventDefault();
+                if (matches.length === 0) return;
+                const delta = e.key === "ArrowDown" ? 1 : -1;
+                selected = (selected + delta + matches.length) % matches.length;
+                applySelection();
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                const match = matches[selected];
+                if (match) execute(match);
+            }
+        });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.defaultPrevented || e.isComposing) return;
+            if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey) && !e.altKey) {
+                e.preventDefault();
+                if (dialog.open) {
+                    close();
+                } else {
+                    open();
+                }
+                return;
+            }
+            // "$" opens too — but never while typing (inputs, textareas,
+            // contenteditable — including the hero's hidden terminal input)
+            if (e.key === "$" && !e.metaKey && !e.ctrlKey && !e.altKey && !dialog.open) {
+                const t = e.target;
+                const typing =
+                    t instanceof HTMLElement &&
+                    (t instanceof HTMLInputElement ||
+                        t instanceof HTMLTextAreaElement ||
+                        t instanceof HTMLSelectElement ||
+                        t.isContentEditable);
+                if (!typing) {
+                    e.preventDefault();
+                    open();
+                }
+            }
+        });
+    }
+
+    const dialog = document.querySelector<HTMLDialogElement>(".palette");
+    const input = document.querySelector<HTMLInputElement>(".palette-input");
+    const list = document.getElementById("palette-list");
+    const dataEl = document.getElementById("palette-data");
+    if (dialog && input && list && dataEl) initPalette(dialog, input, list, dataEl);
+</script>

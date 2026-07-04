@@ -1,14 +1,220 @@
 ---
-// STUB — replaced by the about/contact build step.
 import SectionHeader from "../SectionHeader.astro";
+import { EXPERIENCE, SKILL_CHIPS } from "../../data/experience";
+import { SITE } from "../../data/site";
 ---
 
-<section id="about" class="sheet" aria-label="About">
+<section id="about" class="sheet hairline-top" aria-label="About">
     <SectionHeader sheet="SHEET 05" title="About" />
+    <div class="about-cols">
+        <div class="about-bio reveal">
+            <h3 class="headline">
+                Engineer by trade, <em>draftsman by temperament<span class="dot">.</span></em>
+            </h3>
+            <div class="bio-body">
+                <p>
+                    I grew up in Newton, MA, studied computer science at Vanderbilt, and now
+                    build software in New York — the whole stack, with particular joy in the
+                    parts people touch.
+                </p>
+                <p>
+                    Before that: nonprofit platforms with Change++ (leading a team of five),
+                    two summers in AbbVie's Bioresearch Center, and a student government app
+                    that made it to the App Store.
+                </p>
+                <p>
+                    Off the clock I shoot film, draw letterforms, and keep this site
+                    pixel-perfect out of principle.
+                </p>
+            </div>
+            <ul class="chips" role="list">
+                {SKILL_CHIPS.map((skill) => <li class="chip">{skill}</li>)}
+            </ul>
+        </div>
+        <div class="about-spec reveal">
+            <div class="spec-panel">
+                <h3 class="spec-head">EXPERIENCE — SPECIFICATION</h3>
+                <dl class="spec-rows">
+                    {
+                        EXPERIENCE.map((row) => (
+                            <div class="spec-row">
+                                <dt>
+                                    <span class="org">{row.org}</span>
+                                    <span class="role"> — {row.role}</span>
+                                </dt>
+                                <dd class:list={["dates", { current: row.current }]}>
+                                    {row.dates}
+                                </dd>
+                            </div>
+                        ))
+                    }
+                </dl>
+            </div>
+            <a
+                class="btn btn-primary btn-resume"
+                href={SITE.resumePath}
+                target="_blank"
+                rel="noreferrer">RESUME.PDF ↓</a
+            >
+        </div>
+    </div>
 </section>
 
 <style>
     .sheet {
-        padding: var(--space-section) var(--space-gutter) 72px;
+        padding: var(--space-section) var(--space-gutter) 80px;
+    }
+
+    /* Prototype puts 40px under the sheet header; SectionHeader carries 32px,
+       so the columns pad the remaining 8px (padding: margins would collapse). */
+    .about-cols {
+        display: flex;
+        gap: 72px;
+        padding-top: 8px;
+    }
+
+    .about-bio {
+        flex: 1.15;
+    }
+
+    .about-spec {
+        flex: 1;
+    }
+
+    .headline {
+        font-size: 40px;
+        line-height: 1.25;
+        margin-bottom: 26px;
+    }
+
+    .dot {
+        color: var(--accent);
+        font-style: normal;
+    }
+
+    .bio-body {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 560px;
+        font-size: 16px;
+        line-height: 1.75;
+        color: var(--muted);
+    }
+
+    .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 30px;
+        padding: 0;
+        list-style: none;
+    }
+
+    .spec-panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+    }
+
+    .spec-head {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 400;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+        padding: 14px 18px;
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    }
+
+    .spec-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16px;
+        padding: 15px 18px;
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+    }
+
+    .spec-row:last-child {
+        border-bottom: none;
+    }
+
+    .org {
+        font-family: var(--font-display);
+        font-size: 19px;
+    }
+
+    .role {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--muted);
+    }
+
+    .dates {
+        flex: none;
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--muted);
+        text-align: right;
+    }
+
+    .dates.current {
+        color: var(--accent);
+    }
+
+    .btn-resume {
+        margin-top: 22px;
+    }
+
+    @media (max-width: 900px) {
+        .about-cols {
+            flex-direction: column;
+            gap: 48px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .sheet {
+            padding-bottom: 56px;
+        }
+
+        .headline {
+            font-size: 26px;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        .bio-body {
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .spec-head {
+            font-size: 9px;
+            letter-spacing: 0.16em;
+            padding: 12px 14px;
+        }
+
+        .spec-row {
+            padding: 13px 14px;
+        }
+
+        .org {
+            font-size: 16px;
+        }
+
+        .role,
+        .dates {
+            font-size: 9px;
+        }
+
+        .btn-resume {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 10px;
+        }
     }
 </style>

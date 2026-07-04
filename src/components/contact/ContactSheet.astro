@@ -1,14 +1,482 @@
 ---
-// STUB — replaced by the about/contact build step.
 import SectionHeader from "../SectionHeader.astro";
+import { SITE } from "../../data/site";
+
+const wired = SITE.formEndpoint !== null;
 ---
 
-<section id="contact" class="sheet" aria-label="Contact">
+<section id="contact" class="sheet hairline-top" aria-label="Contact">
     <SectionHeader sheet="SHEET 06" title="Contact" />
+    <div class="contact-cols">
+        <div class="contact-left">
+            <div class="contact-intro reveal">
+                <h3 class="hello">Say hello<span class="dot">.</span></h3>
+                {/* Anti-scraper: the address is assembled in JS on click — never in HTML. */}
+                <button type="button" id="email-reveal" class="email-line" aria-describedby="email-hint">
+                    ▮▮▮▮▮@▮▮▮▮▮▮▮▮▮▮▮▮▮.com
+                </button>
+                <a id="email-link" class="email-line" href="/#contact" hidden></a>
+                <p
+                    id="email-hint"
+                    class="email-hint"
+                    data-revealed-hint={SITE.emailIsPlaceholder
+                        ? "PLACEHOLDER ADDRESS — SWAP AT BUILD"
+                        : undefined}
+                >
+                    CLICK TO REVEAL — ASSEMBLED IN JS, NEVER IN SOURCE
+                </p>
+            </div>
+            <ul class="socials reveal" role="list">
+                {
+                    SITE.socials.map((social) => (
+                        <li>
+                            <a href={social.href} target="_blank" rel="noreferrer">
+                                {social.label} ↗
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+        <div class="contact-form-col reveal">
+            <form id="contact-form" class="contact-form" novalidate>
+                <div class="field-row">
+                    <div class="field">
+                        <label for="contact-name">NAME</label>
+                        <input
+                            type="text"
+                            id="contact-name"
+                            name="name"
+                            autocomplete="name"
+                            aria-describedby="contact-name-error"
+                            disabled={!wired}
+                        />
+                        <p id="contact-name-error" class="field-error" hidden>✗ NAME — REQUIRED</p>
+                    </div>
+                    <div class="field">
+                        <label for="contact-email">EMAIL</label>
+                        <input
+                            type="email"
+                            id="contact-email"
+                            name="email"
+                            autocomplete="email"
+                            aria-describedby="contact-email-error"
+                            disabled={!wired}
+                        />
+                        <p id="contact-email-error" class="field-error" hidden>
+                            ✗ EMAIL — INVALID FORMAT
+                        </p>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="contact-message">MESSAGE</label>
+                    <textarea
+                        id="contact-message"
+                        name="message"
+                        rows="4"
+                        aria-describedby="contact-message-error"
+                        disabled={!wired}></textarea>
+                    <p id="contact-message-error" class="field-error" hidden>
+                        ✗ MESSAGE — REQUIRED
+                    </p>
+                </div>
+                {
+                    !wired && (
+                        <p class="pending-note">
+                            FORM PENDING WIRING — SET formEndpoint IN src/data/site.ts · EMAIL
+                            WORKS TODAY
+                        </p>
+                    )
+                }
+                <div class="submit-block">
+                    <div class="submit-row">
+                        <button type="submit" class="btn btn-primary btn-send" disabled={!wired}>
+                            <span class="btn-idle">SEND →</span>
+                            <span class="btn-sending" hidden>SENDING <span class="blink">▮</span></span>
+                        </button>
+                    </div>
+                    <p id="submit-error" class="submit-error" aria-live="polite"></p>
+                </div>
+            </form>
+            <p id="form-sent" class="form-sent" aria-live="polite"></p>
+        </div>
+    </div>
 </section>
 
+<script>
+    import { SITE } from "../../data/site";
+
+    /* ---- email reveal — assembled at click-time only, never present in HTML ---- */
+    const revealBtn = document.getElementById("email-reveal");
+    const emailLink = document.getElementById("email-link") as HTMLAnchorElement | null;
+    const emailHint = document.getElementById("email-hint");
+
+    revealBtn?.addEventListener("click", () => {
+        if (!emailLink) return;
+        const address = SITE.emailParts.join("");
+        emailLink.href = `mailto:${address}`;
+        emailLink.textContent = address;
+        emailLink.hidden = false;
+        revealBtn.hidden = true;
+        if (emailHint) {
+            const revealedHint = emailHint.dataset.revealedHint;
+            if (revealedHint) {
+                emailHint.textContent = revealedHint;
+            } else {
+                emailHint.remove();
+            }
+        }
+        emailLink.focus();
+    });
+
+    /* ---- form: validation + submission states (idle / sending / sent / error) ---- */
+    const form = document.getElementById("contact-form") as HTMLFormElement | null;
+    const endpoint = SITE.formEndpoint;
+
+    if (form && endpoint) {
+        const nameField = document.getElementById("contact-name") as HTMLInputElement;
+        const emailField = document.getElementById("contact-email") as HTMLInputElement;
+        const messageField = document.getElementById("contact-message") as HTMLTextAreaElement;
+        const sendBtn = form.querySelector(".btn-send") as HTMLButtonElement;
+        const btnIdle = form.querySelector(".btn-idle") as HTMLElement;
+        const btnSending = form.querySelector(".btn-sending") as HTMLElement;
+        const submitError = document.getElementById("submit-error") as HTMLElement;
+        const formSent = document.getElementById("form-sent") as HTMLElement;
+
+        const setInvalid = (field: HTMLElement, invalid: boolean) => {
+            field.setAttribute("aria-invalid", String(invalid));
+            const error = document.getElementById(`${field.id}-error`);
+            if (error) error.hidden = !invalid;
+        };
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const nameOk = nameField.value.trim().length > 0;
+            const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailField.value.trim());
+            const messageOk = messageField.value.trim().length > 0;
+
+            setInvalid(nameField, !nameOk);
+            setInvalid(emailField, !emailOk);
+            setInvalid(messageField, !messageOk);
+
+            const firstInvalid = [nameField, emailField, messageField].find(
+                (field) => field.getAttribute("aria-invalid") === "true",
+            );
+            if (firstInvalid) {
+                firstInvalid.focus();
+                return;
+            }
+
+            submitError.textContent = "";
+            sendBtn.disabled = true;
+            btnIdle.hidden = true;
+            btnSending.hidden = false;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    body: new FormData(form),
+                    headers: { Accept: "application/json" },
+                });
+                if (!response.ok) throw new Error(`status ${response.status}`);
+                form.hidden = true;
+                formSent.textContent = "✓ message drafted — thanks, I'll reply soon.";
+            } catch {
+                sendBtn.disabled = false;
+                btnIdle.hidden = false;
+                btnSending.hidden = true;
+                submitError.textContent = "✗ transmission failed — email me instead.";
+            }
+        });
+    }
+</script>
+
 <style>
+    /* Site footer follows this sheet, so bottom padding stays modest. */
     .sheet {
-        padding: 96px var(--space-gutter) 0;
+        padding: 96px var(--space-gutter) 88px;
+    }
+
+    /* Prototype puts 44px under the sheet header; SectionHeader carries 32px. */
+    .contact-cols {
+        display: flex;
+        gap: 80px;
+        padding-top: 12px;
+    }
+
+    .contact-left,
+    .contact-form-col {
+        flex: 1;
+    }
+
+    .hello {
+        font-size: 72px;
+        line-height: 1.1;
+    }
+
+    .dot {
+        color: var(--accent);
+    }
+
+    .email-line {
+        display: inline-block;
+        margin-top: 22px;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 30px;
+        color: var(--accent);
+        text-align: left;
+        text-decoration: none;
+        border-bottom: 1px dotted color-mix(in srgb, var(--accent) 60%, transparent);
+        cursor: pointer;
+    }
+
+    .email-line:hover {
+        border-bottom-style: solid;
+    }
+
+    /* Author display values would beat the UA's [hidden] rule — keep it winning. */
+    .email-line[hidden],
+    .contact-form[hidden] {
+        display: none;
+    }
+
+    .email-hint {
+        margin-top: 10px;
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        color: var(--faint);
+    }
+
+    .socials {
+        display: flex;
+        gap: 24px;
+        margin-top: 40px;
+        padding: 0;
+        list-style: none;
+    }
+
+    .socials a {
+        display: inline-block;
+        padding: 13px 0;
+        margin: -13px 0;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color var(--dur-hover) var(--ease);
+    }
+
+    .socials a:hover {
+        color: var(--ink);
+    }
+
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+    }
+
+    .field-row {
+        display: flex;
+        gap: 26px;
+    }
+
+    .field-row .field {
+        flex: 1;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .field label {
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--faint);
+    }
+
+    .field input,
+    .field textarea {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
+        border-radius: 0;
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 15px;
+        padding: 10px 0;
+        transition: border-bottom-color var(--dur-hover) var(--ease);
+    }
+
+    .field textarea {
+        resize: none;
+    }
+
+    /* The global focus ring is replaced (for these fields only) by an equally
+       visible accent underline swap. */
+    .field input:focus-visible,
+    .field textarea:focus-visible {
+        outline: none;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+        border-bottom-color: var(--accent);
+    }
+
+    .field input:disabled,
+    .field textarea:disabled {
+        opacity: 0.55;
+    }
+
+    .field-error {
+        font-family: var(--font-mono);
+        font-size: var(--text-mono-micro);
+        letter-spacing: 0.08em;
+        color: var(--accent);
+    }
+
+    .pending-note {
+        font-family: var(--font-mono);
+        font-size: var(--text-mono-micro);
+        letter-spacing: 0.08em;
+        line-height: 1.9;
+        color: var(--faint);
+    }
+
+    .submit-row {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-send {
+        padding: 15px 28px;
+    }
+
+    .btn-send:disabled {
+        background: var(--accent);
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    .blink {
+        display: inline-block;
+        animation: send-blink var(--caret-blink) steps(1) infinite;
+    }
+
+    @keyframes send-blink {
+        50% {
+            opacity: 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .blink {
+            animation: none;
+        }
+    }
+
+    .submit-error {
+        margin-top: 14px;
+        font-family: var(--font-mono);
+        font-size: var(--text-mono-label);
+        letter-spacing: 0.04em;
+        text-align: right;
+        color: var(--accent);
+    }
+
+    .form-sent {
+        font-family: var(--font-mono);
+        font-size: var(--text-terminal);
+        letter-spacing: 0.04em;
+        color: var(--accent);
+    }
+
+    .submit-error:empty,
+    .form-sent:empty {
+        display: none;
+    }
+
+    @media (max-width: 900px) {
+        /* Stack per the 390 draft's order: intro → form → socials. */
+        .contact-cols {
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .contact-left {
+            display: contents;
+        }
+
+        .contact-intro {
+            order: 1;
+        }
+
+        .contact-form-col {
+            order: 2;
+        }
+
+        .socials {
+            order: 3;
+            margin-top: 0;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .sheet {
+            padding: 72px var(--space-gutter) 44px;
+        }
+
+        .contact-cols {
+            gap: 26px;
+        }
+
+        .hello {
+            font-size: 40px;
+        }
+
+        .email-line {
+            font-size: 19px;
+            margin-top: 12px;
+        }
+
+        .contact-form {
+            gap: 18px;
+        }
+
+        .field-row {
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .field input,
+        .field textarea {
+            padding: 12px 0;
+        }
+
+        .btn-send {
+            width: 100%;
+            text-align: center;
+            padding: 16px;
+            font-size: 10px;
+        }
+
+        .socials {
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .socials a {
+            font-size: 9.5px;
+            letter-spacing: 0.12em;
+        }
     }
 </style>

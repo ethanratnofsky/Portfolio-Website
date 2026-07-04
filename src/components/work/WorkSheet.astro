@@ -1,14 +1,79 @@
 ---
-// STUB — replaced by the work build step.
+// SHEET 02 — Working drawings (#6a): featured grid + rev strip + flat file.
+// Fully data-driven from the projects content collection.
+import { getCollection } from "astro:content";
 import SectionHeader from "../SectionHeader.astro";
+import FeaturedCard from "./FeaturedCard.astro";
+import RevStrip from "./RevStrip.astro";
+import FlatFile from "./FlatFile.astro";
+
+const projects = await getCollection("projects");
+const featured = projects
+    .filter((p) => p.data.featured)
+    .sort((a, b) => a.data.order - b.data.order);
+const revStrip = projects.find((p) => p.data.revStrip);
+const flatFile = projects
+    .filter((p) => p.data.flatFileNo)
+    .sort((a, b) => a.data.order - b.data.order);
+
+/* "05 FEATURED · 04 IN THE FLAT FILE" — the rev strip counts as featured. */
+const pad = (n: number) => String(n).padStart(2, "0");
+const featuredCount = pad(featured.length + (revStrip ? 1 : 0));
+const flatFileCount = pad(flatFile.length);
 ---
 
-<section id="work" class="sheet" aria-label="Working drawings">
-    <SectionHeader sheet="SHEET 02" title="Working drawings" />
+<section id="work" class="sheet hairline-top" aria-label="Working drawings">
+    <SectionHeader sheet="SHEET 02" title="Working drawings">
+        <p class="work-count">{featuredCount} FEATURED · {flatFileCount} IN THE FLAT FILE</p>
+    </SectionHeader>
+
+    <div class="featured-grid">
+        {featured.map((project) => <FeaturedCard project={project} />)}
+    </div>
+
+    {revStrip && <RevStrip project={revStrip} />}
+
+    <FlatFile projects={flatFile} total={projects.length} />
 </section>
 
 <style>
     .sheet {
         padding: var(--space-section) var(--space-gutter) 72px;
+    }
+
+    .work-count {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+    }
+
+    .featured-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        /* SectionHeader bottoms out at 32px; the sheet wants 36 (#6a). */
+        margin-top: 4px;
+    }
+
+    @media (max-width: 900px) {
+        .featured-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .sheet {
+            padding-bottom: 40px;
+        }
+
+        .work-count {
+            display: none;
+        }
+
+        .featured-grid {
+            gap: 20px;
+            margin-top: 0;
+        }
     }
 </style>

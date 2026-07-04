@@ -1,0 +1,90 @@
+---
+// A real gallery plate: bordered tile with a cropped thumbnail and a mono
+// caption strip. The whole tile is a <button> that opens the sheet's shared
+// lightbox (see Lightbox.astro). Tile height comes from the parent grid via
+// the --tile-h custom property (260px design / 300px photo / 240px mobile).
+import { Picture } from "astro:assets";
+import type { GalleryItem } from "../../data/galleries";
+
+interface Props {
+    item: GalleryItem;
+    /** id of the <dialog> rendered by this sheet's Lightbox instance. */
+    lightboxId: string;
+    /** Responsive widths/sizes for the thumbnail crop. */
+    widths: number[];
+    sizes: string;
+}
+
+const { item, lightboxId, widths, sizes } = Astro.props;
+---
+
+<button
+    type="button"
+    class="tile reveal"
+    data-lightbox-open={lightboxId}
+    data-plate={item.plate}
+    aria-haspopup="dialog"
+>
+    <span class="tile-media">
+        <Picture
+            src={item.image}
+            widths={widths}
+            sizes={sizes}
+            formats={["avif", "webp"]}
+            alt={item.alt}
+            loading="lazy"
+            decoding="async"
+        />
+    </span>
+    <span class="tile-caption mono-micro">
+        <span>{item.plate} — {item.title}</span>
+        <span class="tile-year">{item.year}</span>
+    </span>
+</button>
+
+<style>
+    .tile {
+        display: block;
+        width: 100%;
+        text-align: left;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sheet);
+        transition: border-color var(--dur-hover) var(--ease);
+    }
+
+    .tile:hover,
+    .tile:focus-visible {
+        border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+
+    .tile-media {
+        display: block;
+        height: var(--tile-h, 260px);
+        overflow: hidden;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .tile-media :global(img) {
+        width: 100%;
+        height: var(--tile-h, 260px);
+        object-fit: cover;
+        transition: transform 600ms var(--ease);
+    }
+
+    .tile:hover .tile-media :global(img),
+    .tile:focus-visible .tile-media :global(img) {
+        transform: scale(1.03);
+    }
+
+    .tile-caption {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--space-1);
+        padding: 10px 12px;
+        color: var(--muted);
+    }
+
+    .tile-year {
+        color: var(--faint);
+    }
+</style>
