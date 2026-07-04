@@ -395,6 +395,10 @@ const heroPlate = studyMeta?.heroPlate;
     }
 
     .chapter-list a {
+        /* block + padding = ≥24px hit targets (WCAG target-size) without
+           changing the drawn line rhythm */
+        display: block;
+        padding: 5px 0;
         color: var(--muted);
         text-decoration: none;
         transition: color var(--dur-hover) var(--ease);

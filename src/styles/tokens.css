@@ -1,5 +1,11 @@
 /* ethanratnofsky.com — "Compile the Draft" design tokens
-   Dark is the default theme. Light applies via [data-theme="light"]. */
+   Dark is the default theme. Light applies via [data-theme="light"].
+
+   A11y deviation from the handoff (WCAG 2.1 AA — 4.5:1 for normal-size text,
+   verified with scripts/check-contrast.mjs): --faint (dark) and --muted /
+   --faint / --tag / --accent / --accent-hover (light) are nudged along their
+   own hue until they pass on their worst surface. Handoff originals kept
+   inline as comments. */
 
 :root {
   /* surfaces */
@@ -10,7 +16,7 @@
   /* text */
   --ink: #F0E8DA;
   --muted: #9A8C7B;
-  --faint: #6E6357;
+  --faint: #8C8172; /* handoff: #6E6357 (2.98:1 on panel) */
   --tag: #C8B99F;
 
   /* accent */
@@ -81,12 +87,12 @@
   --card: #FBF7EE;
 
   --ink: #221C13;
-  --muted: #8A7C69;
-  --faint: #B3A48D;
-  --tag: #8A7C69;
+  --muted: #706455; /* handoff: #8A7C69 (3.21:1 on panel) */
+  --faint: #6D6456; /* handoff: #B3A48D (1.93:1 on panel) */
+  --tag: #706455; /* handoff: #8A7C69 */
 
-  --accent: #9A6E2E;
-  --accent-hover: #AE7F3B;
+  --accent: #825D27; /* handoff: #9A6E2E (3.57:1 on panel) */
+  --accent-hover: #6E4E20; /* handoff: #AE7F3B — hover darkens in light; lighter can't pass AA */
   --accent-contrast: #F6F0E4;
 
   --line: rgba(34, 28, 19, 0.15);
