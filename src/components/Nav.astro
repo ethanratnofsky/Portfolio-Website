@@ -202,6 +202,11 @@ const { variant = "home" } = Astro.props;
 <script>
     // Theme override: click persists; stored choice beats system preference.
     const toggle = document.querySelector<HTMLButtonElement>(".theme-toggle");
+    const syncToggleState = () => {
+        const isLight = document.documentElement.getAttribute("data-theme") === "light";
+        toggle?.setAttribute("aria-pressed", String(isLight));
+    };
+    syncToggleState();
     toggle?.addEventListener("click", () => {
         const isLight = document.documentElement.getAttribute("data-theme") === "light";
         const next = isLight ? "dark" : "light";
@@ -210,6 +215,7 @@ const { variant = "home" } = Astro.props;
         } else {
             document.documentElement.removeAttribute("data-theme");
         }
+        syncToggleState();
         try {
             localStorage.setItem("theme", next);
         } catch {
@@ -227,6 +233,14 @@ const { variant = "home" } = Astro.props;
         menuToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
         menuToggle.textContent = open ? "✕" : "≡";
         document.body.style.overflow = open ? "hidden" : "";
+        // Keep the page behind the full-screen overlay out of tab/reader order.
+        document.querySelectorAll("main, footer").forEach((el) => {
+            if (open) {
+                el.setAttribute("inert", "");
+            } else {
+                el.removeAttribute("inert");
+            }
+        });
     };
     menuToggle?.addEventListener("click", () => setMenu(menu?.hidden ?? false));
     menu?.addEventListener("click", (e) => {

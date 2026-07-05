@@ -152,6 +152,10 @@ if (hero) {
         if (e.metaKey || e.ctrlKey || e.altKey) return;
         const t = e.target as HTMLElement;
         if (t.closest("input, textarea, select, [contenteditable]")) return;
+        // Per the handoff (and to tame the single-key shortcut), R only
+        // replays while the hero is actually in view.
+        const rect = hero.getBoundingClientRect();
+        if (rect.bottom <= 0 || rect.top >= window.innerHeight) return;
         replay();
     });
 

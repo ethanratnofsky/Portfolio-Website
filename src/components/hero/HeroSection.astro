@@ -23,7 +23,9 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
                 </div>
                 <span class="term-title">ethan@nyc — draft</span>
             </div>
-            <div class="term-log" data-term-log aria-live="polite">
+            {/* aria-live sits on the command-output container only — the rAF
+                counters in the log would otherwise spam screen readers. */}
+            <div class="term-log" data-term-log>
                 <div class="term-line l1">$ ethan draft --hero</div>
                 <div class="term-line l2d d-only">▸ grid: 12-col / 56px .............. <span class="t-accent">ok</span></div>
                 <div class="term-line l2m m-only">▸ grid: 8-col / 44px ....... <span class="t-accent">ok</span></div>
@@ -33,7 +35,7 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
                 <div class="term-line l5d d-only">▸ sign-off: e. ratnofsky ....... <span class="t-accent">inking</span></div>
                 <div class="term-line l5m m-only">▸ sign-off: e.r. ....... <span class="t-accent">inking</span></div>
                 <div class="term-drafted t-accent">✓ drafted in <span data-drafted>6.2</span>s</div>
-                <div class="term-extra" data-term-extra></div>
+                <div class="term-extra" data-term-extra aria-live="polite"></div>
                 <div class="term-prompt">
                     <span class="prompt-char t-accent" aria-hidden="true">$</span>
                     <span class="prompt-typed" data-term-typed></span>

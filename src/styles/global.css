@@ -195,6 +195,24 @@ html.js .reveal.is-visible {
     transform: none;
 }
 
+/* Keyboard users get a way past the nav; invisible until focused. */
+.skip-link {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 100;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    text-decoration: none;
+    border-radius: var(--radius-button);
+    padding: 12px 18px;
+    transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+    transform: none;
+}
+
 .visually-hidden {
     position: absolute;
     width: 1px;

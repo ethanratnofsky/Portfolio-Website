@@ -12,7 +12,13 @@ const wired = SITE.formEndpoint !== null;
             <div class="contact-intro reveal">
                 <h3 class="hello">Say hello<span class="dot">.</span></h3>
                 {/* Anti-scraper: the address is assembled in JS on click — never in HTML. */}
-                <button type="button" id="email-reveal" class="email-line" aria-describedby="email-hint">
+                <button
+                    type="button"
+                    id="email-reveal"
+                    class="email-line"
+                    aria-label="Reveal email address"
+                    aria-describedby="email-hint"
+                >
                     ▮▮▮▮▮@▮▮▮▮▮▮▮▮▮▮▮▮▮.com
                 </button>
                 <a id="email-link" class="email-line" href="/#contact" hidden></a>
@@ -98,7 +104,7 @@ const wired = SITE.formEndpoint !== null;
                     <p id="submit-error" class="submit-error" aria-live="polite"></p>
                 </div>
             </form>
-            <p id="form-sent" class="form-sent" aria-live="polite"></p>
+            <p id="form-sent" class="form-sent" aria-live="polite" tabindex="-1"></p>
         </div>
     </div>
 </section>
@@ -182,6 +188,8 @@ const wired = SITE.formEndpoint !== null;
                 if (!response.ok) throw new Error(`status ${response.status}`);
                 form.hidden = true;
                 formSent.textContent = "✓ message drafted — thanks, I'll reply soon.";
+                // Focus was inside the now-hidden form — land it on the confirmation.
+                formSent.focus();
             } catch {
                 sendBtn.disabled = false;
                 btnIdle.hidden = false;

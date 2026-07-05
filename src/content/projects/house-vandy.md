@@ -51,7 +51,7 @@ Vanderbilt students hunting for off-campus housing were juggling four separate a
 
 Custom scrapers collect listings from all four complexes nightly on a cron schedule, normalize them into MongoDB, and serve a REST API the React frontend filters instantly — price, beds, baths, square footage. Everything runs as six Docker containers on a Chameleon Cloud VM.
 
-![PLATE II — FILTERING & COMPARISON](../../assets/projects/house-vandy/house_vandy2.png)
+![Filtering and comparing apartment listings by price, beds, and baths in House Vandy](../../assets/projects/house-vandy/house_vandy2.png)
 
 *PLATE II — FILTERING & COMPARISON*
 

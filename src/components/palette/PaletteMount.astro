@@ -46,6 +46,7 @@ const paletteData = { navigate, resumePath: SITE.resumePath };
         <span class="palette-esc" aria-hidden="true">ESC</span>
     </div>
     <div class="palette-list" id="palette-list" role="listbox" aria-label="Commands"></div>
+    <p class="visually-hidden" id="palette-count" aria-live="polite"></p>
     <div class="palette-footer">
         <span>↑↓ NAVIGATE · ↵ OPEN · ESC CLOSE</span>
         <span>FUZZY-MATCHED, TERMINAL-FLAVORED</span>
@@ -408,6 +409,13 @@ const paletteData = { navigate, resumePath: SITE.resumePath };
 
         function render(): void {
             list.textContent = "";
+            const count = document.getElementById("palette-count");
+            if (count) {
+                count.textContent =
+                    matches.length === 0
+                        ? "No results"
+                        : `${matches.length} result${matches.length === 1 ? "" : "s"}`;
+            }
             if (matches.length === 0) {
                 const empty = document.createElement("div");
                 empty.className = "palette-empty";
@@ -448,7 +456,7 @@ const paletteData = { navigate, resumePath: SITE.resumePath };
 
         function replay(): void {
             // mirrors the footer signature easter egg
-            if (document.getElementById("top")) {
+            if (document.getElementById("hero")) {
                 window.scrollTo({ top: 0, behavior: reduceMotion() ? "auto" : "smooth" });
                 window.dispatchEvent(new CustomEvent("compile:replay"));
             } else {

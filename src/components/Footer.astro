@@ -72,8 +72,9 @@ const year = new Date().getFullYear();
 <script>
     // Easter egg: clicking the signature replays the hero draft.
     document.querySelector(".footer-sig")?.addEventListener("click", () => {
-        if (document.getElementById("top")) {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+        if (document.getElementById("hero")) {
+            const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
             window.dispatchEvent(new CustomEvent("compile:replay"));
         } else {
             window.location.href = "/?replay";

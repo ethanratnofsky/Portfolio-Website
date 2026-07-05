@@ -92,7 +92,7 @@ const heroPlate = studyMeta?.heroPlate;
     navVariant="study"
     ogType={isWritten ? "article" : "website"}
 >
-    <main>
+    <main id="main-content">
         {
             isWritten && Content ? (
                 <article class="study">
@@ -104,9 +104,10 @@ const heroPlate = studyMeta?.heroPlate;
                         </div>
                         <div class="tb-cell">
                             <span class="tb-label">TITLE</span>
-                            <span class="tb-value">
+                            {/* The page h1 lives in the title block, styled as a spec value. */}
+                            <h1 class="tb-value tb-title">
                                 {title.toUpperCase()}{studyMeta?.subtitle && ` — ${studyMeta.subtitle}`}
-                            </span>
+                            </h1>
                         </div>
                         <div class="tb-cell">
                             <span class="tb-label">YEAR</span>
@@ -255,6 +256,14 @@ const heroPlate = studyMeta?.heroPlate;
     .tb-value {
         color: var(--ink);
         font-size: 11.5px;
+    }
+
+    /* h1 semantics, spec-value clothes (beat the global heading styles) */
+    .tb-title {
+        font-family: var(--font-mono);
+        font-weight: 400;
+        line-height: inherit;
+        display: inline;
     }
 
     .tb-links {
