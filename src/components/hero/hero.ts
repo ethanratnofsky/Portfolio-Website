@@ -22,7 +22,6 @@ if (hero) {
     const termHint = $("[data-term-hint]");
     const termInput = $<HTMLInputElement>("[data-term-input]");
     const terminal = $("[data-terminal]");
-    const coords = $("[data-coords]");
     const crossV = $("[data-cross-v]");
     const crossH = $("[data-cross-h]");
     const crossChip = $("[data-cross-chip]");
@@ -139,11 +138,6 @@ if (hero) {
         // Force a reflow so re-adding .play restarts every CSS animation.
         void hero.offsetWidth;
         hero.classList.add("play");
-        try {
-            sessionStorage.setItem("introPlayed", "1");
-        } catch {
-            /* ignore */
-        }
         startTimeline();
     };
 
@@ -250,6 +244,12 @@ if (hero) {
                 termInput.focus({ preventScroll: true });
             }
         });
+        // Caret: solid + blinking while focused, hollow outline otherwise —
+        // toggled here rather than via :focus so it's immune to :has support
+        // and window-focus quirks.
+        const prompt = termInput.closest(".term-prompt");
+        termInput.addEventListener("focus", () => prompt?.classList.add("is-focused"));
+        termInput.addEventListener("blur", () => prompt?.classList.remove("is-focused"));
     }
 
     /* ---------- crosshair + coordinate chip (fine pointers only) ---------- */
@@ -288,18 +288,6 @@ if (hero) {
             }
         });
         hero.addEventListener("mouseleave", () => hero.classList.remove("cross-on"));
-    }
-
-    /* ---------- footer coordinates hover swap ---------- */
-
-    if (coords) {
-        const original = coords.textContent;
-        coords.addEventListener("mouseenter", () => {
-            coords.textContent = "LONG ISLAND CITY, NEW YORK ⌖";
-        });
-        coords.addEventListener("mouseleave", () => {
-            coords.textContent = original;
-        });
     }
 
     /* ---------- init ---------- */

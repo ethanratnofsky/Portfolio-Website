@@ -58,9 +58,9 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
             <p class="hero-kicker kicker">SOFTWARE ENGINEER — NEW YORK</p>
             <div class="dim-ruler" data-dim-ruler aria-hidden="true">
                 <span class="tick"></span>
-                <span class="rail"><span class="rail-fill"></span></span>
+                <span class="rail rail-l"><span class="rail-fill"></span></span>
                 <span class="dim-count" data-dim>760</span>
-                <span class="rail"><span class="rail-fill"></span></span>
+                <span class="rail rail-r"><span class="rail-fill"></span></span>
                 <span class="tick"></span>
             </div>
             <div class="name-wrap">
@@ -83,7 +83,18 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
     </div>
 
     <div class="hero-foot hairline-top">
-        <span class="coords" data-coords>40.7447° N — 73.9485° W</span>
+        <a
+            class="coords"
+            href="https://www.google.com/maps/search/?api=1&query=40.7447,-73.9485"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Long Island City, New York — open in Google Maps"
+        >
+            <span class="coord-default">40.7447° N — 73.9485° W</span>
+            <span class="coord-hover" aria-hidden="true"
+                >LONG ISLAND CITY, NEW YORK <span class="coord-icon">⌖</span></span
+            >
+        </a>
         <span class="foot-center">SHEET 01 — DRAWN BY CODE, APPROVED BY HAND</span>
         <a class="foot-next" href="#work">SHEET 02 ↓</a>
     </div>
@@ -93,40 +104,23 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
     <div class="cross-chip" data-cross-chip aria-hidden="true"></div>
 </section>
 
-{/* Boot before first paint: decide play vs settled (once per session; ?replay
-    forces a run and is stripped from the URL; reduced motion always settles). */}
+{/* Boot before first paint: the draft plays on every load (reduced motion
+    settles instantly). ?replay is just stripped from the URL for tidiness. */}
 <script is:inline>
     (function () {
         var hero = document.getElementById("hero");
         if (!hero) return;
-        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        var wantReplay = false;
         try {
             var url = new URL(window.location.href);
             if (url.searchParams.has("replay")) {
-                wantReplay = true;
                 url.searchParams.delete("replay");
                 window.history.replaceState(null, "", url.pathname + url.search + url.hash);
             }
         } catch (e) {
             /* leave URL as-is */
         }
-        var played = false;
-        try {
-            played = sessionStorage.getItem("introPlayed") === "1";
-        } catch (e) {
-            /* storage unavailable — play */
-        }
-        if (!reduced && (wantReplay || !played)) {
-            hero.classList.add("play");
-            try {
-                sessionStorage.setItem("introPlayed", "1");
-            } catch (e) {
-                /* ignore */
-            }
-        } else {
-            hero.classList.add("done");
-        }
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        hero.classList.add(reduced ? "done" : "play");
     })();
 </script>
 
@@ -172,6 +166,12 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
         }
     }
 
+    @keyframes hero-grow-x {
+        from {
+            transform: scaleX(0);
+        }
+    }
+
     @keyframes hero-draw-tall {
         from {
             max-height: 0;
@@ -180,13 +180,15 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
 </style>
 
 <style>
-    /* ------- section shell (SHEET 01, 800px desktop) ------- */
+    /* ------- section shell (SHEET 01) ------- */
 
     .hero {
         position: relative;
         display: flex;
         flex-direction: column;
-        height: 800px;
+        /* fill the viewport below the nav; grows if content needs it */
+        min-height: calc(100vh - var(--nav-h));
+        min-height: calc(100svh - var(--nav-h));
         overflow: hidden;
     }
 
@@ -319,6 +321,7 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
         font-size: var(--text-terminal);
         max-height: 320px;
         overflow-y: auto;
+        overscroll-behavior: contain;
     }
 
     .term-line {
@@ -428,11 +431,6 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
         animation: hero-appear 0.3s 7.6s both;
     }
 
-    .term-prompt:has(.term-input:focus-visible) {
-        outline: 1px solid var(--accent);
-        outline-offset: 2px;
-    }
-
     .prompt-char {
         margin-right: 8px;
     }
@@ -442,19 +440,21 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
         white-space: pre;
     }
 
+    /* Native-terminal caret: a hollow outline box when unfocused... */
     .caret {
         display: inline-block;
         width: 8px;
         height: 14px;
-        background: var(--accent);
         margin-left: 1px;
-        animation: hero-blink var(--caret-blink) steps(1) infinite;
+        border: 1px solid var(--accent);
+        background: transparent;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-        .caret {
-            animation: none;
-        }
+    /* ...a solid, blinking block when the prompt is focused (JS toggles the class). */
+    .term-prompt.is-focused .caret {
+        border-color: transparent;
+        background: var(--accent);
+        animation: hero-blink var(--caret-blink) steps(1) infinite;
     }
 
     .prompt-hint {
@@ -521,19 +521,26 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
         display: block;
         height: 1px;
         background: color-mix(in srgb, var(--accent) 20%, transparent);
-        overflow: hidden;
     }
 
     .rail-fill {
         display: block;
         height: 1px;
         width: 100%;
-        max-width: 100%;
         background: color-mix(in srgb, var(--accent) 70%, transparent);
     }
 
+    /* rails draw outward from the count: left rail grows leftward, right rightward */
+    .rail-l .rail-fill {
+        transform-origin: right;
+    }
+
+    .rail-r .rail-fill {
+        transform-origin: left;
+    }
+
     .hero.play .rail-fill {
-        animation: hero-draw-wide 0.8s ease-out 4.4s both;
+        animation: hero-grow-x 0.8s ease-out 4.4s both;
     }
 
     .dim-count {
@@ -640,12 +647,15 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
 
     /* ------- hero footer strip ------- */
 
+    /* 1fr auto 1fr keeps the center label viewport-centered even as the
+       coordinates swap to the longer city label on hover. */
     .hero-foot {
         position: relative;
         z-index: 1;
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
         align-items: center;
+        gap: 20px;
         padding: 20px var(--space-gutter);
         font-family: var(--font-mono);
         font-size: 11px;
@@ -654,20 +664,45 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
     }
 
     .coords {
-        cursor: crosshair;
+        justify-self: start;
+        display: inline-flex;
+        align-items: center;
+        color: var(--muted);
+        text-decoration: none;
         white-space: nowrap;
-        flex: none;
         transition: color var(--dur-hover) var(--ease);
     }
 
-    .coords:hover {
+    .coords:hover,
+    .coords:focus-visible {
         color: var(--accent);
     }
 
+    /* coordinate ⇄ city swap on hover/focus, in pure CSS */
+    .coord-hover {
+        display: none;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .coord-icon {
+        font-size: 1.15em;
+        line-height: 1;
+    }
+
+    .coords:hover .coord-default,
+    .coords:focus-visible .coord-default {
+        display: none;
+    }
+
+    .coords:hover .coord-hover,
+    .coords:focus-visible .coord-hover {
+        display: inline-flex;
+    }
+
     .foot-center {
-        flex: 1;
-        min-width: 0;
-        margin: 0 20px;
+        justify-self: center;
+        max-width: 100%;
         text-align: center;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -675,10 +710,10 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
     }
 
     .foot-next {
+        justify-self: end;
         color: var(--accent);
         text-decoration: none;
         white-space: nowrap;
-        flex: none;
         transition: color var(--dur-hover) var(--ease);
     }
 
@@ -757,7 +792,8 @@ const signedDate = `${now.toLocaleString("en-US", { month: "short" }).toUpperCas
 
     @media (max-width: 900px) {
         .hero {
-            height: auto;
+            /* stacked content is taller than the viewport — let it drive height */
+            min-height: 0;
         }
 
         .hero-cols {
