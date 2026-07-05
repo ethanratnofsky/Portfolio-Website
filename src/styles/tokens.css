@@ -65,7 +65,7 @@
   --space-grid: 56px;   /* drafting grid cell (44px mobile) */
   --space-gutter: 64px; /* page gutter (20px mobile) */
   --space-section: 88px;
-  --nav-h: 74px;        /* nav height; hero fills 100svh minus this */
+  --nav-h: 92px;        /* nav height (JS refines to the exact px); hero = 100svh − this */
 
   /* radius */
   --radius-sheet: 0;

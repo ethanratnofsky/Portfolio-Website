@@ -200,6 +200,24 @@ const { variant = "home" } = Astro.props;
 </style>
 
 <script>
+    // Publish the nav's real height to --nav-h so the hero can fill exactly
+    // 100svh minus the nav (the CSS default is only an approximation — the
+    // resume button/theme toggle make it taller than the logo alone, and font
+    // loading can nudge it). Refined on load, after fonts, and on resize.
+    const navEl = document.querySelector<HTMLElement>(".site-nav");
+    if (navEl) {
+        const setNavH = () => {
+            document.documentElement.style.setProperty("--nav-h", `${navEl.offsetHeight}px`);
+        };
+        setNavH();
+        document.fonts?.ready.then(setNavH).catch(() => {});
+        let navRaf = 0;
+        window.addEventListener("resize", () => {
+            cancelAnimationFrame(navRaf);
+            navRaf = requestAnimationFrame(setNavH);
+        });
+    }
+
     // Theme override: click persists; stored choice beats system preference.
     const toggle = document.querySelector<HTMLButtonElement>(".theme-toggle");
     const syncToggleState = () => {
