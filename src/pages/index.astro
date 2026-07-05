@@ -6,7 +6,6 @@ import DesignSheet from "../components/galleries/DesignSheet.astro";
 import PhotoSheet from "../components/galleries/PhotoSheet.astro";
 import AboutSheet from "../components/about/AboutSheet.astro";
 import ContactSheet from "../components/contact/ContactSheet.astro";
-import PaletteMount from "../components/palette/PaletteMount.astro";
 ---
 
 <Base>
@@ -22,7 +21,11 @@ import PaletteMount from "../components/palette/PaletteMount.astro";
             };
             var m = p.match(/^projects\/([\w-]+)/);
             window.location.replace(
-                m ? "/work/" + (m[1] === "UFAR" ? "ufar" : m[1]) : map[p] || "/",
+                m
+                    ? "/work/" + (m[1] === "UFAR" ? "ufar" : m[1])
+                    : Object.prototype.hasOwnProperty.call(map, p)
+                      ? map[p]
+                      : "/",
             );
         }
     </script>
@@ -35,5 +38,4 @@ import PaletteMount from "../components/palette/PaletteMount.astro";
         <AboutSheet />
         <ContactSheet />
     </main>
-    <PaletteMount />
 </Base>

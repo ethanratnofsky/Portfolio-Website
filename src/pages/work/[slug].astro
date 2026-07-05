@@ -641,10 +641,20 @@ const heroPlate = studyMeta?.heroPlate;
 
     if (chapterTargets.length > 0 && chapterTargets.length === chapterLinks.length) {
         let current = 0;
+        // A short final chapter may never reach the top 45% of the viewport,
+        // so "scrolled to the bottom" always wins — checked inside apply() so
+        // no observer/scroll handler ordering can clobber it.
+        const bottomed = () => {
+            // clientHeight = true layout viewport (innerHeight can include a
+            // scrollbar or misreport under viewport emulation)
+            const doc = document.documentElement;
+            return doc.clientHeight + window.scrollY >= doc.scrollHeight - 2;
+        };
         const apply = () => {
+            const idx = bottomed() ? chapterTargets.length - 1 : current;
             chapterLinks.forEach((a, i) => {
-                a.classList.toggle("active", i === current);
-                if (i === current) a.setAttribute("aria-current", "true");
+                a.classList.toggle("active", i === idx);
+                if (i === idx) a.setAttribute("aria-current", "true");
                 else a.removeAttribute("aria-current");
             });
         };
@@ -664,6 +674,7 @@ const heroPlate = studyMeta?.heroPlate;
             { rootMargin: "0px 0px -55% 0px" },
         );
         chapterTargets.forEach((t) => io.observe(t));
+        window.addEventListener("scroll", apply, { passive: true });
     }
 
     /* ---- plates fade + rise into view (700ms, once) ---- */

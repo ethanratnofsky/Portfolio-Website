@@ -103,6 +103,7 @@ if (hero) {
     const settle = () => {
         hero.classList.remove("play");
         hero.classList.add("done");
+        buildGrid(); // true-up line counts if a resize happened mid-play
         if (dimEl) dimEl.textContent = String(dimTarget);
         if (draftedEl) draftedEl.textContent = DRAFTED.toFixed(1);
     };
@@ -155,7 +156,7 @@ if (hero) {
         // Per the handoff (and to tame the single-key shortcut), R only
         // replays while the hero is actually in view.
         const rect = hero.getBoundingClientRect();
-        if (rect.bottom <= 0 || rect.top >= window.innerHeight) return;
+        if (rect.bottom <= 0 || rect.top >= document.documentElement.clientHeight) return;
         replay();
     });
 
@@ -168,7 +169,11 @@ if (hero) {
     let extraLines: HTMLElement[] = [];
 
     const trimBuffer = () => {
-        const visibleStatic = staticLines.filter((el) => !el.style.display);
+        // offsetParent check: the responsive .d-only/.m-only line variants are
+        // display:none via media queries and must not count toward the buffer.
+        const visibleStatic = staticLines.filter(
+            (el) => !el.style.display && el.offsetParent !== null,
+        );
         const overflow = visibleStatic.length + extraLines.length - MAX_LINES;
         for (let i = 0; i < overflow && i < visibleStatic.length; i++) {
             visibleStatic[i].style.display = "none";
@@ -307,7 +312,9 @@ if (hero) {
     window.addEventListener("resize", () => {
         cancelAnimationFrame(resizeRaf);
         resizeRaf = requestAnimationFrame(() => {
-            buildGrid();
+            // Rebuilding mid-play would restart the line-draw animations from
+            // their absolute delays; settle() trues the grid up afterwards.
+            if (!hero.classList.contains("play")) buildGrid();
             measure();
         });
     });
