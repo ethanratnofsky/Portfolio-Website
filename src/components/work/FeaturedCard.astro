@@ -30,7 +30,7 @@ const linkNames: Record<LinkKey, string> = {
 const allLinks: CardLink[] = [];
 if (links.live) allLinks.push({ key: "live", label: "LIVE ↗", href: links.live, external: true });
 if (links.app) allLinks.push({ key: "app", label: "APP ↗", href: links.app, external: true });
-if (links.github) allLinks.push({ key: "github", label: "GH ↗", href: links.github, external: true });
+if (links.github) allLinks.push({ key: "github", label: "GitHub ↗", href: links.github, external: true });
 if (study !== "none")
     allLinks.push({ key: "study", label: "STUDY →", href: `/work/${project.id}`, external: false });
 
