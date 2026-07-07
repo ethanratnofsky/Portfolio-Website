@@ -1,0 +1,432 @@
+---
+// APPENDIX A — Field report (#6a Field Report): recreational-soccer register.
+// Header + FIG. A1, stat tiles (view switcher), always-visible FORM strip,
+// then one of four views below (season ledger / match log / FIG. A3 charts /
+// FIG. A4 record). Tiles swap only the view area; everything above stays put.
+import PitchFig from "./PitchFig.astro";
+import SeasonLedger from "./SeasonLedger.astro";
+import MatchLog from "./MatchLog.astro";
+import GoalsChart from "./GoalsChart.astro";
+import RecordView from "./RecordView.astro";
+import { SEASONS } from "../../data/soccer";
+import {
+    allTime,
+    currentStreak,
+    goalsPerMatch,
+    goalsSuffix,
+    lastN,
+    record,
+    shortSeason,
+} from "../../data/soccer-derive";
+
+const at = allTime();
+const pad2 = (n: number) => String(n).padStart(2, "0");
+const form = lastN(6);
+const streak = currentStreak();
+const RESULT_WORDS = { W: "won", D: "drew", L: "lost" } as const;
+
+const tiles = [
+    { id: "seasons", label: "SEASONS", view: "seasons" },
+    { id: "matches", label: "MATCHES", view: "matches" },
+    { id: "record", label: "RECORD — W·D·L", view: "record" },
+    { id: "goals", label: "GOALS", view: "goals" },
+    { id: "assists", label: "ASSISTS", view: "goals" },
+] as const;
+---
+
+<section id="field-report" class="sheet hairline-top" aria-label="Field report">
+    <header class="fr-header reveal">
+        <div class="fr-title">
+            <p class="kicker">APPENDIX A</p>
+            <h2>
+                Field report<em class="aside">
+                    — recreational soccer, taken exactly as seriously as it
+                    sounds</em
+                >
+            </h2>
+        </div>
+        <PitchFig />
+    </header>
+
+    <div class="fr-tiles reveal" role="group" aria-label="Field report views">
+        {
+            tiles.map((tile) => (
+                <button
+                    class="fr-tile"
+                    data-fr-tile={tile.id}
+                    data-fr-target={tile.view}
+                    aria-pressed={tile.id === "seasons" ? "true" : "false"}
+                    aria-controls={`fr-view-${tile.view}`}
+                >
+                    <span class="fr-tile-label">
+                        {tile.label}
+                        <span
+                            class="fr-viewing"
+                            data-fr-viewing
+                            hidden={tile.id !== "seasons"}
+                        >
+                            {" "}● VIEWING
+                        </span>
+                    </span>
+                    <span class="fr-tile-value">
+                        {tile.id === "seasons" && pad2(at.seasons)}
+                        {tile.id === "matches" && pad2(at.played)}
+                        {tile.id === "record" && record(at)}
+                        {tile.id === "goals" && (
+                            <>
+                                {at.goals}<sup class="fr-sup">{goalsSuffix("all", at, true)}</sup>
+                            </>
+                        )}
+                        {tile.id === "assists" && pad2(at.assists)}
+                    </span>
+                </button>
+            ))
+        }
+    </div>
+
+    <div class="fr-form reveal">
+        <span class="fr-form-label">FORM</span>
+        <span class="fr-squares" aria-hidden="true">
+            {form.map((m) => <i class={`fr-sq fr-sq-${m.result}`} />)}
+        </span>
+        <span class="visually-hidden">
+            Last six matches, oldest first: {
+                form.map((m) => RESULT_WORDS[m.result]).join(", ")
+            }.
+        </span>
+        <span class="fr-form-key">LAST 6</span>
+        <i class="fr-vr" aria-hidden="true"></i>
+        <span class="fr-form-stat"
+            >STREAK <b class="fr-streak">{streak.kind}{streak.len}</b></span
+        >
+        <i class="fr-vr" aria-hidden="true"></i>
+        <span class="fr-form-stat"
+            >GOALS / MATCH <b class="fr-gpm">{goalsPerMatch()}</b></span
+        >
+        <span class="fr-form-note"
+            >RECOMPUTED EVERY MATCH — NEVER HAND-EDITED</span
+        >
+    </div>
+
+    <div class="fr-views reveal">
+        <div
+            id="fr-view-seasons"
+            data-fr-view="seasons"
+            data-fr-footlabel="TILES SWITCH THE LEDGER — GOALS & RECORD OPEN FIGS. A3 / A4"
+        >
+            <SeasonLedger />
+        </div>
+        <div
+            id="fr-view-matches"
+            data-fr-view="matches"
+            data-fr-footlabel={`EVERY MATCH SINCE ${shortSeason(SEASONS[0])} — NEWEST FIRST`}
+            hidden
+        >
+            <MatchLog />
+        </div>
+        <div
+            id="fr-view-goals"
+            data-fr-view="goals"
+            data-emphasis="goals"
+            data-fr-footlabel="FIG. A3 — SCALES: CUMULATIVE · BY SEASON · PER MATCH"
+            hidden
+        >
+            <GoalsChart />
+        </div>
+        <div
+            id="fr-view-record"
+            data-fr-view="record"
+            data-fr-footlabel="FIG. A4 — EVERY MATCH ON RECORD, GROUPED BY SEASON"
+            hidden
+        >
+            <RecordView />
+        </div>
+    </div>
+
+    <div class="fr-footnote reveal">
+        <p>† MINIMUM — LOST COUNT MID-CELEBRATION.</p>
+        <p data-fr-footnote>
+            TILES SWITCH THE LEDGER — GOALS &amp; RECORD OPEN FIGS. A3 / A4
+        </p>
+    </div>
+
+    <p class="visually-hidden" data-fr-live aria-live="polite"></p>
+</section>
+
+<style>
+    .sheet {
+        padding: var(--space-section) var(--space-gutter) 80px;
+
+        /* Section-local palette (both sections introduce no global tokens).
+           Contrast-audited like tokens.css — handoff originals in comments:
+           --fr-grey carries meaning (assists series, D/L squares, blank
+           ticks) and is nudged to ≥3:1 on panel; --fr-stroke and --fr-deep
+           are decorative line-work and keep the handoff values. */
+        --fr-grey: #7a736a; /* handoff: #635E57 (2.71:1 on panel) */
+        --fr-stroke: #635e57;
+        --fr-deep: #4a443c;
+        --fr-ink2: #c9bfb0;
+        --fr-accent2: #c69254;
+    }
+
+    :global([data-theme="light"]) .sheet {
+        --fr-grey: #8a7c69; /* handoff: #B3A48D (1.93:1 on panel) */
+        --fr-stroke: #b3a48d;
+        --fr-deep: #c9bca5;
+        --fr-ink2: #4a4032;
+        --fr-accent2: var(--accent); /* handoff has no light muted-accent */
+    }
+
+    /* ------- header (custom: FIG. A1 sits top-aligned in the right slot,
+       too tall for SectionHeader's baseline alignment) ------- */
+
+    .fr-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 40px;
+        margin-bottom: 28px;
+    }
+
+    .kicker {
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        font-size: var(--text-h2);
+    }
+
+    .aside {
+        font-size: 22px;
+        color: var(--muted);
+    }
+
+    /* ------- stat tiles ------- */
+
+    .fr-tiles {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.4fr 1fr 1fr;
+        background: var(--panel);
+        border: 1px solid var(--line);
+    }
+
+    .fr-tile {
+        padding: 24px 28px;
+        text-align: left;
+        border-top: 2px solid transparent;
+        transition: background var(--dur-hover) var(--ease);
+    }
+
+    .fr-tile:not(:last-child) {
+        border-right: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+    }
+
+    .fr-tile:hover {
+        background: color-mix(in srgb, var(--accent) 4%, transparent);
+    }
+
+    .fr-tile[aria-pressed="true"] {
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        border-top-color: var(--accent);
+        /* Overlap the panel border so the accent bar sits on the outer edge. */
+        margin-top: -1px;
+    }
+
+    .fr-tile-label {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 10px;
+        line-height: normal;
+        white-space: nowrap;
+    }
+
+    .fr-tile[aria-pressed="true"] .fr-tile-label {
+        color: var(--accent);
+    }
+
+    .fr-tile-value {
+        font-family: var(--font-display);
+        font-size: 52px;
+        line-height: 1;
+        color: var(--fr-ink2);
+        white-space: nowrap;
+    }
+
+    .fr-tile[aria-pressed="true"] .fr-tile-value {
+        color: var(--ink);
+    }
+
+    .fr-sup {
+        color: var(--fr-accent2);
+        font-size: 28px;
+        vertical-align: super;
+        line-height: 0;
+    }
+
+    /* ------- FORM strip (always visible) ------- */
+
+    .fr-form {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border: 1px solid var(--line);
+        border-top: none;
+        padding: 11px 24px;
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        line-height: normal;
+    }
+
+    .fr-form-label {
+        color: var(--faint);
+    }
+
+    .fr-squares {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .fr-sq {
+        width: 13px;
+        height: 13px;
+    }
+
+    .fr-sq-W {
+        background: var(--accent);
+    }
+
+    .fr-sq-D {
+        background: var(--fr-grey);
+    }
+
+    .fr-sq-L {
+        border: 1px solid var(--fr-grey);
+    }
+
+    .fr-form-key,
+    .fr-form-stat {
+        color: var(--muted);
+    }
+
+    .fr-vr {
+        width: 1px;
+        height: 14px;
+        background: color-mix(in srgb, var(--ink) 14%, transparent);
+    }
+
+    .fr-streak,
+    .fr-gpm {
+        font-weight: 400;
+    }
+
+    .fr-streak {
+        color: var(--accent);
+    }
+
+    .fr-gpm {
+        color: var(--ink);
+    }
+
+    .fr-form-note {
+        margin-left: auto;
+        /* Handoff wants deep-faint here; that's 1.8:1 — --faint is the
+           AA-compliant floor for text (same call as tokens.css). */
+        color: var(--faint);
+        text-align: right;
+    }
+
+    /* ------- footnote ------- */
+
+    .fr-footnote {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 16px;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--faint);
+        line-height: normal;
+    }
+
+    /* ------- 900px ------- */
+
+    @media (max-width: 900px) {
+        .fr-tile {
+            padding: 18px 20px;
+        }
+
+        .fr-tile-value {
+            font-size: 40px;
+        }
+    }
+
+    /* ------- 640px ------- */
+
+    @media (max-width: 640px) {
+        .sheet {
+            padding-bottom: 56px;
+        }
+
+        /* FIG. A1 drops below the header, full width (max 200px). */
+        .fr-header {
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .aside {
+            display: block;
+            font-size: 17px;
+        }
+
+        /* Tiles become a horizontally scrollable strip. */
+        .fr-tiles {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .fr-tiles::-webkit-scrollbar {
+            display: none;
+        }
+
+        .fr-tile {
+            flex: 1 0 auto;
+            min-width: 104px;
+            padding: 16px 18px;
+        }
+
+        .fr-tile-value {
+            font-size: 34px;
+        }
+
+        /* FORM strip wraps: squares + LAST 6 first, stats second; note drops. */
+        .fr-form {
+            flex-wrap: wrap;
+            gap: 12px 16px;
+            padding: 11px 16px;
+        }
+
+        .fr-form-note {
+            display: none;
+        }
+
+        .fr-footnote {
+            flex-direction: column;
+            gap: 6px;
+        }
+    }
+</style>
+
+<script>
+    import "./field-report";
+</script>

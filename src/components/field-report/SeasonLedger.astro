@@ -1,0 +1,344 @@
+---
+// Field report — season ledger (default view): active season pinned open on
+// top, sealed seasons collapsed beneath it, one row per season, unbounded.
+// (After ~8 seasons, add a SHOW EARLIER SEASONS ↓ collapse row — same
+// pattern as the match log's EARLIER MATCHES ↓.)
+import { SEASONS } from "../../data/soccer";
+import {
+    chipFormat,
+    goalsSuffix,
+    record,
+    seasonAgg,
+    teamLines,
+} from "../../data/soccer-derive";
+
+const seasons = [...SEASONS].reverse().map((season) => {
+    const agg = seasonAgg(season.id);
+    const inPlay = season.status === "in-play";
+    return {
+        season,
+        agg,
+        inPlay,
+        lines: teamLines(season.id),
+        meta: [
+            season.months,
+            `${season.teamIds.length} TEAM${season.teamIds.length === 1 ? "" : "S"}`,
+            `${agg.played} MATCHES${inPlay ? " SO FAR" : ""}`,
+            ...(inPlay ? [] : ["SEALED"]),
+        ].join(" · "),
+        stat: `${record(agg)} · ${agg.goals}${goalsSuffix("season", agg, inPlay)} G · ${agg.assists} A`,
+    };
+});
+---
+
+<div class="ledger">
+    {
+        seasons.map(({ season, inPlay, lines, meta, stat }) => (
+            <div class="lg-season">
+                {inPlay ? (
+                    <p class="lg-head lg-active">
+                        <span class="lg-tag">
+                            {season.label.toUpperCase()} ● IN PLAY
+                        </span>
+                        <span class="lg-meta">{meta}</span>
+                        <span class="lg-stat">{stat}</span>
+                    </p>
+                ) : (
+                    <button
+                        class="lg-head lg-sealed"
+                        data-fr-expand
+                        aria-expanded="false"
+                        aria-controls={`lg-body-${season.id}`}
+                    >
+                        <span class="lg-tag">{season.label.toUpperCase()}</span>
+                        <span class="lg-meta">{meta}</span>
+                        <span class="lg-stat">
+                            {stat} — <span data-fr-expand-word>EXPAND</span>{" "}
+                            <span class="lg-glyph" aria-hidden="true">
+                                ▸
+                            </span>
+                        </span>
+                    </button>
+                )}
+                <div
+                    class="lg-body"
+                    id={`lg-body-${season.id}`}
+                    hidden={!inPlay}
+                >
+                    <div class="lg-fold">
+                        {lines.map(({ team, agg }) => (
+                            <div class="lg-row">
+                                <span class="lg-team">{team.name}</span>
+                                <span class="lg-chips">
+                                    <span class="lg-chip lg-chip-league">
+                                        {team.league.toUpperCase()}
+                                    </span>
+                                    {team.division && (
+                                        <span class="lg-chip lg-chip-div">
+                                            {team.division}
+                                        </span>
+                                    )}
+                                    <span class="lg-chip lg-chip-format">
+                                        {chipFormat(team)}
+                                    </span>
+                                </span>
+                                <span class="lg-num lg-p">
+                                    <span class="visually-hidden">
+                                        played{" "}
+                                    </span>
+                                    {agg.played}
+                                </span>
+                                <span class="lg-num lg-wdl">
+                                    <span class="visually-hidden">
+                                        won–drawn–lost{" "}
+                                    </span>
+                                    {record(agg)}
+                                </span>
+                                <span class="lg-num lg-g">
+                                    <span class="visually-hidden">goals </span>
+                                    {agg.goals}{goalsSuffix("team", agg) && <span class="lg-dagger">†</span>}
+                                </span>
+                                <span class="lg-num lg-a">
+                                    <span class="visually-hidden">
+                                        assists{" "}
+                                    </span>
+                                    {agg.assists > 0 ? (
+                                        agg.assists
+                                    ) : (
+                                        <span class="lg-nil">—</span>
+                                    )}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        ))
+    }
+</div>
+
+<style>
+    .ledger {
+        border: 1px solid var(--line);
+        border-top: none;
+    }
+
+    /* ------- season header rows ------- */
+
+    .lg-head {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        width: 100%;
+        padding: 14px 24px;
+        font-family: var(--font-mono);
+        line-height: normal;
+        text-align: left;
+    }
+
+    .lg-active {
+        background: color-mix(in srgb, var(--accent) 6%, transparent);
+        border-left: 2px solid var(--accent);
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+    }
+
+    .lg-active .lg-tag {
+        color: var(--accent);
+    }
+
+    .lg-sealed {
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
+        transition: background var(--dur-hover) var(--ease);
+    }
+
+    .lg-season:last-child .lg-sealed[aria-expanded="false"] {
+        border-bottom: none;
+    }
+
+    .lg-sealed:hover {
+        background: color-mix(in srgb, var(--accent) 3%, transparent);
+    }
+
+    .lg-tag {
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+    }
+
+    .lg-meta {
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        color: var(--faint);
+    }
+
+    .lg-stat {
+        margin-left: auto;
+        font-size: 9.5px;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        text-align: right;
+    }
+
+    .lg-sealed .lg-stat {
+        color: var(--faint);
+    }
+
+    .lg-glyph {
+        display: inline-block;
+        transition: transform var(--dur-hover) var(--ease);
+    }
+
+    .lg-sealed[aria-expanded="true"] .lg-glyph {
+        transform: rotate(90deg);
+    }
+
+    /* ------- expandable season bodies (0fr→1fr accordion) -------
+       Default is open (the active season ships open, no JS). The script
+       adds .lg-anim when it drives a sealed body, so 0fr→1fr can play. */
+
+    .lg-body {
+        display: grid;
+        grid-template-rows: 1fr;
+    }
+
+    .lg-body.lg-anim {
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 300ms var(--ease);
+    }
+
+    .lg-body.lg-anim.is-open {
+        grid-template-rows: 1fr;
+    }
+
+    .lg-body[hidden] {
+        /* Keep [hidden] winning over display: grid (house pattern). */
+        display: none;
+    }
+
+    .lg-fold {
+        overflow: hidden;
+        min-height: 0;
+    }
+
+    /* ------- team rows ------- */
+
+    .lg-row {
+        display: grid;
+        grid-template-columns: 1fr 330px 44px 90px 48px 44px;
+        gap: 0 16px;
+        align-items: center;
+        padding: 13px 24px;
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
+    }
+
+    .lg-fold .lg-row:last-child {
+        border-bottom-color: color-mix(in srgb, var(--ink) 10%, transparent);
+    }
+
+    .lg-season:last-child .lg-fold .lg-row:last-child {
+        border-bottom: none;
+    }
+
+    .lg-team {
+        font-family: var(--font-display);
+        font-size: 17px;
+    }
+
+    .lg-chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        font-family: var(--font-mono);
+        font-size: 8.5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        line-height: normal;
+    }
+
+    .lg-chip {
+        padding: 3px 7px;
+        white-space: nowrap;
+    }
+
+    .lg-chip-league {
+        border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+        color: var(--muted);
+    }
+
+    /* Division chips are NYC Footy tiers only — Volo has none, ever. */
+    .lg-chip-div {
+        border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+        color: var(--accent);
+    }
+
+    .lg-chip-format {
+        border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+        color: var(--faint);
+    }
+
+    .lg-num {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--muted);
+        text-align: right;
+        line-height: normal;
+    }
+
+    .lg-g,
+    .lg-a {
+        color: var(--ink);
+    }
+
+    .lg-dagger {
+        color: var(--fr-accent2);
+    }
+
+    .lg-nil {
+        color: var(--faint);
+    }
+
+    /* ------- 900px ------- */
+
+    @media (max-width: 900px) {
+        .lg-row {
+            grid-template-columns: 1fr 40px 76px 40px 40px;
+        }
+
+        /* Chips wrap beneath the team name. */
+        .lg-chips {
+            grid-column: 1;
+            grid-row: 2;
+            margin-top: 8px;
+        }
+
+        .lg-team {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .lg-num {
+            grid-row: 1;
+        }
+    }
+
+    /* ------- 640px ------- */
+
+    @media (max-width: 640px) {
+        .lg-head {
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            padding: 13px 16px;
+        }
+
+        .lg-stat {
+            flex-basis: 100%;
+            text-align: left;
+            margin-left: 0;
+        }
+
+        .lg-row {
+            padding: 12px 16px;
+            gap: 0 10px;
+        }
+    }
+</style>

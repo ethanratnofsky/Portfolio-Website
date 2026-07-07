@@ -1,0 +1,396 @@
+---
+// Field report — MATCHES view (#12b Match Log View): filter bar + log table.
+// Every match is server-rendered; the client script only toggles row
+// visibility per filter and keeps the SHOWING count honest.
+import { SEASONS, TEAMS } from "../../data/soccer";
+import {
+    currentSeason,
+    logDate,
+    logFormat,
+    matchesFor,
+    teamById,
+} from "../../data/soccer-derive";
+import FilterChip from "./FilterChip.astro";
+
+const rows = matchesFor()
+    .reverse() // newest first
+    .map((m) => ({ m, team: teamById(m.teamId) }));
+
+const current = currentSeason();
+const sealed = SEASONS.filter((s) => s.status === "sealed");
+const earlier = rows.filter(({ m }) => m.seasonId !== current?.id).length;
+const showing = rows.length - earlier;
+
+const RESULT_WORDS = { W: "won", D: "drew", L: "lost" } as const;
+const seasonOptions = [...SEASONS].reverse();
+const leagues = [...new Set(TEAMS.map((t) => t.league))];
+---
+
+<div class="mlog">
+    <div class="ml-filters">
+        <span class="ml-filter-label">FILTER</span>
+
+        <FilterChip
+            filterKey="season"
+            label="SEASON"
+            value={current?.id ?? "all"}
+            valueLabel={current ? current.label.toUpperCase() : "ALL"}
+            options={[
+                { value: "all", label: "ALL" },
+                ...seasonOptions.map((s) => ({
+                    value: s.id,
+                    label: s.label.toUpperCase(),
+                })),
+            ]}
+        />
+        <FilterChip
+            filterKey="league"
+            label="LEAGUE"
+            value="all"
+            valueLabel="ALL"
+            options={[
+                { value: "all", label: "ALL" },
+                ...leagues.map((l) => ({ value: l, label: l.toUpperCase() })),
+            ]}
+        />
+        <FilterChip
+            filterKey="team"
+            label="TEAM"
+            value="all"
+            valueLabel="ALL"
+            options={[
+                { value: "all", label: "ALL" },
+                ...TEAMS.map((t) => ({
+                    value: t.id,
+                    label: t.name.toUpperCase(),
+                })),
+            ]}
+        />
+
+        <span class="ml-showing" data-fr-showing aria-live="polite">
+            SHOWING {showing} OF {rows.length} · NEWEST FIRST
+        </span>
+    </div>
+
+    {/* Explicit table roles restore semantics lost to display: grid rows
+        (same idiom as the flat file). */}
+    <table class="ml-table" role="table" data-fr-log>
+        <thead role="rowgroup">
+            <tr role="row">
+                <th role="columnheader" scope="col">DATE</th>
+                <th role="columnheader" scope="col">TEAM</th>
+                <th role="columnheader" scope="col" class="ml-h-league"
+                    >LEAGUE · DIV · FORMAT</th
+                >
+                <th role="columnheader" scope="col" class="ml-h-result"
+                    >RESULT</th
+                >
+                <th role="columnheader" scope="col" class="ml-h-num">SCORE</th>
+                <th role="columnheader" scope="col" class="ml-h-num">G</th>
+                <th role="columnheader" scope="col" class="ml-h-num">A</th>
+            </tr>
+        </thead>
+        <tbody role="rowgroup">
+            {
+                rows.map(({ m, team }) => (
+                    <tr
+                        role="row"
+                        data-season={m.seasonId}
+                        data-league={team.league}
+                        data-team={team.id}
+                        hidden={m.seasonId !== current?.id}
+                    >
+                        <td role="cell" class="ml-date">
+                            {logDate(m.date)}
+                        </td>
+                        <td role="cell" class="ml-team">
+                            {team.name}
+                            <span class="ml-league-inline">
+                                {logFormat(team)}
+                            </span>
+                        </td>
+                        <td role="cell" class="ml-league">
+                            {logFormat(team)}
+                        </td>
+                        <td role="cell" class={`ml-result ml-${m.result}`}>
+                            <span aria-hidden="true">{m.result}</span>
+                            <span class="visually-hidden">
+                                {RESULT_WORDS[m.result]}
+                            </span>
+                        </td>
+                        <td role="cell" class="ml-num">
+                            {m.score[0]}–{m.score[1]}
+                        </td>
+                        <td role="cell" class="ml-num ml-ga">
+                            {m.goals > 0 ? m.goals : <span class="ml-nil">—</span>}{m.goalsIsMinimum && <span class="ml-dagger">†</span>}
+                        </td>
+                        <td role="cell" class="ml-num ml-ga">
+                            {m.assists > 0 ? (
+                                m.assists
+                            ) : (
+                                <span class="ml-nil">—</span>
+                            )}
+                        </td>
+                    </tr>
+                ))
+            }
+        </tbody>
+    </table>
+
+    {
+        earlier > 0 && (
+            <button
+                class="ml-more"
+                data-fr-more
+                data-fr-current-season={current?.id}
+            >
+                <span class="ml-more-label">EARLIER MATCHES ↓</span>
+                <span class="ml-more-rule" aria-hidden="true" />
+                <span class="ml-more-count">
+                    {earlier} MORE ACROSS {sealed.length} SEALED SEASONS
+                </span>
+            </button>
+        )
+    }
+</div>
+
+<style>
+    /* ------- filter bar ------- */
+
+    .ml-filters {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid var(--line);
+        border-top: none;
+        padding: 13px 24px;
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        line-height: normal;
+    }
+
+    .ml-filter-label {
+        color: var(--faint);
+    }
+
+    .ml-showing {
+        margin-left: auto;
+        color: var(--faint);
+        text-align: right;
+    }
+
+    /* ------- log table ------- */
+
+    .ml-table {
+        display: block;
+        width: 100%;
+        border: 1px solid var(--line);
+        border-top: none;
+        border-collapse: collapse;
+        line-height: normal;
+    }
+
+    .ml-table thead,
+    .ml-table tbody {
+        display: block;
+    }
+
+    .ml-table tr {
+        display: grid;
+        grid-template-columns: 92px 1fr 250px 70px 84px 48px 48px;
+        gap: 0 16px;
+        align-items: baseline;
+        padding: 14px 24px;
+    }
+
+    .ml-table tr[hidden] {
+        display: none;
+    }
+
+    thead tr {
+        padding: 12px 24px;
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    }
+
+    th {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 400;
+        letter-spacing: 0.14em;
+        color: var(--faint);
+        text-align: left;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+        transition: background var(--dur-hover) var(--ease);
+    }
+
+    tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: color-mix(in srgb, var(--accent) 3%, transparent);
+    }
+
+    .ml-h-result {
+        text-align: center;
+    }
+
+    .ml-h-num {
+        text-align: right;
+    }
+
+    .ml-date {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--muted);
+    }
+
+    .ml-team {
+        font-family: var(--font-display);
+        font-size: 17px;
+    }
+
+    .ml-league-inline {
+        display: none;
+    }
+
+    .ml-league {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .ml-result {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        text-align: center;
+    }
+
+    .ml-W {
+        color: var(--accent);
+    }
+
+    .ml-D {
+        color: var(--muted);
+    }
+
+    .ml-L {
+        color: var(--faint);
+    }
+
+    .ml-num {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        color: var(--muted);
+        text-align: right;
+    }
+
+    .ml-ga {
+        color: var(--ink);
+    }
+
+    .ml-nil {
+        color: var(--faint);
+    }
+
+    .ml-dagger {
+        color: var(--fr-accent2);
+    }
+
+    /* ------- pagination row ------- */
+
+    .ml-more {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        width: 100%;
+        padding: 12px 24px;
+        border: 1px solid var(--line);
+        border-top: none;
+        font-family: var(--font-mono);
+        line-height: normal;
+        text-transform: uppercase;
+        transition: background var(--dur-hover) var(--ease);
+    }
+
+    .ml-more:hover {
+        background: color-mix(in srgb, var(--accent) 4%, transparent);
+    }
+
+    .ml-more[hidden] {
+        display: none;
+    }
+
+    .ml-more-label {
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        color: var(--muted);
+    }
+
+    .ml-more-rule {
+        flex: 1;
+        border-top: 1px dashed color-mix(in srgb, var(--ink) 15%, transparent);
+    }
+
+    .ml-more-count {
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        color: var(--faint);
+    }
+
+    /* ------- 900px ------- */
+
+    @media (max-width: 900px) {
+        .ml-table tr {
+            grid-template-columns: 64px 1fr 40px 56px 32px 32px;
+        }
+
+        /* League · div · format folds into a second line under the team. */
+        .ml-league,
+        .ml-h-league {
+            display: none;
+        }
+
+        .ml-league-inline {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+    }
+
+    /* ------- 640px ------- */
+
+    @media (max-width: 640px) {
+        .ml-filters {
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 16px;
+        }
+
+        .ml-showing {
+            flex-basis: 100%;
+            text-align: left;
+            margin-left: 0;
+        }
+
+        .ml-table tr {
+            padding: 12px 16px;
+            gap: 0 8px;
+        }
+
+        .ml-more {
+            padding: 12px 16px;
+        }
+    }
+</style>

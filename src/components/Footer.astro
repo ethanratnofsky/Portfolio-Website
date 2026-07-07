@@ -1,12 +1,26 @@
 ---
 import Signature from "./Signature.astro";
+import { currentSeason, record, seasonAgg } from "../data/soccer-derive";
 
 const year = new Date().getFullYear();
+
+/* Field-report easter egg (pre-approved in the handoff): the in-play season's
+   record rides along on the copyright line, derived like everything else. */
+const season = currentSeason();
+const seasonRecord =
+    season && seasonAgg(season.id).played > 0
+        ? record(seasonAgg(season.id))
+        : null;
+const seasonName = season?.label.split(" ")[0].toLowerCase();
 ---
 
 <footer class="site-footer hairline-top">
     <p class="mono-micro footer-cell">
-        <span class="ext">Drawn by code, approved by hand — </span>© {year} E.R.
+        <span class="ext">Drawn by code, approved by hand — </span>© {year} E.R.{
+            seasonRecord && (
+                <span class="ext"> · {seasonRecord} this {seasonName}</span>
+            )
+        }
     </p>
     <button class="footer-sig" aria-label="Replay the hero draft animation" title="Replay the draft">
         <Signature />

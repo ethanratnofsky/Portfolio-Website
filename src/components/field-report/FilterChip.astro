@@ -1,0 +1,102 @@
+---
+// Field report — dropdown filter chip ("SEASON: SUMMER 2026 ▾").
+// Markup only; open/close/selection live in field-report.ts, keyed off
+// data-fr-filter / data-fr-option. A chip whose value isn't ALL renders
+// accent ("is-set"); the script keeps that class in sync.
+interface Props {
+    /** Filter key the script dispatches on: "season" | "league" | "team" | "pm-season". */
+    filterKey: string;
+    label: string;
+    value: string;
+    valueLabel: string;
+    options: { value: string; label: string }[];
+}
+
+const { filterKey, label, value, valueLabel, options } = Astro.props;
+---
+
+<span class="fchip">
+    <button
+        class:list={["fchip-btn", { "is-set": value !== "all" }]}
+        data-fr-filter={filterKey}
+        data-fr-value={value}
+        aria-haspopup="true"
+        aria-expanded="false"
+    >
+        {label}: <span data-fr-filter-value>{valueLabel}</span>
+        <span aria-hidden="true">▾</span>
+    </button>
+    <span class="fchip-menu" hidden>
+        {
+            options.map((o) => (
+                <button data-fr-option={o.value}>{o.label}</button>
+            ))
+        }
+    </span>
+</span>
+
+<style>
+    .fchip {
+        position: relative;
+        display: inline-flex;
+    }
+
+    .fchip-btn {
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        padding: 6px 12px;
+        white-space: nowrap;
+        line-height: normal;
+        transition:
+            border-color var(--dur-hover) var(--ease),
+            color var(--dur-hover) var(--ease);
+    }
+
+    .fchip-btn:hover {
+        border-color: color-mix(in srgb, var(--ink) 35%, transparent);
+    }
+
+    .fchip-btn.is-set {
+        color: var(--accent);
+        border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+
+    .fchip-menu {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        z-index: 5;
+        min-width: max-content;
+        display: flex;
+        flex-direction: column;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow-modal);
+    }
+
+    .fchip-menu[hidden] {
+        display: none;
+    }
+
+    .fchip-menu button {
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-align: left;
+        padding: 8px 14px;
+        transition:
+            background var(--dur-hover) var(--ease),
+            color var(--dur-hover) var(--ease);
+    }
+
+    .fchip-menu button:hover {
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        color: var(--ink);
+    }
+</style>

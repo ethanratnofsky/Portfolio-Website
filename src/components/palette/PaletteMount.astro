@@ -1,11 +1,21 @@
 ---
 import { getCollection } from "astro:content";
 import { SITE } from "../../data/site";
+import {
+    allTime,
+    currentSeason,
+    goalsSuffix,
+    record,
+    teamLines,
+} from "../../data/soccer-derive";
+import type { Agg } from "../../data/soccer-derive";
 
 /* ⌘K command palette (handoff screen #7c) — "draft a destination".
    Mounted once per page; safe on any route: NAVIGATE entries use absolute
    hrefs (/#work, /work/<id>), and same-page anchors smooth-scroll instead.
-   Opens with ⌘K / Ctrl+K anywhere, or "$" when not typing. */
+   Opens with ⌘K / Ctrl+K anywhere, or "$" when not typing.
+   A "field" query surfaces the field report's derived stat lines
+   (testimonials/field-report handoff easter egg, pre-approved). */
 
 const studies = (await getCollection("projects"))
     .filter((project) => project.data.study !== "none")
@@ -25,7 +35,22 @@ const navigate = [
     })),
 ];
 
-const paletteData = { navigate, resumePath: SITE.resumePath };
+const season = currentSeason();
+const at = allTime();
+const statLine = (agg: Agg, suffix: string) =>
+    `${agg.played}P · ${record(agg)} · ${agg.goals}${suffix} G · ${agg.assists} A`;
+const field = {
+    lines: season
+        ? teamLines(season.id).map(({ team, agg }) => ({
+              name: team.name,
+              stat: statLine(agg, goalsSuffix("team", agg)),
+          }))
+        : [],
+    summary: statLine(at, goalsSuffix("all", at, Boolean(season))),
+    seasonLabel: season?.label ?? null,
+};
+
+const paletteData = { navigate, resumePath: SITE.resumePath, field };
 ---
 
 <dialog class="palette" aria-label="Command palette">
@@ -248,14 +273,22 @@ const paletteData = { navigate, resumePath: SITE.resumePath };
         path: string;
     }
 
+    interface FieldData {
+        lines: { name: string; stat: string }[];
+        summary: string;
+        seasonLabel: string | null;
+    }
+
     interface PaletteData {
         navigate: NavEntryData[];
         resumePath: string;
+        field?: FieldData;
     }
 
     type Entry =
         | { kind: "nav"; num: string; name: string; path: string }
-        | { kind: "action"; id: "theme" | "resume" | "replay"; glyph: string; name: string };
+        | { kind: "action"; id: "theme" | "resume" | "replay"; glyph: string; name: string }
+        | { kind: "field"; glyph: string; name: string; stat: string };
 
     interface Match {
         entry: Entry;
@@ -304,6 +337,22 @@ const paletteData = { navigate, resumePath: SITE.resumePath };
         function computeMatches(rawQuery: string): Match[] {
             const query = rawQuery.trim();
             const result: Match[] = [];
+            // "field" pulls the field report's derived stat lines (easter
+            // egg): current-season per-team lines, then the all-time summary.
+            if (data.field && /^field\b/i.test(query)) {
+                for (const line of data.field.lines) {
+                    result.push({
+                        entry: { kind: "field", glyph: "●", name: line.name, stat: line.stat },
+                        namePos: [],
+                        pathPos: [],
+                    });
+                }
+                result.push({
+                    entry: { kind: "field", glyph: "Σ", name: "All time", stat: data.field.summary },
+                    namePos: [],
+                    pathPos: [],
+                });
+            }
             for (const entry of entries) {
                 if (query === "") {
                     result.push({ entry, namePos: [], pathPos: [] });
@@ -385,6 +434,11 @@ const paletteData = { navigate, resumePath: SITE.resumePath };
             row.appendChild(highlight(entry.name, match.namePos, "palette-row-name"));
             if (entry.kind === "nav") {
                 row.appendChild(highlight(entry.path, match.pathPos, "palette-row-path"));
+            } else if (entry.kind === "field") {
+                const stat = document.createElement("span");
+                stat.className = "palette-row-path";
+                stat.textContent = entry.stat;
+                row.appendChild(stat);
             }
 
             const enter = document.createElement("span");
@@ -432,7 +486,15 @@ const paletteData = { navigate, resumePath: SITE.resumePath };
                     const label = document.createElement("div");
                     label.className = "palette-group" + (lastKind !== null ? " is-divided" : "");
                     label.setAttribute("role", "presentation");
-                    label.textContent = match.entry.kind === "nav" ? "NAVIGATE" : "ACTIONS";
+                    label.textContent =
+                        match.entry.kind === "nav"
+                            ? "NAVIGATE"
+                            : match.entry.kind === "field"
+                              ? "FIELD REPORT" +
+                                (data.field?.seasonLabel
+                                    ? ` — ${data.field.seasonLabel.toUpperCase()} + ALL TIME`
+                                    : "")
+                              : "ACTIONS";
                     frag.appendChild(label);
                     lastKind = match.entry.kind;
                 }
@@ -469,6 +531,8 @@ const paletteData = { navigate, resumePath: SITE.resumePath };
             close();
             if (entry.kind === "nav") {
                 navigateTo(entry.path);
+            } else if (entry.kind === "field") {
+                navigateTo("/#field-report");
             } else if (entry.id === "theme") {
                 document.querySelector<HTMLButtonElement>(".theme-toggle")?.click();
             } else if (entry.id === "resume") {

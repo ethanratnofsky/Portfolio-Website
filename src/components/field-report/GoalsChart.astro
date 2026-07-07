@@ -1,0 +1,862 @@
+---
+// Field report — FIG. A3 (#13b / #14c / #14b): goals & assists charts.
+// All geometry is computed here at build time from Match[]; the client
+// script only swaps which pre-rendered SVG is visible (scale toggle +
+// per-match season filter) — no chart-drawing JS ships.
+import { SEASONS } from "../../data/soccer";
+import type { Match, Season } from "../../data/soccer";
+import {
+    allTime,
+    currentSeason,
+    goalsSuffix,
+    matchesFor,
+    record,
+    seasonAgg,
+    shortSeason,
+    sortedMatches,
+} from "../../data/soccer-derive";
+
+const all = sortedMatches();
+const at = allTime();
+const current = currentSeason();
+const r1 = (n: number) => Math.round(n * 10) / 10;
+
+/* Season spans over a chronological match list (matches are contiguous
+   per season). Used for dashed boundaries + centered season labels. */
+interface Span {
+    season: Season;
+    start: number;
+    count: number;
+}
+function seasonSpans(matches: Match[]): Span[] {
+    const spans: Span[] = [];
+    for (const s of SEASONS) {
+        const count = matches.filter((m) => m.seasonId === s.id).length;
+        if (!count) continue;
+        spans.push({
+            season: s,
+            start: matches.findIndex((m) => m.seasonId === s.id),
+            count,
+        });
+    }
+    return spans;
+}
+
+const X0 = 40;
+const X1 = 1060;
+const SPAN = X1 - X0;
+
+/* ---- CUMULATIVE (viewBox 1080×236): career step chart ---- */
+
+const CUM = { h: 236, yBase: 200, yTop: 10, labelY: 222 };
+const cumStep = SPAN / all.length;
+const cumMax = Math.max(5, Math.ceil(Math.max(at.goals, at.assists) / 5) * 5);
+const yCum = (v: number) =>
+    r1(CUM.yBase - (v * (CUM.yBase - CUM.yTop)) / cumMax);
+
+function cumSeries(get: (m: Match) => number) {
+    let d = `M ${X0} ${CUM.yBase}`;
+    let cum = 0;
+    const daggers: { x: number; y: number }[] = [];
+    all.forEach((m, i) => {
+        const v = get(m);
+        if (v > 0) {
+            cum += v;
+            const x = r1(X0 + (i + 1) * cumStep);
+            d += ` H ${x} V ${yCum(cum)}`;
+            if (m.goalsIsMinimum)
+                daggers.push({ x: x + 3.5, y: yCum(cum) - 4 });
+        }
+    });
+    d += ` H ${X1}`;
+    const yEnd = yCum(cum);
+    return { d, yEnd, labelY: yEnd < 24 ? yEnd + 4 : yEnd - 6, daggers };
+}
+
+const cumGoals = cumSeries((m) => m.goals);
+const cumAssists = cumSeries((m) => m.assists);
+const cumTicks = Array.from({ length: cumMax / 5 + 1 }, (_, i) => i * 5);
+const cumSpans = seasonSpans(all);
+const cumGoalsLabel = `${at.goals}${goalsSuffix("all", at, Boolean(current))} G`;
+
+/* ---- BY SEASON (viewBox 1080×216): one point per season ---- */
+
+const BYS = { h: 216, yBase: 180, rise: 130, labelY: 202 };
+const seasonPoints = SEASONS.map((s, i) => {
+    const agg = seasonAgg(s.id);
+    const inPlay = s.status === "in-play";
+    return {
+        s,
+        agg,
+        inPlay,
+        x: r1(X0 + ((i + 0.5) * SPAN) / SEASONS.length),
+        goalsLabel: `${agg.goals}${goalsSuffix("season", agg, inPlay)}`,
+        axis: `${shortSeason(s)} · ${record(agg)}${inPlay ? " ●" : ""}`,
+    };
+});
+const bysMax = Math.max(
+    2,
+    Math.ceil(Math.max(...seasonPoints.map((p) => p.agg.goals)) / 2) * 2,
+);
+const yBys = (v: number) => r1(BYS.yBase - (v * BYS.rise) / bysMax);
+const bysGoalsLine = seasonPoints
+    .map((p) => `${p.x},${yBys(p.agg.goals)}`)
+    .join(" ");
+const bysAssistsLine = seasonPoints
+    .map((p) => `${p.x},${yBys(p.agg.assists)}`)
+    .join(" ");
+
+/* ---- PER MATCH (viewBox 1080×162): paired bars, ALL + one per season ---- */
+
+const PM = { h: 162, yBase: 110, labelY: 148, divTop: 18, divBot: 122 };
+const pmMax = Math.max(2, ...all.map((m) => Math.max(m.goals, m.assists)));
+const pmUnit = Math.min(34, 92 / pmMax);
+const pmTicks = Array.from({ length: pmMax }, (_, i) => i + 1);
+
+function pmVariant(id: string, matches: Match[]) {
+    const step = SPAN / matches.length;
+    const bars: {
+        x: number;
+        y: number;
+        h: number;
+        kind: "goals" | "assists";
+    }[] = [];
+    const ticks: number[] = [];
+    const daggers: { x: number; y: number }[] = [];
+    matches.forEach((m, i) => {
+        const cx = r1(X0 + (i + 0.5) * step);
+        if (m.goals === 0 && m.assists === 0) {
+            ticks.push(cx);
+            return;
+        }
+        if (m.goals > 0) {
+            const h = r1(m.goals * pmUnit);
+            bars.push({ x: r1(cx - 11), y: r1(PM.yBase - h), h, kind: "goals" });
+            if (m.goalsIsMinimum)
+                daggers.push({ x: r1(cx - 6), y: r1(PM.yBase - h - 4) });
+        }
+        if (m.assists > 0) {
+            const h = r1(m.assists * pmUnit);
+            bars.push({ x: r1(cx + 1), y: r1(PM.yBase - h), h, kind: "assists" });
+        }
+    });
+    const spans = seasonSpans(matches).map((sp) => ({
+        ...sp,
+        divX: r1(X0 + sp.start * step),
+        labelX: r1(X0 + (sp.start + sp.count / 2) * step),
+    }));
+    return { id, bars, ticks, daggers, spans, count: matches.length };
+}
+
+const pmVariants = [
+    pmVariant("all", all),
+    ...SEASONS.map((s) => pmVariant(s.id, matchesFor(s.id))),
+];
+
+const legendFor = (n: number, what: string) =>
+    `Paired bar chart of goals and assists per match, ${n} matches${what ? ` (${what})` : ""}.`;
+---
+
+<div class="gchart">
+    <div class="gc-head">
+        <p class="gc-fig">FIG. A3 — GOALS &amp; ASSISTS</p>
+        <span class="gc-gap"></span>
+        <span class="gc-scale-label">SCALE</span>
+        <span class="gc-toggle" role="group" aria-label="Chart scale">
+            <button data-fr-scale="cumulative" aria-pressed="true">
+                CUMULATIVE<span data-fr-scale-dot aria-hidden="true"> ●</span>
+            </button>
+            <button data-fr-scale="by-season" aria-pressed="false">
+                BY SEASON<span data-fr-scale-dot aria-hidden="true" hidden> ●</span>
+            </button>
+            <button data-fr-scale="per-match" aria-pressed="false">
+                PER MATCH<span data-fr-scale-dot aria-hidden="true" hidden> ●</span>
+            </button>
+        </span>
+        <span class="gc-season" data-fr-pm-filter hidden>
+            <span class="fchip">
+                <button
+                    class="fchip-btn"
+                    data-fr-filter="pm-season"
+                    data-fr-value="all"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                >
+                    SEASON: <span data-fr-filter-value>ALL</span>
+                    <span aria-hidden="true">▾</span>
+                </button>
+                <span class="fchip-menu" hidden>
+                    <button data-fr-option="all">ALL</button>
+                    {
+                        [...SEASONS].reverse().map((s) => (
+                            <button data-fr-option={s.id}>
+                                {s.label.toUpperCase()}
+                            </button>
+                        ))
+                    }
+                </span>
+            </span>
+        </span>
+        <span class="gc-legend" aria-hidden="true">
+            <span class="gc-key"><i class="gc-swatch s-goals"></i>GOALS</span>
+            <span class="gc-key"
+                ><i class="gc-swatch s-assists"></i>ASSISTS</span
+            >
+        </span>
+    </div>
+
+    {/* ---- cumulative ---- */}
+    <div data-fr-scale-panel="cumulative">
+        <div class="gc-panel">
+            <svg
+                viewBox={`0 0 1080 ${CUM.h}`}
+                role="img"
+                aria-label={`Step chart of cumulative career totals across ${all.length} matches: ${cumGoalsLabel.toLowerCase()}, ${at.assists} assists.`}
+            >
+                {
+                    cumTicks.map((v) => (
+                        <>
+                            {v > 0 && (
+                                <line
+                                    x1={X0}
+                                    y1={yCum(v)}
+                                    x2={X1}
+                                    y2={yCum(v)}
+                                    class="gc-grid"
+                                />
+                            )}
+                            <text
+                                x={X0 - 8}
+                                y={yCum(v) + 3}
+                                class="gc-tick"
+                                text-anchor="end"
+                            >
+                                {v}
+                            </text>
+                        </>
+                    ))
+                }
+                {
+                    cumSpans.map((sp, i) => (
+                        <>
+                            {i > 0 && (
+                                <line
+                                    x1={r1(X0 + sp.start * cumStep)}
+                                    y1={CUM.yTop}
+                                    x2={r1(X0 + sp.start * cumStep)}
+                                    y2={CUM.yBase}
+                                    class="gc-divider"
+                                />
+                            )}
+                            <text
+                                x={r1(X0 + (sp.start + sp.count / 2) * cumStep)}
+                                y={CUM.labelY}
+                                class={
+                                    sp.season.status === "in-play"
+                                        ? "gc-season-label is-current"
+                                        : "gc-season-label"
+                                }
+                                text-anchor="middle"
+                            >
+                                {shortSeason(sp.season)}
+                                {sp.season.status === "in-play" && " ●"}
+                            </text>
+                        </>
+                    ))
+                }
+                <line
+                    x1={X0}
+                    y1={CUM.yBase}
+                    x2={X1}
+                    y2={CUM.yBase}
+                    class="gc-axis"></line>
+
+                <path d={cumAssists.d} class="gc-line s-assists"></path>
+                <circle cx={X1} cy={cumAssists.yEnd} r="3" class="s-assists"
+                ></circle>
+                <text
+                    x={X1 - 8}
+                    y={cumAssists.labelY}
+                    class="gc-num s-assists-num"
+                    text-anchor="end">{at.assists} A</text
+                >
+
+                <path d={cumGoals.d} class="gc-line s-goals"></path>
+                <circle cx={X1} cy={cumGoals.yEnd} r="3.5" class="s-goals"
+                ></circle>
+                <text
+                    x={X1 - 10}
+                    y={cumGoals.labelY}
+                    class="gc-num s-goals-num"
+                    text-anchor="end">{cumGoalsLabel}</text
+                >
+                {
+                    cumGoals.daggers.map((d) => (
+                        <text x={d.x} y={d.y} class="gc-dagger">
+                            †
+                        </text>
+                    ))
+                }
+            </svg>
+        </div>
+        <p class="gc-note">
+            <span
+                >STEPS UP AT EACH MATCH — FLAT SPELLS ARE MATCHES WITHOUT A
+                GOAL, OR WEEKS WITHOUT A MATCH</span
+            >
+            <span>† COUNT UNCERTAIN — CURVE DRAWN AT MINIMUM</span>
+        </p>
+    </div>
+
+    {/* ---- by season ---- */}
+    <div data-fr-scale-panel="by-season" hidden>
+        <div class="gc-panel">
+            <svg
+                viewBox={`0 0 1080 ${BYS.h}`}
+                role="img"
+                aria-label={`Line chart of goals and assists per season: ${seasonPoints.map((p) => `${shortSeason(p.s)} ${p.goalsLabel} goals, ${p.agg.assists} assists`).join("; ")}.`}
+            >
+                {
+                    [bysMax, bysMax / 2].map((v) => (
+                        <>
+                            <line
+                                x1={X0}
+                                y1={yBys(v)}
+                                x2={X1}
+                                y2={yBys(v)}
+                                class="gc-grid"
+                            />
+                            <text
+                                x={X0 - 8}
+                                y={yBys(v) + 3}
+                                class="gc-tick"
+                                text-anchor="end"
+                            >
+                                {v}
+                            </text>
+                        </>
+                    ))
+                }
+                <text
+                    x={X0 - 8}
+                    y={BYS.yBase + 3}
+                    class="gc-tick"
+                    text-anchor="end">0</text
+                >
+                <line
+                    x1={X0}
+                    y1={BYS.yBase}
+                    x2={X1}
+                    y2={BYS.yBase}
+                    class="gc-axis"></line>
+
+                <polyline points={bysAssistsLine} class="gc-line s-assists"
+                ></polyline>
+                {
+                    seasonPoints.map((p) => (
+                        <>
+                            <circle
+                                cx={p.x}
+                                cy={yBys(p.agg.assists)}
+                                r="3"
+                                class="s-assists"
+                            />
+                            <text
+                                x={p.x + 14}
+                                y={yBys(p.agg.assists) + 3}
+                                class="gc-num s-assists-num"
+                            >
+                                {p.agg.assists}
+                            </text>
+                        </>
+                    ))
+                }
+
+                <polyline points={bysGoalsLine} class="gc-line s-goals"
+                ></polyline>
+                {
+                    seasonPoints.map((p) => (
+                        <>
+                            <circle
+                                cx={p.x}
+                                cy={yBys(p.agg.goals)}
+                                r="3.5"
+                                class="s-goals"
+                            />
+                            <text
+                                x={p.x}
+                                y={yBys(p.agg.goals) - 13}
+                                class="gc-num s-goals-num"
+                                text-anchor="middle"
+                            >
+                                {p.goalsLabel}
+                            </text>
+                        </>
+                    ))
+                }
+
+                {
+                    seasonPoints.map((p) => (
+                        <text
+                            x={p.x}
+                            y={BYS.labelY}
+                            class={
+                                p.inPlay
+                                    ? "gc-season-label is-current"
+                                    : "gc-season-label"
+                            }
+                            text-anchor="middle"
+                        >
+                            {p.axis}
+                        </text>
+                    ))
+                }
+            </svg>
+        </div>
+        <p class="gc-note">
+            <span>SEASON TOTALS — CURRENT SEASON STILL ACCRUING</span>
+            <span>† COUNT UNCERTAIN — DRAWN AT MINIMUM</span>
+        </p>
+    </div>
+
+    {/* ---- per match (one pre-rendered SVG per season filter) ---- */}
+    <div data-fr-scale-panel="per-match" hidden>
+        {
+            pmVariants.map((v) => (
+                <div
+                    class="gc-pm"
+                    data-fr-pm-panel={v.id}
+                    hidden={v.id !== "all"}
+                >
+                    <div class="gc-panel">
+                        <svg
+                            viewBox={`0 0 1080 ${PM.h}`}
+                            role="img"
+                            aria-label={legendFor(
+                                v.count,
+                                v.id === "all" ? "" : v.spans[0].season.label,
+                            )}
+                        >
+                            {pmTicks.map((t) => (
+                                <>
+                                    <line
+                                        x1={X0}
+                                        y1={r1(PM.yBase - t * pmUnit)}
+                                        x2={X1}
+                                        y2={r1(PM.yBase - t * pmUnit)}
+                                        class="gc-grid"
+                                    />
+                                    <text
+                                        x={X0 - 8}
+                                        y={r1(PM.yBase - t * pmUnit) + 3}
+                                        class="gc-tick"
+                                        text-anchor="end"
+                                    >
+                                        {t}
+                                    </text>
+                                </>
+                            ))}
+                            {v.spans.map((sp, i) => (
+                                <>
+                                    {i > 0 && (
+                                        <line
+                                            x1={sp.divX}
+                                            y1={PM.divTop}
+                                            x2={sp.divX}
+                                            y2={PM.divBot}
+                                            class="gc-divider"
+                                        />
+                                    )}
+                                    <text
+                                        x={sp.labelX}
+                                        y={PM.labelY}
+                                        class={
+                                            sp.season.status === "in-play"
+                                                ? "gc-season-label is-current"
+                                                : "gc-season-label"
+                                        }
+                                        text-anchor="middle"
+                                    >
+                                        {shortSeason(sp.season)}
+                                        {sp.season.status === "in-play" &&
+                                            " ●"}
+                                    </text>
+                                </>
+                            ))}
+                            {v.bars.map((b) => (
+                                <rect
+                                    x={b.x}
+                                    y={b.y}
+                                    width="10"
+                                    height={b.h}
+                                    class={
+                                        b.kind === "goals"
+                                            ? "s-goals"
+                                            : "s-assists"
+                                    }
+                                />
+                            ))}
+                            {v.ticks.map((x) => (
+                                <line
+                                    x1={x}
+                                    y1={PM.yBase - 4}
+                                    x2={x}
+                                    y2={PM.yBase + 4}
+                                    class="gc-blank"
+                                />
+                            ))}
+                            {v.daggers.map((d) => (
+                                <text
+                                    x={d.x}
+                                    y={d.y}
+                                    class="gc-dagger"
+                                    text-anchor="middle"
+                                >
+                                    †
+                                </text>
+                            ))}
+                            <line
+                                x1={X0}
+                                y1={PM.yBase}
+                                x2={X1}
+                                y2={PM.yBase}
+                                class="gc-axis"
+                            />
+                        </svg>
+                    </div>
+                </div>
+            ))
+        }
+        <p class="gc-note">
+            <span
+                >AMBER — GOALS · GREY — ASSISTS · TICKS ON THE LINE — PLAYED,
+                BLANK</span
+            >
+            <span>† COUNT UNCERTAIN — DRAWN AT MINIMUM</span>
+        </p>
+    </div>
+</div>
+
+<style>
+    .gchart {
+        border: 1px solid var(--line);
+        border-top: none;
+        padding: 20px 24px 16px;
+    }
+
+    /* ------- header row ------- */
+
+    .gc-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        line-height: normal;
+    }
+
+    .gc-fig {
+        color: var(--accent);
+    }
+
+    .gc-gap {
+        flex: 1;
+    }
+
+    .gc-scale-label {
+        color: var(--faint);
+    }
+
+    .gc-toggle {
+        display: flex;
+        border: 1px solid var(--line);
+    }
+
+    .gc-toggle button {
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 6px 12px;
+        transition:
+            color var(--dur-hover) var(--ease),
+            background var(--dur-hover) var(--ease);
+        line-height: normal;
+    }
+
+    .gc-toggle button:not(:last-child) {
+        border-right: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+    }
+
+    .gc-toggle button:hover {
+        color: var(--ink);
+    }
+
+    .gc-toggle button[aria-pressed="true"] {
+        color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+    }
+
+    /* The per-match season filter chip (shares field-report.ts wiring). */
+    .gc-season[hidden] {
+        display: none;
+    }
+
+    .fchip {
+        position: relative;
+        display: inline-flex;
+    }
+
+    .fchip-btn {
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        padding: 6px 12px;
+        white-space: nowrap;
+        line-height: normal;
+        transition:
+            border-color var(--dur-hover) var(--ease),
+            color var(--dur-hover) var(--ease);
+    }
+
+    .fchip-btn:hover {
+        border-color: color-mix(in srgb, var(--ink) 35%, transparent);
+    }
+
+    .fchip-btn.is-set {
+        color: var(--accent);
+        border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+
+    .fchip-menu {
+        position: absolute;
+        top: calc(100% + 4px);
+        right: 0;
+        z-index: 5;
+        min-width: max-content;
+        display: flex;
+        flex-direction: column;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow-modal);
+    }
+
+    .fchip-menu[hidden] {
+        display: none;
+    }
+
+    .fchip-menu button {
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-align: left;
+        padding: 8px 14px;
+        transition:
+            background var(--dur-hover) var(--ease),
+            color var(--dur-hover) var(--ease);
+    }
+
+    .fchip-menu button:hover {
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        color: var(--ink);
+    }
+
+    .gc-legend {
+        display: flex;
+        gap: 18px;
+        margin-left: 10px;
+        font-size: 9px;
+        color: var(--muted);
+    }
+
+    .gc-key {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .gc-swatch {
+        width: 16px;
+        border-top: 2px solid;
+    }
+
+    /* ------- chart panel ------- */
+
+    .gc-panel {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        background-image: linear-gradient(
+                color-mix(in srgb, var(--ink) 3%, transparent) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                90deg,
+                color-mix(in srgb, var(--ink) 3%, transparent) 1px,
+                transparent 1px
+            );
+        background-size: 40px 40px;
+        padding: 20px 24px 10px;
+        overflow-x: auto;
+    }
+
+    .gc-panel svg {
+        width: 100%;
+        min-width: 640px;
+        display: block;
+    }
+
+    [data-fr-scale-panel][hidden],
+    .gc-pm[hidden] {
+        display: none;
+    }
+
+    /* ------- SVG vocabulary (colors via CSS so emphasis can swap) ------- */
+
+    .gc-grid {
+        stroke: color-mix(in srgb, var(--ink) 7%, transparent);
+        stroke-width: 1;
+    }
+
+    .gc-axis {
+        stroke: var(--fr-stroke);
+        stroke-width: 1;
+    }
+
+    .gc-divider {
+        stroke: var(--fr-deep);
+        stroke-width: 1;
+        stroke-dasharray: 3 4;
+    }
+
+    .gc-tick,
+    .gc-season-label {
+        fill: var(--faint);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 1px;
+    }
+
+    .gc-season-label.is-current {
+        fill: var(--muted);
+    }
+
+    .gc-num {
+        font-family: var(--font-mono);
+        font-size: 10px;
+    }
+
+    .gc-dagger {
+        fill: var(--fr-accent2);
+        font-family: var(--font-mono);
+        font-size: 10px;
+    }
+
+    .gc-line {
+        fill: none;
+        stroke-width: 2;
+    }
+
+    /* One accent at a time: goals lead by default, assists lead when the
+       ASSISTS tile opened the panel ([data-emphasis] set by the script). */
+    .s-goals {
+        stroke: var(--accent);
+        fill: var(--accent);
+    }
+
+    rect.s-goals,
+    circle.s-goals {
+        stroke: none;
+    }
+
+    .gc-line.s-goals {
+        fill: none;
+    }
+
+    .s-assists {
+        stroke: var(--fr-grey);
+        fill: var(--fr-grey);
+    }
+
+    rect.s-assists,
+    circle.s-assists {
+        stroke: none;
+    }
+
+    .gc-line.s-assists {
+        fill: none;
+    }
+
+    .s-goals-num {
+        fill: var(--accent);
+    }
+
+    .s-assists-num {
+        fill: var(--muted);
+    }
+
+    :global([data-emphasis="assists"]) .s-goals {
+        stroke: var(--fr-grey);
+        fill: var(--fr-grey);
+    }
+
+    :global([data-emphasis="assists"]) .gc-line.s-goals,
+    :global([data-emphasis="assists"]) .gc-line.s-assists {
+        fill: none;
+    }
+
+    :global([data-emphasis="assists"]) .s-assists {
+        stroke: var(--accent);
+        fill: var(--accent);
+    }
+
+    :global([data-emphasis="assists"]) .s-goals-num {
+        fill: var(--muted);
+    }
+
+    :global([data-emphasis="assists"]) .s-assists-num {
+        fill: var(--accent);
+    }
+
+    .gc-blank {
+        stroke: var(--fr-grey);
+        stroke-width: 2;
+    }
+
+    /* ------- explainer row ------- */
+
+    .gc-note {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 14px;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--faint);
+        line-height: normal;
+    }
+
+    /* ------- 640px ------- */
+
+    @media (max-width: 640px) {
+        .gchart {
+            padding: 16px;
+        }
+
+        .gc-note {
+            flex-direction: column;
+            gap: 6px;
+        }
+    }
+</style>

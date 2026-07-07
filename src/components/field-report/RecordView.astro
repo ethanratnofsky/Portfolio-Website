@@ -1,0 +1,259 @@
+---
+// Field report — FIG. A4 (#13c Form View): W/D/L square timeline grouped by
+// season, with per-season subtotals and derived streak callouts. The screen's
+// bottom summary row became the always-visible FORM strip — not repeated here.
+import { SEASONS } from "../../data/soccer";
+import {
+    currentStreak,
+    longestStreak,
+    matchesFor,
+    seasonAgg,
+    shortSeason,
+} from "../../data/soccer-derive";
+
+const RESULT_WORDS = { W: "won", D: "drew", L: "lost" } as const;
+
+const groups = SEASONS.map((s) => {
+    const agg = seasonAgg(s.id);
+    return {
+        s,
+        inPlay: s.status === "in-play",
+        results: matchesFor(s.id).map((m) => m.result),
+        subtotal: `${agg.w}·${agg.d}·${agg.l}`,
+    };
+});
+
+const streak = currentStreak();
+const callouts = [
+    {
+        label: "LONGEST W STREAK",
+        value: `W${longestStreak((m) => m.result === "W")}`,
+    },
+    {
+        label: "UNBEATEN RUN",
+        value: `${longestStreak((m) => m.result !== "L")} MATCHES`,
+    },
+];
+---
+
+<div class="rview">
+    <div class="rv-head">
+        <p class="rv-fig">FIG. A4 — FORM, EVERY MATCH</p>
+        <span class="rv-legend" aria-hidden="true">
+            <span class="rv-key"><i class="rv-sq rv-sq-W"></i>WIN</span>
+            <span class="rv-key"><i class="rv-sq rv-sq-D"></i>DRAW</span>
+            <span class="rv-key"><i class="rv-sq rv-sq-L"></i>LOSS</span>
+        </span>
+    </div>
+
+    <div class="rv-panel">
+        {
+            groups.map((g) => (
+                <div class="rv-group">
+                    <span class="rv-squares" aria-hidden="true">
+                        {g.results.map((r) => (
+                            <i class={`rv-sq rv-sq-lg rv-sq-${r}`} />
+                        ))}
+                    </span>
+                    <span class="visually-hidden">
+                        {g.s.label}:{" "}
+                        {g.results.map((r) => RESULT_WORDS[r]).join(", ")}.
+                    </span>
+                    <span
+                        class:list={["rv-caption", { "is-current": g.inPlay }]}
+                    >
+                        {shortSeason(g.s)} — {g.subtotal}
+                        {g.inPlay && " ● IN PLAY"}
+                    </span>
+                </div>
+            ))
+        }
+        <span class="rv-gap"></span>
+        <div class="rv-streak">
+            <p class="rv-callout-label">CURRENT STREAK</p>
+            <p class="rv-streak-value">{streak.kind}{streak.len}</p>
+        </div>
+    </div>
+
+    <div class="rv-callouts">
+        {
+            callouts.map((c) => (
+                <div class="rv-callout">
+                    <p class="rv-callout-label">{c.label}</p>
+                    <p class="rv-callout-value">{c.value}</p>
+                </div>
+            ))
+        }
+    </div>
+</div>
+
+<style>
+    .rview {
+        border: 1px solid var(--line);
+        border-top: none;
+        padding: 20px 24px 24px;
+    }
+
+    /* ------- header ------- */
+
+    .rv-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+        font-family: var(--font-mono);
+        line-height: normal;
+    }
+
+    .rv-fig {
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    .rv-legend {
+        display: flex;
+        gap: 22px;
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+    }
+
+    .rv-key {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* ------- squares ------- */
+
+    .rv-sq {
+        width: 12px;
+        height: 12px;
+        flex: none;
+    }
+
+    .rv-sq-lg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .rv-sq-W {
+        background: var(--accent);
+    }
+
+    .rv-sq-D {
+        background: var(--fr-grey);
+    }
+
+    .rv-sq-L {
+        border: 1px solid var(--fr-grey);
+    }
+
+    /* ------- season groups panel ------- */
+
+    .rv-panel {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        padding: 26px 28px;
+        display: flex;
+        align-items: flex-end;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .rv-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .rv-squares {
+        display: flex;
+        gap: 6px;
+    }
+
+    .rv-caption {
+        font-family: var(--font-mono);
+        font-size: 8.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--faint);
+        line-height: normal;
+    }
+
+    .rv-caption.is-current {
+        color: var(--accent);
+    }
+
+    .rv-gap {
+        flex: 1;
+    }
+
+    .rv-streak {
+        text-align: right;
+        padding-bottom: 4px;
+    }
+
+    .rv-streak-value {
+        font-family: var(--font-display);
+        font-size: 40px;
+        line-height: 1;
+    }
+
+    /* ------- streak callouts ------- */
+
+    .rv-callouts {
+        display: flex;
+        gap: 56px;
+        border: 1px solid var(--line);
+        border-top: none;
+        background: var(--panel);
+        padding: 20px 28px;
+    }
+
+    .rv-callout-label {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 6px;
+        line-height: normal;
+    }
+
+    .rv-callout-value {
+        font-family: var(--font-display);
+        font-size: 28px;
+        line-height: 1;
+    }
+
+    /* ------- 640px ------- */
+
+    @media (max-width: 640px) {
+        .rview {
+            padding: 16px;
+        }
+
+        .rv-head {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rv-panel {
+            padding: 18px 16px;
+            gap: 20px;
+        }
+
+        .rv-streak {
+            text-align: left;
+        }
+
+        .rv-callouts {
+            gap: 32px;
+            padding: 16px;
+        }
+    }
+</style>

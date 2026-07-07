@@ -1,0 +1,83 @@
+---
+// FIG. A1 — THE OFFICE: pitch key-plan for the Field report header.
+// Geometry copied verbatim from the design file (#6a Field Report): touchline,
+// halfway line, center circle r23 + spot, penalty areas 41.5×101 with goal
+// areas 13.8×46, penalty spots, penalty arcs bulging outside the box only,
+// corner arcs, goals drawn outside each touchline. Lines meet, never stack.
+---
+
+<figure class="pitch-fig">
+    <svg
+        viewBox="0 0 280 180"
+        role="img"
+        aria-label="Line drawing of a soccer pitch, not to scale"
+    >
+        <rect x="8" y="8" width="264" height="164" fill="none" class="pf-line"></rect>
+        <line x1="140" y1="8" x2="140" y2="172" class="pf-line"></line>
+        <circle cx="140" cy="90" r="23" fill="none" class="pf-line"></circle>
+        <circle cx="140" cy="90" r="1.8" class="pf-spot"></circle>
+        <rect x="8" y="39.5" width="41.5" height="101" fill="none" class="pf-line"></rect>
+        <rect x="8" y="67" width="13.8" height="46" fill="none" class="pf-line"></rect>
+        <circle cx="35.6" cy="90" r="1.4" class="pf-spot"></circle>
+        <path d="M 49.5 71.7 A 23 23 0 0 1 49.5 108.3" fill="none" class="pf-line"></path>
+        <rect x="230.5" y="39.5" width="41.5" height="101" fill="none" class="pf-line"></rect>
+        <rect x="258.2" y="67" width="13.8" height="46" fill="none" class="pf-line"></rect>
+        <circle cx="244.4" cy="90" r="1.4" class="pf-spot"></circle>
+        <path d="M 230.5 71.7 A 23 23 0 0 0 230.5 108.3" fill="none" class="pf-line"></path>
+        <path d="M 8 13 A 5 5 0 0 0 13 8" fill="none" class="pf-line"></path>
+        <path d="M 267 8 A 5 5 0 0 0 272 13" fill="none" class="pf-line"></path>
+        <path d="M 13 172 A 5 5 0 0 0 8 167" fill="none" class="pf-line"></path>
+        <path d="M 272 167 A 5 5 0 0 0 267 172" fill="none" class="pf-line"></path>
+        <rect x="2" y="80.8" width="6" height="18.4" fill="none" class="pf-goal"></rect>
+        <rect x="272" y="80.8" width="6" height="18.4" fill="none" class="pf-goal"></rect>
+    </svg>
+    <figcaption class="pitch-caption">
+        <span>FIG. A1 — THE OFFICE</span>
+        <span>N.T.S.</span>
+    </figcaption>
+</figure>
+
+<style>
+    .pitch-fig {
+        width: 170px;
+        flex: none;
+    }
+
+    svg {
+        width: 100%;
+        display: block;
+    }
+
+    .pf-line {
+        stroke: var(--fr-stroke);
+        stroke-width: 1;
+    }
+
+    .pf-goal {
+        stroke: var(--fr-deep);
+        stroke-width: 1;
+    }
+
+    .pf-spot {
+        fill: var(--fr-accent2);
+    }
+
+    .pitch-caption {
+        font-family: var(--font-mono);
+        font-size: 8px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-top: 8px;
+        display: flex;
+        justify-content: space-between;
+        line-height: normal;
+    }
+
+    @media (max-width: 640px) {
+        .pitch-fig {
+            width: 100%;
+            max-width: 200px;
+        }
+    }
+</style>
