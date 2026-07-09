@@ -5,24 +5,25 @@
 // pattern as the match log's EARLIER MATCHES ↓.)
 import { SEASONS } from "../../data/soccer";
 import {
-    chipFormat,
     goalsSuffix,
     record,
     seasonAgg,
-    teamLines,
+    seasonTeamRows,
+    teamCount,
 } from "../../data/soccer-derive";
 
 const seasons = [...SEASONS].reverse().map((season) => {
     const agg = seasonAgg(season.id);
     const inPlay = season.status === "in-play";
+    const n = teamCount(season.id);
     return {
         season,
         agg,
         inPlay,
-        lines: teamLines(season.id),
+        rows: seasonTeamRows(season.id),
         meta: [
             season.months,
-            `${season.teamIds.length} TEAM${season.teamIds.length === 1 ? "" : "S"}`,
+            `${n} TEAM${n === 1 ? "" : "S"}`,
             `${agg.played} MATCH${agg.played === 1 ? "" : "ES"}${inPlay ? " SO FAR" : ""}`,
             ...(inPlay ? [] : ["SEALED"]),
         ].join(" · "),
@@ -33,7 +34,7 @@ const seasons = [...SEASONS].reverse().map((season) => {
 
 <div class="ledger">
     {
-        seasons.map(({ season, inPlay, lines, meta, stat }) => (
+        seasons.map(({ season, inPlay, rows, meta, stat }) => (
             <div class="lg-season">
                 {inPlay ? (
                     <p class="lg-head lg-active">
@@ -66,21 +67,33 @@ const seasons = [...SEASONS].reverse().map((season) => {
                     hidden={!inPlay}
                 >
                     <div class="lg-fold">
-                        {lines.map(({ team, agg }) => (
+                        {rows.map(({ team, agg }) => (
                             <div class="lg-row">
                                 <span class="lg-team">{team.name}</span>
                                 <span class="lg-chips">
-                                    <span class="lg-chip lg-chip-league">
-                                        {team.league.toUpperCase()}
-                                    </span>
+                                    {team.sub && (
+                                        <span class="lg-chip lg-chip-sub">
+                                            SUB
+                                        </span>
+                                    )}
+                                    {team.league && (
+                                        <span class="lg-chip lg-chip-league">
+                                            {team.league.toUpperCase()}
+                                        </span>
+                                    )}
                                     {team.division && (
                                         <span class="lg-chip lg-chip-div">
                                             {team.division}
                                         </span>
                                     )}
-                                    <span class="lg-chip lg-chip-format">
-                                        {chipFormat(team)}
-                                    </span>
+                                    {team.format && (
+                                        <span class="lg-chip lg-chip-format">
+                                            {team.format.toUpperCase()}
+                                            {team.venue
+                                                ? ` · ${team.venue.toUpperCase()}`
+                                                : ""}
+                                        </span>
+                                    )}
                                 </span>
                                 <span class="lg-num lg-p">
                                     <span class="visually-hidden">played </span>
@@ -268,6 +281,11 @@ const seasons = [...SEASONS].reverse().map((season) => {
 
     /* Division chips are NYC Footy tiers only — Volo has none, ever. */
     .lg-chip-div {
+        border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+        color: var(--accent);
+    }
+
+    .lg-chip-sub {
         border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
         color: var(--accent);
     }

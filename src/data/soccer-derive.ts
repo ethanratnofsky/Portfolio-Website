@@ -183,6 +183,38 @@ export function matchTeam(m: Match, index: number): MatchTeam {
     };
 }
 
+/** Per-team ledger rows within a season, derived from matches: grouped by
+    `matchTeam().groupKey`, ordered by first-match date (matches are already
+    date-ascending), each group's stats aggregated. Replaces `teamLines` as
+    the render source — this reflects guest/sub appearances that `teamLines`
+    (which only walks `Season.teamIds`) can't. */
+export function seasonTeamRows(
+    seasonId: string,
+): { team: MatchTeam; agg: Agg }[] {
+    const matches = matchesFor(seasonId); // already date-ascending
+    const order: string[] = [];
+    const groups = new Map<string, Match[]>();
+    matches.forEach((m, i) => {
+        const key = matchTeam(m, i).groupKey;
+        if (!groups.has(key)) {
+            groups.set(key, []);
+            order.push(key);
+        }
+        groups.get(key)!.push(m);
+    });
+    return order.map((key) => {
+        const ms = groups.get(key)!;
+        // Resolve display from the first match of the group.
+        const team = matchTeam(ms[0], matches.indexOf(ms[0]));
+        return { team, agg: aggregate(ms) };
+    });
+}
+
+/** Number of distinct teams (by groupKey) a season fielded. */
+export function teamCount(seasonId: string): number {
+    return seasonTeamRows(seasonId).length;
+}
+
 /** Chip text: "7V7 · OUTDOOR" (ledger) — uppercase register style. */
 export function chipFormat(team: Team): string {
     return `${team.format.toUpperCase()} · ${team.venue.toUpperCase()}`;
