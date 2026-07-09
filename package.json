@@ -9,6 +9,7 @@
         "build": "astro build",
         "preview": "astro preview",
         "check": "astro check",
+        "test": "node --test --experimental-strip-types \"src/**/*.test.ts\" \"scripts/**/*.test.ts\"",
         "format": "prettier --write \"**/*.{js,jsx,ts,tsx,astro,css,md}\""
     },
     "repository": {

@@ -4,8 +4,8 @@
    ("RECOMPUTED EVERY MATCH — NEVER HAND-EDITED"). Dash characters are
    en dashes (–) and separators are middle dots (·), per the register style. */
 
-import { MATCHES, SEASONS, TEAMS } from "./soccer";
-import type { Match, Season, Team } from "./soccer";
+import { MATCHES, SEASONS, TEAMS } from "./soccer.ts";
+import type { Match, Season, Team } from "./soccer.ts";
 
 export interface Agg {
     played: number;
