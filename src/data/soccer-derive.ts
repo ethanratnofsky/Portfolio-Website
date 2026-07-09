@@ -5,7 +5,7 @@
    en dashes (–) and separators are middle dots (·), per the register style. */
 
 import { MATCHES, SEASONS, TEAMS } from "./soccer.ts";
-import type { Match, Season, Team } from "./soccer.ts";
+import type { League, Match, Season, Team } from "./soccer.ts";
 
 export interface Agg {
     played: number;
@@ -137,6 +137,48 @@ export function goalsSuffix(
 }
 
 /** Chip text: "7V7 · OUTDOOR" (ledger) — uppercase register style. */
+export interface MatchTeam {
+    name: string;
+    league: League | null;
+    division?: string;
+    format?: string;
+    venue?: "outdoor" | "indoor";
+    isGuest: boolean;
+    sub: boolean;
+    groupKey: string;
+}
+
+/** Resolve a match's display team, whether rostered (teamId) or a guest/inline
+    appearance. `index` disambiguates unknown-team guests so they never merge. */
+export function matchTeam(m: Match, index = 0): MatchTeam {
+    const sub = m.sub === true;
+    if (m.teamId) {
+        const t = teamById(m.teamId);
+        return {
+            name: t.name,
+            league: t.league,
+            division: t.division,
+            format: t.format,
+            venue: t.venue,
+            isGuest: false,
+            sub,
+            groupKey: t.id,
+        };
+    }
+    const g = m.guest ?? {};
+    const label = g.team?.trim();
+    return {
+        name: label || "[Unknown team]",
+        league: g.league ?? null,
+        division: g.level,
+        format: g.format,
+        venue: undefined,
+        isGuest: true,
+        sub,
+        groupKey: label ? `guest:${label.toLowerCase()}` : `guest:${index}`,
+    };
+}
+
 export function chipFormat(team: Team): string {
     return `${team.format.toUpperCase()} · ${team.venue.toUpperCase()}`;
 }
