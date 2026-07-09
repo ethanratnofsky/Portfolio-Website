@@ -34,6 +34,7 @@ export function mergeImports(existing: DraftMatch[], snapshot: Snapshot, drafts:
         }
         const idx = byId.get(id)!;
         const repo = matches[idx];
+        if (!snap[key]) snap[key] = snapOf(repo); // known id lacking a baseline: adopt the repo record as baseline
         const prev = snap[key];
         const stravaNow = snapOf(d);
         const stravaChanged = !prev || !sameSnap(prev, stravaNow);

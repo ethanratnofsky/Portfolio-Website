@@ -43,3 +43,18 @@ test("Strava changed AND repo changed the same field → conflict, repo kept", (
     assert.equal(r.conflicts.length, 1);
     assert.deepEqual(r.matches[0].score, [5, 2]); // repo wins; human resolves
 });
+
+test("known id with missing snapshot baseline and a differing draft does not throw, updates from repo baseline", () => {
+    const r = mergeImports([draft()], {}, [draft({ score: [3, 2] })]);
+    assert.equal(r.updated.length, 1);
+    assert.deepEqual(r.matches[0].score, [3, 2]);
+    assert.deepEqual(r.snapshot["1"].score, [3, 2]);
+});
+
+test("known id with missing snapshot baseline and an identical draft does not throw, seeds snapshot and skips", () => {
+    const r = mergeImports([draft()], {}, [draft()]);
+    assert.equal(r.updated.length, 0);
+    assert.equal(r.skipped.length, 1);
+    assert.ok(r.snapshot["1"]);
+    assert.deepEqual(r.snapshot["1"].score, [4, 2]);
+});
