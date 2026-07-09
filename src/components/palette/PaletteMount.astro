@@ -6,7 +6,7 @@ import {
     currentSeason,
     goalsSuffix,
     record,
-    teamLines,
+    seasonTeamRows,
 } from "../../data/soccer-derive";
 import type { Agg } from "../../data/soccer-derive";
 
@@ -41,7 +41,7 @@ const statLine = (agg: Agg, suffix: string) =>
     `${agg.played}P · ${record(agg)} · ${agg.goals}${suffix} G · ${agg.assists} A`;
 const field = {
     lines: season
-        ? teamLines(season.id).map(({ team, agg }) => ({
+        ? seasonTeamRows(season.id).map(({ team, agg }) => ({
               name: team.name,
               stat: statLine(agg, goalsSuffix("team", agg)),
           }))

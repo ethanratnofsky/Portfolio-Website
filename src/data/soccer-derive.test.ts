@@ -4,6 +4,7 @@ import {
     allTime,
     record,
     matchTeam,
+    matchTeamLog,
     seasonTeamRows,
     teamCount,
 } from "./soccer-derive.ts";
@@ -45,6 +46,15 @@ test("matchTeam falls back to guest label, then [Unknown team]", () => {
 test("matchTeam reports the sub flag", () => {
     assert.equal(matchTeam({ teamId: "charlie-cheers", sub: true } as Match, 0).sub, true);
     assert.equal(matchTeam({ teamId: "charlie-cheers" } as Match, 0).sub, false);
+});
+
+test("matchTeamLog formats rostered and guest teams", () => {
+    assert.equal(matchTeamLog(matchTeam({ teamId: "charlie-cheers" } as any, 0)), "NYC FOOTY · P4 · 7V7 OUT");
+    assert.equal(matchTeamLog(matchTeam({ teamId: "salmon-roe" } as any, 0)), "VOLO · 6V6 INDOOR");
+    assert.equal(
+        matchTeamLog(matchTeam({ guest: { league: "NYC Soccer", level: "Div 2", format: "7v7" } } as any, 0)),
+        "NYC SOCCER · DIV 2 · 7V7",
+    );
 });
 
 test("seasonTeamRows derives Summer 2026 team rows from matches", () => {

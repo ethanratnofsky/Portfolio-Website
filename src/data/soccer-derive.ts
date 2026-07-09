@@ -77,14 +77,6 @@ export function seasonAgg(seasonId: string): Agg {
     return aggregate(matchesFor(seasonId));
 }
 
-/** Per-team lines within a season, in the season's teamIds order. */
-export function teamLines(seasonId: string): { team: Team; agg: Agg }[] {
-    return seasonById(seasonId).teamIds.map((teamId) => ({
-        team: teamById(teamId),
-        agg: aggregate(matchesFor(seasonId).filter((m) => m.teamId === teamId)),
-    }));
-}
-
 /** Last n matches across all teams, oldest → newest (the FORM squares). */
 export function lastN(n: number): Match[] {
     return sortedMatches().slice(-n);
@@ -187,9 +179,8 @@ export function matchTeam(m: Match, index: number): MatchTeam {
     `matchTeam().groupKey`, ordered per the season's `teamIds` (rostered teams
     in their authored order), with any groups outside `teamIds` (guest/one-off
     appearances) after, in first-appearance order. Each group's stats
-    aggregated. Replaces `teamLines` as the render source — this reflects
-    guest/sub appearances that `teamLines` (which only walks `Season.teamIds`)
-    can't. */
+    aggregated. This is the render source for per-team season lines — unlike a
+    walk of `Season.teamIds` alone, it also reflects guest/sub appearances. */
 export function seasonTeamRows(
     seasonId: string,
 ): { team: MatchTeam; agg: Agg }[] {
@@ -226,22 +217,18 @@ export function teamCount(seasonId: string): number {
     return seasonTeamRows(seasonId).length;
 }
 
-/** Chip text: "7V7 · OUTDOOR" (ledger) — uppercase register style. */
-export function chipFormat(team: Team): string {
-    return `${team.format.toUpperCase()} · ${team.venue.toUpperCase()}`;
-}
-
-/** Match-log league string: "NYC FOOTY · P4 · 7V7 OUT" / "VOLO · 6V6 INDOOR". */
-export function logFormat(team: Team): string {
-    const fmt = team.format.toUpperCase();
-    const venue = team.venue === "outdoor" ? "OUT" : team.venue.toUpperCase();
-    // Division is optional even for NYC Footy (unset until the tier is known);
-    // omit the segment rather than printing "UNDEFINED".
-    if (team.league === "NYC Footy") {
-        const div = team.division ? `${team.division} · ` : "";
-        return `NYC FOOTY · ${div}${fmt} ${venue}`;
-    }
-    return `${team.league.toUpperCase()} · ${fmt} ${venue.toUpperCase()}`;
+/** Match-log league string from a resolved MatchTeam:
+    "NYC FOOTY · P4 · 7V7 OUT" / "VOLO · 6V6 INDOOR" / "NYC SOCCER · DIV 2 · 7V7". */
+export function matchTeamLog(mt: MatchTeam): string {
+    const parts: string[] = [];
+    if (mt.league) parts.push(mt.league.toUpperCase());
+    if (mt.division) parts.push(mt.division.toUpperCase());
+    const fmt = [
+        mt.format?.toUpperCase(),
+        mt.venue === "outdoor" ? "OUT" : mt.venue?.toUpperCase(),
+    ].filter(Boolean).join(" ");
+    if (fmt) parts.push(fmt);
+    return parts.join(" · ");
 }
 
 const MONTHS = [
