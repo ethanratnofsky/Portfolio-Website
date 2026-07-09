@@ -14,7 +14,10 @@ import FilterChip from "./FilterChip.astro";
 
 const rows = matchesFor()
     .reverse() // newest first
-    .map((m) => ({ m, team: teamById(m.teamId) }));
+    // TODO(strava-importer Task 5): every shipped match still has a rostered
+    // teamId today; `m.teamId!` holds until matchTeam() replaces this lookup
+    // and adds guest/sub rendering.
+    .map((m) => ({ m, team: teamById(m.teamId!) }));
 
 const current = currentSeason();
 const sealed = SEASONS.filter((s) => s.status === "sealed");
