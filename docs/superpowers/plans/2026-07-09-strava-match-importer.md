@@ -184,7 +184,10 @@ export interface Match {
 
 ```ts
 import matchesData from "./matches.json" with { type: "json" };
-export const MATCHES: Match[] = matchesData as Match[];
+// `with { type: "json" }` is required so the Node importer (which imports this
+// file) can load the JSON; Vite/Astro accept it too. Cast through unknown —
+// JSON infers score as number[]/result as string, not the tuple/union.
+export const MATCHES: Match[] = matchesData as unknown as Match[];
 ```
 
 - [ ] **Step 6: Verify.** Run: `npx astro check` → Expected: 0 errors. Run: `npm test` → Expected: the Task 1 test still passes (aggregates unchanged by the migration).
@@ -380,19 +383,9 @@ export function teamCount(seasonId: string): number {
 }
 ```
 
-Delete the old `teamLines` body and re-point it (kept because `PaletteMount` still calls it until Task 5b; it now returns rostered-only rows for backward safety):
-
-```ts
-export function teamLines(seasonId: string): { team: Team; agg: Agg }[] {
-    return seasonTeamRows(seasonId)
-        .filter((r) => !r.team.isGuest)
-        .map((r) => ({ team: teamById(seasonById(seasonId).teamIds.find(
-            (id) => teamById(id).name === r.team.name,
-        )!), agg: r.agg }));
-}
-```
-
-> Note: the above `teamLines` reconstruction is only a bridge. Task 5 removes the last `teamLines` caller and this function is deleted in Task 5's Step 6 — do not rely on it.
+> Leave the existing `teamLines` function exactly as it is — its one remaining
+> caller (`PaletteMount`) still uses it until Task 5, which updates that caller
+> and then deletes `teamLines`. Do not modify `teamLines` in this task.
 
 - [ ] **Step 4: Run** `npm test` → Expected: PASS.
 
