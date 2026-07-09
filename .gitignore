@@ -27,3 +27,6 @@ docs/handoff
 
 # Strava importer scratch
 import-summary.md
+
+# Astro generated content-layer cache + types (regenerated on every build)
+.astro/
