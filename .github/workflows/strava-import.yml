@@ -25,6 +25,11 @@ jobs:
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
         run: node --experimental-strip-types scripts/strava/import.ts ${{ inputs.all && '--all' || '' }}
+      - name: Normalize data formatting
+        # The importer writes raw JSON.stringify; Prettier reflows it to the
+        # repo's committed style so the PR diff shows only real match changes,
+        # not whitespace/array-wrapping churn across the whole file.
+        run: npx prettier --write src/data/matches.json src/data/.strava-snapshot.json
       - name: Append summary
         if: always()
         run: cat import-summary.md >> "$GITHUB_STEP_SUMMARY" || true
