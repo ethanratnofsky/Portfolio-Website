@@ -91,3 +91,32 @@ test("an obvious format token is captured for guests", () => {
     const r = parse("Real Sosobad (sub) - NYC Soccer 7v7", "W 3-2");
     assert.equal(r.guest?.format, "7v7");
 });
+
+test("an opponent after \"vs\" makes no league claim and isn't blocking", () => {
+    const r = parse("Charlie Cheers FC vs Riverside Rovers", "W 3-2\n1 G");
+    assert.equal(r.isMatch, true);
+    assert.equal(r.teamId, "charlie-cheers");
+    assert.equal(r.league, "NYC Footy");
+    assert.equal(r.blocking, false);
+});
+
+test("a parenthetical tag makes no league claim and isn't blocking", () => {
+    const r = parse("Charlie Cheers FC (Home)", "W 2-0");
+    assert.equal(r.teamId, "charlie-cheers");
+    assert.equal(r.blocking, false);
+});
+
+test("separator-based extraction yields a clean guest label, not a corrupted one", () => {
+    const r = parse("NYC Rebels (sub) - NYC Soccer", "W 1-0");
+    assert.equal(r.sub, true);
+    assert.equal(r.guest?.team, "NYC Rebels");
+    assert.equal(r.league, "NYC Soccer");
+    assert.equal(r.blocking, false);
+});
+
+test("no score at all is blocking regardless of league/team resolution", () => {
+    const r = parse("Charlie Cheers FC", "W");
+    assert.equal(r.isMatch, true);
+    assert.equal(r.blocking, true);
+    assert.ok(r.flags.some((f) => /score/i.test(f)));
+});

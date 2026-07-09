@@ -54,14 +54,27 @@ export function parseActivity(input: ParseInput): ParsedMatch {
 
     // 3. Team — normalized dictionary substring match.
     const team = input.teams.find((t) => normTitle.includes(normalize(t.name)));
-    // 4. League — blessed dictionary substring match.
-    const league = input.leagues.find((l) => normTitle.includes(normalize(l)));
 
-    // 5. Format token (optional).
+    // 4. Split the cleaned title on "Team - League" style separators. The
+    // last segment (when there are >= 2) is the explicit league claim; the
+    // segment(s) before it are the fallback guest label.
+    const segments = cleanTitle.split(/\s*[-–—|·]\s*/).map((s) => s.trim());
+    const leagueSegment = segments.length >= 2 ? segments[segments.length - 1] : undefined;
+    const preLeagueSegments = segments.length >= 2 ? segments.slice(0, -1) : segments;
+
+    // 5. League — a blessed dictionary substring match anywhere in the title
+    // always wins. Otherwise, an explicit (but unrecognized) league segment
+    // is flagged rather than silently accepted or ignored.
+    const league = input.leagues.find((l) => normTitle.includes(normalize(l)));
+    const unrecognizedLeagueFlag = leagueSegment
+        ? `Unrecognized league "${leagueSegment}" — add it to the blessed list or correct the post.`
+        : undefined;
+
+    // 6. Format token (optional).
     const fmt = FORMAT_RE.exec(hay);
     const format = fmt ? fmt[1].replace(/\s+/g, "").toLowerCase() : undefined;
 
-    // 6. Score → result (source of truth); contradicting letter flags.
+    // 7. Score → result (source of truth); contradicting letter flags.
     if (score) {
         const forGoals = Number(score[1]);
         const against = Number(score[2]);
@@ -80,13 +93,13 @@ export function parseActivity(input: ParseInput): ParsedMatch {
         base.blocking = true;
     }
 
-    // 7. Goals / assists.
+    // 8. Goals / assists.
     const g = GOALS_RE.exec(hay);
     if (g) { base.goals = Number(g[1]); base.goalsIsMinimum = Boolean(g[2]); }
     const a = ASSISTS_RE.exec(hay);
     if (a) base.assists = Number(a[1]);
 
-    // 8. Resolve team vs guest.
+    // 9. Resolve team vs guest.
     if (team) {
         base.teamId = team.id;
         base.league = team.league;
@@ -94,26 +107,26 @@ export function parseActivity(input: ParseInput): ParsedMatch {
             if (normalize(league) !== normalize(team.league)) {
                 flags.push(`Post league "${league}" differs from ${team.name}'s league ${team.league}; kept ${team.league}.`);
             }
-        } else {
-            // No blessed league recognized in the title. If there's leftover
-            // text beyond the team name (and format token), it's an
-            // unrecognized league mention — flag it even though the team
-            // itself is known.
-            let residual = normTitle.replace(normalize(team.name), " ");
-            if (format) residual = residual.replace(normalize(format), " ");
-            residual = residual.replace(/\s+/g, " ").trim();
-            if (residual) {
-                flags.push(`Unrecognized league "${residual}" — add it to the blessed list or correct the post.`);
-                base.blocking = true;
-            }
+        } else if (unrecognizedLeagueFlag) {
+            // No blessed league recognized, but the title explicitly claims
+            // one via a separator segment — flag it even though the team
+            // itself is known. No separator segment at all (e.g. an
+            // opponent after "vs" or a parenthetical tag) makes no league
+            // claim, so it's left alone.
+            flags.push(unrecognizedLeagueFlag);
+            base.blocking = true;
         }
     } else {
-        // No rostered team. Take the title text before the league as the label.
-        const label = guestLabel(cleanTitle, league);
+        // No rostered team. The segment(s) before the league segment (if
+        // any) become the guest label.
+        const label = preLeagueSegments.join(" ").trim() || undefined;
         base.guest = { team: label, format };
         if (league) {
             base.league = league;
             base.guest.league = league;
+        } else if (unrecognizedLeagueFlag) {
+            flags.push(unrecognizedLeagueFlag);
+            base.blocking = true;
         } else {
             flags.push("Unrecognized league — add it to the blessed list or correct the post.");
             base.blocking = true;
@@ -124,19 +137,4 @@ export function parseActivity(input: ParseInput): ParsedMatch {
         }
     }
     return base;
-}
-
-/** Best-effort inline label: the title minus a trailing "- <league>" tail. */
-function guestLabel(cleanTitle: string, league?: string): string | undefined {
-    let s = cleanTitle;
-    if (league) {
-        const idx = normalize(s).indexOf(normalize(league));
-        if (idx >= 0) {
-            // cut the raw title at the league's approximate position
-            const before = s.slice(0, s.toLowerCase().indexOf(league.toLowerCase().slice(0, 3)));
-            if (before.trim()) s = before;
-        }
-    }
-    s = s.replace(/[-–—|·]+\s*$/g, "").trim();
-    return s || undefined;
 }
