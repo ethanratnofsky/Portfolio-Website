@@ -101,8 +101,8 @@ async function main() {
     const merged = mergeImports(existing, snapshot, drafts);
 
     merged.matches.sort((a, b) => String(a.date).localeCompare(String(b.date)));
-    writeFileSync(MATCHES_PATH, JSON.stringify(merged.matches, null, 2) + "\n");
-    writeFileSync(SNAP_PATH, JSON.stringify(merged.snapshot, null, 2) + "\n");
+    writeFileSync(MATCHES_PATH, JSON.stringify(merged.matches, null, 4) + "\n");
+    writeFileSync(SNAP_PATH, JSON.stringify(merged.snapshot, null, 4) + "\n");
 
     const summary = [
         `## Strava import`,

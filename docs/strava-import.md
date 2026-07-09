@@ -88,7 +88,7 @@ it needs the following in every match post:
 | Team + league | **Title** | `Team - League` (separator can be `-`, `–`, `—`, `\|`, or `·`) | `FA Blast From the Past - NYC Footy` |
 | Guest / substitute marker | **Title** | `(sub)` (or `sub`, `substitute`) anywhere in the title | `Real Sosobad (sub) - NYC Soccer` |
 | Result | **Description** | `W`, `D`, or `L` | `W` |
-| Score | **Description** | `N-N` (your goals – their goals) | `4-1` |
+| Score | **Description** | `N-N` (your goals – their goals; the separator regex also accepts an en dash `–` or em dash `—`, not just a hyphen) | `4-1` |
 | Goals | **Description** | `N G` — omit entirely if you didn't score | `1 G` |
 | Goals, undercount | **Description** | `N+ G` — flags the count as a minimum (renders with `†`) | `2+ G` |
 | Assists | **Description** | `N A` — omit entirely if you had none | `1 A` |
@@ -161,6 +161,8 @@ flags:
 - **No season covers this date** — the activity's date doesn't fall within any
   `Season.start`–`Season.end` range in `SEASONS` (`src/data/soccer.ts`). Add a new
   season, or extend an existing one's `start`/`end`.
+- **No score found** — the description has a `W`/`D`/`L` letter but no `N-N` score, so
+  the record can't be completed. Edit the post's description to add the score.
 
 After fixing the data model, re-run the workflow on demand (Actions tab → **Strava
 import** → **Run workflow**, with "rescan all seasons" checked if the activity is

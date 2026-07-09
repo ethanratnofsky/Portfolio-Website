@@ -2,7 +2,7 @@
 // Field report — MATCHES view (#12b Match Log View): filter bar + log table.
 // Every match is server-rendered; the client script only toggles row
 // visibility per filter and keeps the SHOWING count honest.
-import { SEASONS, TEAMS } from "../../data/soccer";
+import { SEASONS } from "../../data/soccer";
 import {
     currentSeason,
     logDate,
@@ -29,12 +29,17 @@ const showing = rows.length - earlier;
 
 const RESULT_WORDS = { W: "won", D: "drew", L: "lost" } as const;
 const seasonOptions = [...SEASONS].reverse();
-const leagues = [...new Set(TEAMS.map((t) => t.league))];
 // Distinct groups actually present in the log — rostered teams and guest/
 // one-off appearances alike — not just the rostered TEAMS list.
 const teamOptions = [
     ...new Map(rows.map(({ team }) => [team.groupKey, team.name])).entries(),
 ].map(([value, label]) => ({ value, label: label.toUpperCase() }));
+// Same idea for LEAGUE: derive from leagues actually present in the log, so
+// a guest appearance in a blessed-but-unrostered league (e.g. NYC Soccer)
+// still gets a filter chip, not just the leagues TEAMS is rostered in.
+const leagueOptions = [
+    ...new Set(rows.map(({ team }) => team.league).filter((l) => l != null)),
+].map((l) => ({ value: l, label: l.toUpperCase() }));
 ---
 
 <div class="mlog">
@@ -59,10 +64,7 @@ const teamOptions = [
             label="LEAGUE"
             value="all"
             valueLabel="ALL"
-            options={[
-                { value: "all", label: "ALL" },
-                ...leagues.map((l) => ({ value: l, label: l.toUpperCase() })),
-            ]}
+            options={[{ value: "all", label: "ALL" }, ...leagueOptions]}
         />
         <FilterChip
             filterKey="team"
