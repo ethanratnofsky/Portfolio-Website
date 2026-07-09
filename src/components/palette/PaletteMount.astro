@@ -29,7 +29,9 @@ const navigate = [
     { num: "05", name: "About", path: "/#about" },
     { num: "06", name: "Contact", path: "/#contact" },
     ...studies.map((project) => ({
-        num: project.data.flatFileNo ?? String(project.data.order).padStart(2, "0"),
+        num:
+            project.data.flatFileNo ??
+            String(project.data.order).padStart(2, "0"),
         name: project.data.title,
         path: `/work/${project.id}`,
     })),
@@ -70,7 +72,13 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         />
         <span class="palette-esc" aria-hidden="true">ESC</span>
     </div>
-    <div class="palette-list" id="palette-list" role="listbox" aria-label="Commands"></div>
+    <div
+        class="palette-list"
+        id="palette-list"
+        role="listbox"
+        aria-label="Commands"
+    >
+    </div>
     <p class="visually-hidden" id="palette-count" aria-live="polite"></p>
     <div class="palette-footer">
         <span>↑↓ NAVIGATE · ↵ OPEN · ESC CLOSE</span>
@@ -78,7 +86,12 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
     </div>
 </dialog>
 
-<script is:inline type="application/json" id="palette-data" set:html={JSON.stringify(paletteData)} />
+<script
+    is:inline
+    type="application/json"
+    id="palette-data"
+    set:html={JSON.stringify(paletteData)}
+/>
 
 <style>
     .palette {
@@ -207,7 +220,8 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         text-overflow: ellipsis;
     }
 
-    .palette-list :global(.palette-row[aria-selected="true"] .palette-row-name) {
+    .palette-list
+        :global(.palette-row[aria-selected="true"] .palette-row-name) {
         color: var(--ink);
     }
 
@@ -218,7 +232,8 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         color: var(--faint);
     }
 
-    .palette-list :global(.palette-row[aria-selected="true"] .palette-row-path) {
+    .palette-list
+        :global(.palette-row[aria-selected="true"] .palette-row-path) {
         color: var(--muted);
     }
 
@@ -234,7 +249,8 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         visibility: hidden;
     }
 
-    .palette-list :global(.palette-row[aria-selected="true"] .palette-row-enter) {
+    .palette-list
+        :global(.palette-row[aria-selected="true"] .palette-row-enter) {
         visibility: visible;
     }
 
@@ -287,7 +303,12 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
 
     type Entry =
         | { kind: "nav"; num: string; name: string; path: string }
-        | { kind: "action"; id: "theme" | "resume" | "replay"; glyph: string; name: string }
+        | {
+              kind: "action";
+              id: "theme" | "resume" | "replay";
+              glyph: string;
+              name: string;
+          }
         | { kind: "field"; glyph: string; name: string; stat: string };
 
     interface Match {
@@ -300,15 +321,28 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         dialog: HTMLDialogElement,
         input: HTMLInputElement,
         list: HTMLElement,
-        dataEl: HTMLElement,
+        dataEl: HTMLElement
     ): void {
         const data = JSON.parse(dataEl.textContent ?? "{}") as PaletteData;
 
         const entries: Entry[] = [
-            ...data.navigate.map((entry) => ({ kind: "nav" as const, ...entry })),
+            ...data.navigate.map((entry) => ({
+                kind: "nav" as const,
+                ...entry,
+            })),
             { kind: "action", id: "theme", glyph: "◐", name: "Toggle theme" },
-            { kind: "action", id: "resume", glyph: "↓", name: "Download resume" },
-            { kind: "action", id: "replay", glyph: "⟲", name: "Replay the draft" },
+            {
+                kind: "action",
+                id: "resume",
+                glyph: "↓",
+                name: "Download resume",
+            },
+            {
+                kind: "action",
+                id: "replay",
+                glyph: "⟲",
+                name: "Replay the draft",
+            },
         ];
 
         let matches: Match[] = [];
@@ -342,13 +376,23 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
             if (data.field && /^field\b/i.test(query)) {
                 for (const line of data.field.lines) {
                     result.push({
-                        entry: { kind: "field", glyph: "●", name: line.name, stat: line.stat },
+                        entry: {
+                            kind: "field",
+                            glyph: "●",
+                            name: line.name,
+                            stat: line.stat,
+                        },
                         namePos: [],
                         pathPos: [],
                     });
                 }
                 result.push({
-                    entry: { kind: "field", glyph: "Σ", name: "All time", stat: data.field.summary },
+                    entry: {
+                        kind: "field",
+                        glyph: "Σ",
+                        name: "All time",
+                        stat: data.field.summary,
+                    },
                     namePos: [],
                     pathPos: [],
                 });
@@ -359,7 +403,8 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
                     continue;
                 }
                 const name = entry.name;
-                const text = entry.kind === "nav" ? `${name} ${entry.path}` : name;
+                const text =
+                    entry.kind === "nav" ? `${name} ${entry.path}` : name;
                 const positions = fuzzyMatch(query, text);
                 if (!positions) continue;
                 const namePos: number[] = [];
@@ -374,7 +419,11 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         }
 
         /* Wraps matched characters in accent <span class="palette-match">. */
-        function highlight(text: string, positions: number[], className: string): HTMLSpanElement {
+        function highlight(
+            text: string,
+            positions: number[],
+            className: string
+        ): HTMLSpanElement {
             const span = document.createElement("span");
             span.className = className;
             const matched = new Set(positions);
@@ -407,7 +456,10 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         function applySelection(): void {
             const rows = list.querySelectorAll<HTMLElement>(".palette-row");
             rows.forEach((row, i) => {
-                row.setAttribute("aria-selected", i === selected ? "true" : "false");
+                row.setAttribute(
+                    "aria-selected",
+                    i === selected ? "true" : "false"
+                );
             });
             const active = rows[selected];
             if (active) {
@@ -431,9 +483,13 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
             num.textContent = entry.kind === "nav" ? entry.num : entry.glyph;
             row.appendChild(num);
 
-            row.appendChild(highlight(entry.name, match.namePos, "palette-row-name"));
+            row.appendChild(
+                highlight(entry.name, match.namePos, "palette-row-name")
+            );
             if (entry.kind === "nav") {
-                row.appendChild(highlight(entry.path, match.pathPos, "palette-row-path"));
+                row.appendChild(
+                    highlight(entry.path, match.pathPos, "palette-row-path")
+                );
             } else if (entry.kind === "field") {
                 const stat = document.createElement("span");
                 stat.className = "palette-row-path";
@@ -484,7 +540,9 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
             matches.forEach((match, index) => {
                 if (match.entry.kind !== lastKind) {
                     const label = document.createElement("div");
-                    label.className = "palette-group" + (lastKind !== null ? " is-divided" : "");
+                    label.className =
+                        "palette-group" +
+                        (lastKind !== null ? " is-divided" : "");
                     label.setAttribute("role", "presentation");
                     label.textContent =
                         match.entry.kind === "nav"
@@ -509,7 +567,9 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
             const target = hash ? document.getElementById(hash) : null;
             if (target) {
                 // same page: dialog is already closed — smooth-scroll to the sheet
-                target.scrollIntoView({ behavior: reduceMotion() ? "auto" : "smooth" });
+                target.scrollIntoView({
+                    behavior: reduceMotion() ? "auto" : "smooth",
+                });
                 history.replaceState(null, "", `#${hash}`);
             } else {
                 window.location.href = path;
@@ -519,7 +579,10 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         function replay(): void {
             // mirrors the footer signature easter egg
             if (document.getElementById("hero")) {
-                window.scrollTo({ top: 0, behavior: reduceMotion() ? "auto" : "smooth" });
+                window.scrollTo({
+                    top: 0,
+                    behavior: reduceMotion() ? "auto" : "smooth",
+                });
                 window.dispatchEvent(new CustomEvent("compile:replay"));
             } else {
                 window.location.href = "/?replay";
@@ -534,7 +597,9 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
             } else if (entry.kind === "field") {
                 navigateTo("/#field-report");
             } else if (entry.id === "theme") {
-                document.querySelector<HTMLButtonElement>(".theme-toggle")?.click();
+                document
+                    .querySelector<HTMLButtonElement>(".theme-toggle")
+                    ?.click();
             } else if (entry.id === "resume") {
                 window.open(data.resumePath, "_blank", "noopener");
             } else {
@@ -545,7 +610,9 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
         function open(): void {
             if (dialog.open) return;
             lastFocused =
-                document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                document.activeElement instanceof HTMLElement
+                    ? document.activeElement
+                    : null;
             input.value = "";
             matches = computeMatches("");
             selected = 0;
@@ -593,7 +660,11 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
 
         window.addEventListener("keydown", (e) => {
             if (e.defaultPrevented || e.isComposing) return;
-            if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey) && !e.altKey) {
+            if (
+                (e.key === "k" || e.key === "K") &&
+                (e.metaKey || e.ctrlKey) &&
+                !e.altKey
+            ) {
                 e.preventDefault();
                 if (dialog.open) {
                     close();
@@ -604,7 +675,13 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
             }
             // "$" opens too — but never while typing (inputs, textareas,
             // contenteditable — including the hero's hidden terminal input)
-            if (e.key === "$" && !e.metaKey && !e.ctrlKey && !e.altKey && !dialog.open) {
+            if (
+                e.key === "$" &&
+                !e.metaKey &&
+                !e.ctrlKey &&
+                !e.altKey &&
+                !dialog.open
+            ) {
                 const t = e.target;
                 const typing =
                     t instanceof HTMLElement &&
@@ -624,5 +701,6 @@ const paletteData = { navigate, resumePath: SITE.resumePath, field };
     const input = document.querySelector<HTMLInputElement>(".palette-input");
     const list = document.getElementById("palette-list");
     const dataEl = document.getElementById("palette-data");
-    if (dialog && input && list && dataEl) initPalette(dialog, input, list, dataEl);
+    if (dialog && input && list && dataEl)
+        initPalette(dialog, input, list, dataEl);
 </script>

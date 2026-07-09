@@ -129,13 +129,15 @@ export const SEASONS: Season[] = [
     },
 ];
 
-// The three sealed seasons below are PLACEHOLDERS from the design handoff
-// (result sequences and G/A per match match its charts; dates, scores and
-// team splits are invented). Backfill the real matches from the Strava
-// archive — every derived number recomputes. Summer 2026 is real so far.
+// TODO(ethan): the three sealed seasons in matches.json are PLACEHOLDERS from
+// the design handoff (result sequences and G/A per match match its charts;
+// dates, scores and team splits are invented). Backfill the real matches from
+// the Strava archive — every derived number recomputes. Summer 2026 is real.
 //
-// Matches live in matches.json (not inline) so the Strava importer can write
-// data without touching this file. `with { type: "json" }` is required so
+// Append matches by hand, or let the Strava importer open a PR — see
+// docs/strava-import.md. Matches live in matches.json (not inline) so the
+// importer can write data without touching this file. `with { type: "json" }`
+// is required so
 // the Node-based importer (which imports this module directly) can load the
 // JSON; Vite/Astro accept the attribute too. The cast through `unknown` is
 // needed because JSON infers `score` as `number[]` and `result` as `string`,

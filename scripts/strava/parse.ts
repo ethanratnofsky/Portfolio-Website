@@ -1,4 +1,8 @@
-export interface KnownTeam { id: string; name: string; league: string; }
+export interface KnownTeam {
+    id: string;
+    name: string;
+    league: string;
+}
 export interface ParseInput {
     title: string;
     description: string;
@@ -21,7 +25,10 @@ export interface ParsedMatch {
 }
 
 export function normalize(s: string): string {
-    return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    return s
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
 }
 
 const SUB_RE = /\(?\bsub(stitute)?\b\)?/i;
@@ -42,8 +49,13 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     const resultLetter = RESULT_RE.exec(rawDesc);
     const isMatch = Boolean(score || resultLetter);
     const base: ParsedMatch = {
-        isMatch, sub: false, goals: 0, goalsIsMinimum: false, assists: 0,
-        flags, blocking: false,
+        isMatch,
+        sub: false,
+        goals: 0,
+        goalsIsMinimum: false,
+        assists: 0,
+        flags,
+        blocking: false,
     };
     if (!isMatch) return base;
 
@@ -59,8 +71,10 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     // last segment (when there are >= 2) is the explicit league claim; the
     // segment(s) before it are the fallback guest label.
     const segments = cleanTitle.split(/\s*[-–—|·]\s*/).map((s) => s.trim());
-    const leagueSegment = segments.length >= 2 ? segments[segments.length - 1] : undefined;
-    const preLeagueSegments = segments.length >= 2 ? segments.slice(0, -1) : segments;
+    const leagueSegment =
+        segments.length >= 2 ? segments[segments.length - 1] : undefined;
+    const preLeagueSegments =
+        segments.length >= 2 ? segments.slice(0, -1) : segments;
 
     // 5. League — a blessed dictionary substring match anywhere in the title
     // always wins. Otherwise, an explicit (but unrecognized) league segment
@@ -83,7 +97,9 @@ export function parseActivity(input: ParseInput): ParsedMatch {
         if (resultLetter) {
             const letter = resultLetter[1].toUpperCase() as "W" | "D" | "L";
             if (letter !== base.result) {
-                flags.push(`Result letter "${letter}" disagrees with score ${forGoals}–${against}; used ${base.result}.`);
+                flags.push(
+                    `Result letter "${letter}" disagrees with score ${forGoals}–${against}; used ${base.result}.`
+                );
             }
         }
     } else {
@@ -95,7 +111,10 @@ export function parseActivity(input: ParseInput): ParsedMatch {
 
     // 8. Goals / assists.
     const g = GOALS_RE.exec(hay);
-    if (g) { base.goals = Number(g[1]); base.goalsIsMinimum = Boolean(g[2]); }
+    if (g) {
+        base.goals = Number(g[1]);
+        base.goalsIsMinimum = Boolean(g[2]);
+    }
     const a = ASSISTS_RE.exec(hay);
     if (a) base.assists = Number(a[1]);
 
@@ -105,7 +124,9 @@ export function parseActivity(input: ParseInput): ParsedMatch {
         base.league = team.league;
         if (league) {
             if (normalize(league) !== normalize(team.league)) {
-                flags.push(`Post league "${league}" differs from ${team.name}'s league ${team.league}; kept ${team.league}.`);
+                flags.push(
+                    `Post league "${league}" differs from ${team.name}'s league ${team.league}; kept ${team.league}.`
+                );
             }
         } else if (unrecognizedLeagueFlag) {
             // No blessed league recognized, but the title explicitly claims
@@ -128,11 +149,15 @@ export function parseActivity(input: ParseInput): ParsedMatch {
             flags.push(unrecognizedLeagueFlag);
             base.blocking = true;
         } else {
-            flags.push("Unrecognized league — add it to the blessed list or correct the post.");
+            flags.push(
+                "Unrecognized league — add it to the blessed list or correct the post."
+            );
             base.blocking = true;
         }
         if (!base.sub) {
-            flags.push(`Unrecognized team${label ? ` "${label}"` : ""} on a non-sub match — define the team or mark it (sub).`);
+            flags.push(
+                `Unrecognized team${label ? ` "${label}"` : ""} on a non-sub match — define the team or mark it (sub).`
+            );
             base.blocking = true;
         }
     }

@@ -12,11 +12,17 @@ const parse = (title: string, description: string) =>
     parseActivity({ title, description, teams: TEAMS, leagues: LEAGUES });
 
 test("normalize is case/whitespace/punctuation insensitive", () => {
-    assert.equal(normalize("FA Blast  From the Past!"), normalize("fa blast from the past"));
+    assert.equal(
+        normalize("FA Blast  From the Past!"),
+        normalize("fa blast from the past")
+    );
 });
 
 test("a non-match Soccer activity is skipped", () => {
-    assert.equal(parse("Sunday kickabout", "just messing around").isMatch, false);
+    assert.equal(
+        parse("Sunday kickabout", "just messing around").isMatch,
+        false
+    );
 });
 
 test("parses the canonical post, deriving result from score", () => {
@@ -27,7 +33,7 @@ test("parses the canonical post, deriving result from score", () => {
     assert.deepEqual(r.score, [4, 1]);
     assert.equal(r.result, "W");
     assert.equal(r.goals, 1);
-    assert.equal(r.assists, 0);        // omitted → 0
+    assert.equal(r.assists, 0); // omitted → 0
     assert.equal(r.blocking, false);
     assert.equal(r.flags.length, 0);
 });
@@ -49,8 +55,14 @@ test("W/L letter contradicting the score flags, score wins", () => {
 });
 
 test("N+ sets the minimum flag; plain N is exact", () => {
-    assert.equal(parse("Salmon Roe United", "W 6-3\n2+ G").goalsIsMinimum, true);
-    assert.equal(parse("Salmon Roe United", "W 6-3\n2 G").goalsIsMinimum, false);
+    assert.equal(
+        parse("Salmon Roe United", "W 6-3\n2+ G").goalsIsMinimum,
+        true
+    );
+    assert.equal(
+        parse("Salmon Roe United", "W 6-3\n2 G").goalsIsMinimum,
+        false
+    );
 });
 
 test("assists parsed independently", () => {
@@ -92,7 +104,7 @@ test("an obvious format token is captured for guests", () => {
     assert.equal(r.guest?.format, "7v7");
 });
 
-test("an opponent after \"vs\" makes no league claim and isn't blocking", () => {
+test('an opponent after "vs" makes no league claim and isn\'t blocking', () => {
     const r = parse("Charlie Cheers FC vs Riverside Rovers", "W 3-2\n1 G");
     assert.equal(r.isMatch, true);
     assert.equal(r.teamId, "charlie-cheers");

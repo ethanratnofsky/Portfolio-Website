@@ -31,7 +31,16 @@ test("matchTeam resolves a rostered team from teamId", () => {
 });
 
 test("matchTeam falls back to guest label, then [Unknown team]", () => {
-    const labelled = matchTeam({ guest: { team: "Real Sosobad", league: "NYC Soccer", level: "Div 2" } } as Match, 0);
+    const labelled = matchTeam(
+        {
+            guest: {
+                team: "Real Sosobad",
+                league: "NYC Soccer",
+                level: "Div 2",
+            },
+        } as Match,
+        0
+    );
     assert.equal(labelled.name, "Real Sosobad");
     assert.equal(labelled.league, "NYC Soccer");
     assert.equal(labelled.division, "Div 2");
@@ -44,16 +53,39 @@ test("matchTeam falls back to guest label, then [Unknown team]", () => {
 });
 
 test("matchTeam reports the sub flag", () => {
-    assert.equal(matchTeam({ teamId: "charlie-cheers", sub: true } as Match, 0).sub, true);
-    assert.equal(matchTeam({ teamId: "charlie-cheers" } as Match, 0).sub, false);
+    assert.equal(
+        matchTeam({ teamId: "charlie-cheers", sub: true } as Match, 0).sub,
+        true
+    );
+    assert.equal(
+        matchTeam({ teamId: "charlie-cheers" } as Match, 0).sub,
+        false
+    );
 });
 
 test("matchTeamLog formats rostered and guest teams", () => {
-    assert.equal(matchTeamLog(matchTeam({ teamId: "charlie-cheers" } as any, 0)), "NYC FOOTY · P4 · 7V7 OUT");
-    assert.equal(matchTeamLog(matchTeam({ teamId: "salmon-roe" } as any, 0)), "VOLO · 6V6 INDOOR");
     assert.equal(
-        matchTeamLog(matchTeam({ guest: { league: "NYC Soccer", level: "Div 2", format: "7v7" } } as any, 0)),
-        "NYC SOCCER · DIV 2 · 7V7",
+        matchTeamLog(matchTeam({ teamId: "charlie-cheers" } as any, 0)),
+        "NYC FOOTY · P4 · 7V7 OUT"
+    );
+    assert.equal(
+        matchTeamLog(matchTeam({ teamId: "salmon-roe" } as any, 0)),
+        "VOLO · 6V6 INDOOR"
+    );
+    assert.equal(
+        matchTeamLog(
+            matchTeam(
+                {
+                    guest: {
+                        league: "NYC Soccer",
+                        level: "Div 2",
+                        format: "7v7",
+                    },
+                } as any,
+                0
+            )
+        ),
+        "NYC SOCCER · DIV 2 · 7V7"
     );
 });
 
@@ -62,9 +94,10 @@ test("seasonTeamRows derives Summer 2026 team rows from matches", () => {
     // Order follows the season's authored teamIds order (rostered teams),
     // not first-match date — Summer 2026's teamIds is
     // [charlie-cheers, fa-blast, salmon-roe].
-    assert.deepEqual(rows.map((r) => r.team.name), [
-        "Charlie Cheers FC", "FA Blast from the Past", "Salmon Roe United",
-    ]);
+    assert.deepEqual(
+        rows.map((r) => r.team.name),
+        ["Charlie Cheers FC", "FA Blast from the Past", "Salmon Roe United"]
+    );
     assert.equal(teamCount("summer-2026"), 3);
     const charlie = rows[0];
     assert.equal(charlie.agg.played, 3);

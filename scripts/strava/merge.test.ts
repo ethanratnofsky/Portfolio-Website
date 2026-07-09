@@ -3,10 +3,26 @@ import assert from "node:assert/strict";
 import { mergeImports } from "./merge.ts";
 
 const draft = (over = {}) => ({
-    stravaId: 1, date: "2026-07-06", seasonId: "summer-2026", teamId: "charlie-cheers",
-    result: "W", score: [4, 2], goals: 1, goalsIsMinimum: false, assists: 1, ...over,
+    stravaId: 1,
+    date: "2026-07-06",
+    seasonId: "summer-2026",
+    teamId: "charlie-cheers",
+    result: "W",
+    score: [4, 2],
+    goals: 1,
+    goalsIsMinimum: false,
+    assists: 1,
+    ...over,
 });
-const snap = (over = {}) => ({ "1": { score: [4, 2], goals: 1, assists: 1, goalsIsMinimum: false, ...over } });
+const snap = (over = {}) => ({
+    "1": {
+        score: [4, 2],
+        goals: 1,
+        assists: 1,
+        goalsIsMinimum: false,
+        ...over,
+    },
+});
 
 test("new activity is added", () => {
     const r = mergeImports([], {}, [draft()]);
@@ -22,7 +38,9 @@ test("known + unchanged on Strava is skipped", () => {
 });
 
 test("Strava correction with an unedited repo updates and diffs", () => {
-    const r = mergeImports([draft()], snap(), [draft({ score: [3, 2], result: "W" })]);
+    const r = mergeImports([draft()], snap(), [
+        draft({ score: [3, 2], result: "W" }),
+    ]);
     assert.equal(r.updated.length, 1);
     assert.match(r.updated[0], /4–2.*3–2|score/);
     assert.deepEqual(r.matches[0].score, [3, 2]);

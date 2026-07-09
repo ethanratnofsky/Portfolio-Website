@@ -182,7 +182,7 @@ export function matchTeam(m: Match, index: number): MatchTeam {
     aggregated. This is the render source for per-team season lines — unlike a
     walk of `Season.teamIds` alone, it also reflects guest/sub appearances. */
 export function seasonTeamRows(
-    seasonId: string,
+    seasonId: string
 ): { team: MatchTeam; agg: Agg }[] {
     const matches = matchesFor(seasonId); // already date-ascending
     const order: string[] = [];
@@ -226,7 +226,9 @@ export function matchTeamLog(mt: MatchTeam): string {
     const fmt = [
         mt.format?.toUpperCase(),
         mt.venue === "outdoor" ? "OUT" : mt.venue?.toUpperCase(),
-    ].filter(Boolean).join(" ");
+    ]
+        .filter(Boolean)
+        .join(" ");
     if (fmt) parts.push(fmt);
     return parts.join(" · ");
 }

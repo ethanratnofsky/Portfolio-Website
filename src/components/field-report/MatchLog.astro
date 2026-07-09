@@ -32,8 +32,9 @@ const seasonOptions = [...SEASONS].reverse();
 const leagues = [...new Set(TEAMS.map((t) => t.league))];
 // Distinct groups actually present in the log — rostered teams and guest/
 // one-off appearances alike — not just the rostered TEAMS list.
-const teamOptions = [...new Map(rows.map(({ team }) => [team.groupKey, team.name])).entries()]
-    .map(([value, label]) => ({ value, label: label.toUpperCase() }));
+const teamOptions = [
+    ...new Map(rows.map(({ team }) => [team.groupKey, team.name])).entries(),
+].map(([value, label]) => ({ value, label: label.toUpperCase() }));
 ---
 
 <div class="mlog">
