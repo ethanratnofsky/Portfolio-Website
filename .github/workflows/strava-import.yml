@@ -1,0 +1,41 @@
+name: Strava import
+on:
+  schedule:
+    - cron: "0 12 * * 1" # Mondays 12:00 UTC
+  workflow_dispatch:
+    inputs:
+      all:
+        description: "Rescan all seasons (not just the current one)"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run importer
+        env:
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+        run: node --experimental-strip-types scripts/strava/import.ts ${{ inputs.all && '--all' || '' }}
+      - name: Append summary
+        if: always()
+        run: cat import-summary.md >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: strava/import
+          title: "Strava import — new match data"
+          body-path: import-summary.md
+          commit-message: "data: import matches from Strava"
+          add-paths: |
+            src/data/matches.json
+            src/data/.strava-snapshot.json
+          delete-branch: true

@@ -24,3 +24,6 @@ yarn-error.log*
 
 # handoff docs
 docs/handoff
+
+# Strava importer scratch
+import-summary.md
