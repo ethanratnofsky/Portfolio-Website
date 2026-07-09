@@ -14,7 +14,7 @@ test("all-time aggregates match the shipped register", () => {
 
 test("matchTeam resolves a rostered team from teamId", () => {
     const m = { teamId: "charlie-cheers" } as Match;
-    const mt = matchTeam(m);
+    const mt = matchTeam(m, 0);
     assert.equal(mt.name, "Charlie Cheers FC");
     assert.equal(mt.league, "NYC Footy");
     assert.equal(mt.division, "P4");
@@ -24,11 +24,12 @@ test("matchTeam resolves a rostered team from teamId", () => {
 });
 
 test("matchTeam falls back to guest label, then [Unknown team]", () => {
-    const labelled = matchTeam({ guest: { team: "Real Sosobad", league: "NYC Soccer", level: "Div 2" } } as Match);
+    const labelled = matchTeam({ guest: { team: "Real Sosobad", league: "NYC Soccer", level: "Div 2" } } as Match, 0);
     assert.equal(labelled.name, "Real Sosobad");
     assert.equal(labelled.league, "NYC Soccer");
     assert.equal(labelled.division, "Div 2");
     assert.equal(labelled.isGuest, true);
+    assert.equal(labelled.groupKey, "guest:real sosobad");
 
     const unknown = matchTeam({ guest: { league: "NYC Soccer" } } as Match, 7);
     assert.equal(unknown.name, "[Unknown team]");
@@ -36,6 +37,6 @@ test("matchTeam falls back to guest label, then [Unknown team]", () => {
 });
 
 test("matchTeam reports the sub flag", () => {
-    assert.equal(matchTeam({ teamId: "charlie-cheers", sub: true } as Match).sub, true);
-    assert.equal(matchTeam({ teamId: "charlie-cheers" } as Match).sub, false);
+    assert.equal(matchTeam({ teamId: "charlie-cheers", sub: true } as Match, 0).sub, true);
+    assert.equal(matchTeam({ teamId: "charlie-cheers" } as Match, 0).sub, false);
 });

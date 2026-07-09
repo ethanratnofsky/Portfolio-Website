@@ -136,7 +136,8 @@ export function goalsSuffix(
     return (inPlay ? "+" : "") + (agg.goalsIsMin ? "†" : "");
 }
 
-/** Chip text: "7V7 · OUTDOOR" (ledger) — uppercase register style. */
+/** Display-shape for a match's team, whether rostered (teamId) or a
+    guest/inline appearance; `groupKey` is what callers dedupe/group rows by. */
 export interface MatchTeam {
     name: string;
     league: League | null;
@@ -149,8 +150,9 @@ export interface MatchTeam {
 }
 
 /** Resolve a match's display team, whether rostered (teamId) or a guest/inline
-    appearance. `index` disambiguates unknown-team guests so they never merge. */
-export function matchTeam(m: Match, index = 0): MatchTeam {
+    appearance. `index` is required — the per-match position — so that two
+    distinct unknown-team guests are never merged into the same groupKey. */
+export function matchTeam(m: Match, index: number): MatchTeam {
     const sub = m.sub === true;
     if (m.teamId) {
         const t = teamById(m.teamId);
@@ -175,10 +177,13 @@ export function matchTeam(m: Match, index = 0): MatchTeam {
         venue: undefined,
         isGuest: true,
         sub,
+        // Lowercased so case variants of the same guest team ("Real Sosobad"
+        // vs "real sosobad") dedupe to a single groupKey/row.
         groupKey: label ? `guest:${label.toLowerCase()}` : `guest:${index}`,
     };
 }
 
+/** Chip text: "7V7 · OUTDOOR" (ledger) — uppercase register style. */
 export function chipFormat(team: Team): string {
     return `${team.format.toUpperCase()} · ${team.venue.toUpperCase()}`;
 }
