@@ -96,7 +96,13 @@ const seasonPoints = SEASONS.map((s, i) => {
 });
 const bysMax = Math.max(
     2,
-    Math.ceil(Math.max(...seasonPoints.map((p) => p.agg.goals)) / 2) * 2,
+    // Scale on both series — the ASSISTS tile opens this chart with assists
+    // emphasized, and an assist-heavy season must not overshoot the top.
+    Math.ceil(
+        Math.max(
+            ...seasonPoints.map((p) => Math.max(p.agg.goals, p.agg.assists))
+        ) / 2
+    ) * 2
 );
 const yBys = (v: number) => r1(BYS.yBase - (v * BYS.rise) / bysMax);
 const bysGoalsLine = seasonPoints
@@ -114,7 +120,9 @@ const pmUnit = Math.min(34, 92 / pmMax);
 const pmTicks = Array.from({ length: pmMax }, (_, i) => i + 1);
 
 function pmVariant(id: string, matches: Match[]) {
-    const step = SPAN / matches.length;
+    // A season declared before its first match has zero matches; guard the
+    // divisor (bars/ticks/spans are all empty, so nothing renders anyway).
+    const step = matches.length ? SPAN / matches.length : SPAN;
     const bars: {
         x: number;
         y: number;
@@ -131,13 +139,23 @@ function pmVariant(id: string, matches: Match[]) {
         }
         if (m.goals > 0) {
             const h = r1(m.goals * pmUnit);
-            bars.push({ x: r1(cx - 11), y: r1(PM.yBase - h), h, kind: "goals" });
+            bars.push({
+                x: r1(cx - 11),
+                y: r1(PM.yBase - h),
+                h,
+                kind: "goals",
+            });
             if (m.goalsIsMinimum)
                 daggers.push({ x: r1(cx - 6), y: r1(PM.yBase - h - 4) });
         }
         if (m.assists > 0) {
             const h = r1(m.assists * pmUnit);
-            bars.push({ x: r1(cx + 1), y: r1(PM.yBase - h), h, kind: "assists" });
+            bars.push({
+                x: r1(cx + 1),
+                y: r1(PM.yBase - h),
+                h,
+                kind: "assists",
+            });
         }
     });
     const spans = seasonSpans(matches).map((sp) => ({
@@ -149,8 +167,13 @@ function pmVariant(id: string, matches: Match[]) {
 }
 
 const pmVariants = [
-    pmVariant("all", all),
-    ...SEASONS.map((s) => pmVariant(s.id, matchesFor(s.id))),
+    { ...pmVariant("all", all), label: "" },
+    // Carry the season label directly — a zero-match season has no spans, so
+    // the old v.spans[0] lookup for the aria-label crashed the build.
+    ...SEASONS.map((s) => ({
+        ...pmVariant(s.id, matchesFor(s.id)),
+        label: s.label,
+    })),
 ];
 
 const legendFor = (n: number, what: string) =>
@@ -167,10 +190,14 @@ const legendFor = (n: number, what: string) =>
                 CUMULATIVE<span data-fr-scale-dot aria-hidden="true"> ●</span>
             </button>
             <button data-fr-scale="by-season" aria-pressed="false">
-                BY SEASON<span data-fr-scale-dot aria-hidden="true" hidden> ●</span>
+                BY SEASON<span data-fr-scale-dot aria-hidden="true" hidden>
+                    ●</span
+                >
             </button>
             <button data-fr-scale="per-match" aria-pressed="false">
-                PER MATCH<span data-fr-scale-dot aria-hidden="true" hidden> ●</span>
+                PER MATCH<span data-fr-scale-dot aria-hidden="true" hidden>
+                    ●</span
+                >
             </button>
         </span>
         <span class="gc-season" data-fr-pm-filter hidden>
@@ -179,7 +206,6 @@ const legendFor = (n: number, what: string) =>
                     class="fchip-btn"
                     data-fr-filter="pm-season"
                     data-fr-value="all"
-                    aria-haspopup="true"
                     aria-expanded="false"
                 >
                     SEASON: <span data-fr-filter-value>ALL</span>
@@ -188,11 +214,13 @@ const legendFor = (n: number, what: string) =>
                 <span class="fchip-menu" hidden>
                     <button data-fr-option="all">ALL</button>
                     {
-                        [...SEASONS].reverse().map((s) => (
-                            <button data-fr-option={s.id}>
-                                {s.label.toUpperCase()}
-                            </button>
-                        ))
+                        [...SEASONS]
+                            .reverse()
+                            .map((s) => (
+                                <button data-fr-option={s.id}>
+                                    {s.label.toUpperCase()}
+                                </button>
+                            ))
                     }
                 </span>
             </span>
@@ -432,10 +460,7 @@ const legendFor = (n: number, what: string) =>
                         <svg
                             viewBox={`0 0 1080 ${PM.h}`}
                             role="img"
-                            aria-label={legendFor(
-                                v.count,
-                                v.id === "all" ? "" : v.spans[0].season.label,
-                            )}
+                            aria-label={legendFor(v.count, v.label)}
                         >
                             {pmTicks.map((t) => (
                                 <>
@@ -478,8 +503,7 @@ const legendFor = (n: number, what: string) =>
                                         text-anchor="middle"
                                     >
                                         {shortSeason(sp.season)}
-                                        {sp.season.status === "in-play" &&
-                                            " ●"}
+                                        {sp.season.status === "in-play" && " ●"}
                                     </text>
                                 </>
                             ))}
@@ -528,9 +552,15 @@ const legendFor = (n: number, what: string) =>
             ))
         }
         <p class="gc-note">
-            <span
-                >AMBER — GOALS · GREY — ASSISTS · TICKS ON THE LINE — PLAYED,
-                BLANK</span
+            <span>
+                {
+                    /* The colour map flips with the ASSISTS-tile emphasis swap. */
+                }
+                <span class="gc-emph gc-emph-goals"
+                    >AMBER — GOALS · GREY — ASSISTS</span
+                ><span class="gc-emph gc-emph-assists"
+                    >AMBER — ASSISTS · GREY — GOALS</span
+                > · TICKS ON THE LINE — PLAYED, BLANK</span
             >
             <span>† COUNT UNCERTAIN — DRAWN AT MINIMUM</span>
         </p>
@@ -679,6 +709,20 @@ const legendFor = (n: number, what: string) =>
         color: var(--muted);
     }
 
+    /* Footnote colour-map: show the goals-lead phrasing by default, the
+       swapped phrasing when the ASSISTS tile is active. */
+    .gc-emph-assists {
+        display: none;
+    }
+
+    :global([data-emphasis="assists"]) .gc-emph-goals {
+        display: none;
+    }
+
+    :global([data-emphasis="assists"]) .gc-emph-assists {
+        display: inline;
+    }
+
     .gc-key {
         display: flex;
         align-items: center;
@@ -690,12 +734,31 @@ const legendFor = (n: number, what: string) =>
         border-top: 2px solid;
     }
 
+    /* The swatch is an HTML <i>, so it needs border-color — the s-goals/
+       s-assists SVG fill/stroke below don't touch an HTML border. */
+    .gc-swatch.s-goals {
+        border-top-color: var(--accent);
+    }
+
+    .gc-swatch.s-assists {
+        border-top-color: var(--fr-grey);
+    }
+
+    :global([data-emphasis="assists"]) .gc-swatch.s-goals {
+        border-top-color: var(--fr-grey);
+    }
+
+    :global([data-emphasis="assists"]) .gc-swatch.s-assists {
+        border-top-color: var(--accent);
+    }
+
     /* ------- chart panel ------- */
 
     .gc-panel {
         border: 1px solid var(--line);
         background: var(--panel);
-        background-image: linear-gradient(
+        background-image:
+            linear-gradient(
                 color-mix(in srgb, var(--ink) 3%, transparent) 1px,
                 transparent 1px
             ),
@@ -812,6 +875,15 @@ const legendFor = (n: number, what: string) =>
     :global([data-emphasis="assists"]) .gc-line.s-goals,
     :global([data-emphasis="assists"]) .gc-line.s-assists {
         fill: none;
+    }
+
+    /* The emphasis stroke above (0,2,0) outranks the rect/circle stroke:none
+       reset (0,1,1); re-assert it or bars gain a 1px edge and close the gap. */
+    :global([data-emphasis="assists"]) rect.s-goals,
+    :global([data-emphasis="assists"]) circle.s-goals,
+    :global([data-emphasis="assists"]) rect.s-assists,
+    :global([data-emphasis="assists"]) circle.s-assists {
+        stroke: none;
     }
 
     :global([data-emphasis="assists"]) .s-assists {

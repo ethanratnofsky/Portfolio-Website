@@ -145,9 +145,13 @@ export function chipFormat(team: Team): string {
 export function logFormat(team: Team): string {
     const fmt = team.format.toUpperCase();
     const venue = team.venue === "outdoor" ? "OUT" : team.venue.toUpperCase();
-    return team.league === "NYC Footy"
-        ? `NYC FOOTY · ${team.division} · ${fmt} ${venue}`
-        : `${team.league.toUpperCase()} · ${fmt} ${venue.toUpperCase()}`;
+    // Division is optional even for NYC Footy (unset until the tier is known);
+    // omit the segment rather than printing "UNDEFINED".
+    if (team.league === "NYC Footy") {
+        const div = team.division ? `${team.division} · ` : "";
+        return `NYC FOOTY · ${div}${fmt} ${venue}`;
+    }
+    return `${team.league.toUpperCase()} · ${fmt} ${venue.toUpperCase()}`;
 }
 
 const MONTHS = [

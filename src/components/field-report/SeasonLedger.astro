@@ -23,7 +23,7 @@ const seasons = [...SEASONS].reverse().map((season) => {
         meta: [
             season.months,
             `${season.teamIds.length} TEAM${season.teamIds.length === 1 ? "" : "S"}`,
-            `${agg.played} MATCHES${inPlay ? " SO FAR" : ""}`,
+            `${agg.played} MATCH${agg.played === 1 ? "" : "ES"}${inPlay ? " SO FAR" : ""}`,
             ...(inPlay ? [] : ["SEALED"]),
         ].join(" · "),
         stat: `${record(agg)} · ${agg.goals}${goalsSuffix("season", agg, inPlay)} G · ${agg.assists} A`,
@@ -83,9 +83,7 @@ const seasons = [...SEASONS].reverse().map((season) => {
                                     </span>
                                 </span>
                                 <span class="lg-num lg-p">
-                                    <span class="visually-hidden">
-                                        played{" "}
-                                    </span>
+                                    <span class="visually-hidden">played </span>
                                     {agg.played}
                                 </span>
                                 <span class="lg-num lg-wdl">
@@ -96,7 +94,10 @@ const seasons = [...SEASONS].reverse().map((season) => {
                                 </span>
                                 <span class="lg-num lg-g">
                                     <span class="visually-hidden">goals </span>
-                                    {agg.goals}{goalsSuffix("team", agg) && <span class="lg-dagger">†</span>}
+                                    {agg.goals}
+                                    {goalsSuffix("team", agg) && (
+                                        <span class="lg-dagger">†</span>
+                                    )}
                                 </span>
                                 <span class="lg-num lg-a">
                                     <span class="visually-hidden">

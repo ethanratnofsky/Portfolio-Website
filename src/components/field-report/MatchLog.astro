@@ -18,7 +18,13 @@ const rows = matchesFor()
 
 const current = currentSeason();
 const sealed = SEASONS.filter((s) => s.status === "sealed");
-const earlier = rows.filter(({ m }) => m.seasonId !== current?.id).length;
+// Default filter: the in-play season, or ALL between seasons (when none is
+// in play). The SSR row-hiding predicate and the chip share this one value,
+// so the initial view is never an empty table claiming "SEASON: ALL".
+const defaultSeason = current?.id ?? "all";
+const isHidden = (seasonId: string) =>
+    defaultSeason !== "all" && seasonId !== defaultSeason;
+const earlier = rows.filter(({ m }) => isHidden(m.seasonId)).length;
 const showing = rows.length - earlier;
 
 const RESULT_WORDS = { W: "won", D: "drew", L: "lost" } as const;
@@ -33,7 +39,7 @@ const leagues = [...new Set(TEAMS.map((t) => t.league))];
         <FilterChip
             filterKey="season"
             label="SEASON"
-            value={current?.id ?? "all"}
+            value={defaultSeason}
             valueLabel={current ? current.label.toUpperCase() : "ALL"}
             options={[
                 { value: "all", label: "ALL" },
@@ -72,8 +78,10 @@ const leagues = [...new Set(TEAMS.map((t) => t.league))];
         </span>
     </div>
 
-    {/* Explicit table roles restore semantics lost to display: grid rows
-        (same idiom as the flat file). */}
+    {
+        /* Explicit table roles restore semantics lost to display: grid rows
+        (same idiom as the flat file). */
+    }
     <table class="ml-table" role="table" data-fr-log>
         <thead role="rowgroup">
             <tr role="row">
@@ -98,7 +106,7 @@ const leagues = [...new Set(TEAMS.map((t) => t.league))];
                         data-season={m.seasonId}
                         data-league={team.league}
                         data-team={team.id}
-                        hidden={m.seasonId !== current?.id}
+                        hidden={isHidden(m.seasonId)}
                     >
                         <td role="cell" class="ml-date">
                             {logDate(m.date)}
@@ -122,7 +130,14 @@ const leagues = [...new Set(TEAMS.map((t) => t.league))];
                             {m.score[0]}–{m.score[1]}
                         </td>
                         <td role="cell" class="ml-num ml-ga">
-                            {m.goals > 0 ? m.goals : <span class="ml-nil">—</span>}{m.goalsIsMinimum && <span class="ml-dagger">†</span>}
+                            {m.goals > 0 ? (
+                                m.goals
+                            ) : (
+                                <span class="ml-nil">—</span>
+                            )}
+                            {m.goalsIsMinimum && (
+                                <span class="ml-dagger">†</span>
+                            )}
                         </td>
                         <td role="cell" class="ml-num ml-ga">
                             {m.assists > 0 ? (
@@ -147,7 +162,8 @@ const leagues = [...new Set(TEAMS.map((t) => t.league))];
                 <span class="ml-more-label">EARLIER MATCHES ↓</span>
                 <span class="ml-more-rule" aria-hidden="true" />
                 <span class="ml-more-count">
-                    {earlier} MORE ACROSS {sealed.length} SEALED SEASONS
+                    {earlier} MORE ACROSS {sealed.length} SEALED SEASON
+                    {sealed.length === 1 ? "" : "S"}
                 </span>
             </button>
         )
@@ -384,9 +400,17 @@ const leagues = [...new Set(TEAMS.map((t) => t.league))];
             margin-left: 0;
         }
 
+        /* Re-template for the phone: the 900px 6-col grid starved the TEAM
+           column to ~40px and stacked rows 6 lines tall. Tighten the fixed
+           tracks so the team name (+ folded league line) keeps real width. */
         .ml-table tr {
+            grid-template-columns: 48px minmax(0, 1fr) 22px 42px 24px 24px;
             padding: 12px 16px;
             gap: 0 8px;
+        }
+
+        .ml-team {
+            min-width: 0;
         }
 
         .ml-more {

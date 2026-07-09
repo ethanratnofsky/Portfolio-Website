@@ -107,8 +107,11 @@ if (root) {
 
     function closeMenus() {
         chips.forEach((chip) => {
-            chip.setAttribute("aria-expanded", "false");
             const menu = chip.nextElementSibling as HTMLElement | null;
+            // If focus is inside the menu we're about to hide, return it to the
+            // owning chip (hiding a focused element would drop focus to <body>).
+            if (menu && menu.contains(document.activeElement)) chip.focus();
+            chip.setAttribute("aria-expanded", "false");
             if (menu) menu.hidden = true;
         });
     }
@@ -193,6 +196,9 @@ if (root) {
             chip.classList.remove("is-set");
             const v = chip.querySelector<HTMLElement>("[data-fr-filter-value]");
             if (v) v.textContent = "ALL";
+            // This button hides itself in applyLogFilters(); move focus to the
+            // season chip it just reset so keyboard focus isn't lost to <body>.
+            chip.focus();
         }
         applyLogFilters();
         announce("Showing all matches");

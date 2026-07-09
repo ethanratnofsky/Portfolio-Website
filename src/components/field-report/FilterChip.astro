@@ -16,11 +16,14 @@ const { filterKey, label, value, valueLabel, options } = Astro.props;
 ---
 
 <span class="fchip">
+    {
+        /* Disclosure, not a menu: options are Tab-reachable buttons with no
+        menu/arrow-key semantics, so expose aria-expanded only. */
+    }
     <button
         class:list={["fchip-btn", { "is-set": value !== "all" }]}
         data-fr-filter={filterKey}
         data-fr-value={value}
-        aria-haspopup="true"
         aria-expanded="false"
     >
         {label}: <span data-fr-filter-value>{valueLabel}</span>

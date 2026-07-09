@@ -11,6 +11,7 @@ import RecordView from "./RecordView.astro";
 import { SEASONS } from "../../data/soccer";
 import {
     allTime,
+    currentSeason,
     currentStreak,
     goalsPerMatch,
     goalsSuffix,
@@ -20,6 +21,8 @@ import {
 } from "../../data/soccer-derive";
 
 const at = allTime();
+// Derived, never hand-set: the "+" only shows while a season is in play.
+const inPlay = Boolean(currentSeason());
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const form = lastN(6);
 const streak = currentStreak();
@@ -65,7 +68,8 @@ const tiles = [
                             data-fr-viewing
                             hidden={tile.id !== "seasons"}
                         >
-                            {" "}● VIEWING
+                            {" "}
+                            ● VIEWING
                         </span>
                     </span>
                     <span class="fr-tile-value">
@@ -74,7 +78,10 @@ const tiles = [
                         {tile.id === "record" && record(at)}
                         {tile.id === "goals" && (
                             <>
-                                {at.goals}<sup class="fr-sup">{goalsSuffix("all", at, true)}</sup>
+                                {at.goals}
+                                <sup class="fr-sup">
+                                    {goalsSuffix("all", at, inPlay)}
+                                </sup>
                             </>
                         )}
                         {tile.id === "assists" && pad2(at.assists)}
@@ -310,6 +317,14 @@ const tiles = [
         border: 1px solid var(--fr-grey);
     }
 
+    .fr-form-label,
+    .fr-form-key,
+    .fr-form-stat {
+        /* Keep each label on one line so a narrow strip wraps between groups,
+           not mid-phrase ("LAST 6", "GOALS / MATCH" stay intact). */
+        white-space: nowrap;
+    }
+
     .fr-form-key,
     .fr-form-stat {
         color: var(--muted);
@@ -366,6 +381,18 @@ const tiles = [
 
         .fr-tile-value {
             font-size: 40px;
+        }
+
+        /* Across the tablet band the single-row strip is too wide for the
+           right-aligned note; let the groups wrap and drop the note (it
+           returns >900px, and is dropped entirely ≤640px). */
+        .fr-form {
+            flex-wrap: wrap;
+            gap: 10px 16px;
+        }
+
+        .fr-form-note {
+            display: none;
         }
     }
 
