@@ -49,12 +49,11 @@ test("matchTeam reports the sub flag", () => {
 
 test("seasonTeamRows derives Summer 2026 team rows from matches", () => {
     const rows = seasonTeamRows("summer-2026");
-    // Order is by each team's first-match date within the season. In the
-    // shipped matches.json, salmon-roe's first summer-2026 match (06-15)
-    // predates fa-blast's (06-17), so the row order is Charlie, Salmon Roe,
-    // FA Blast — not alphabetical or teamIds-declaration order.
+    // Order follows the season's authored teamIds order (rostered teams),
+    // not first-match date — Summer 2026's teamIds is
+    // [charlie-cheers, fa-blast, salmon-roe].
     assert.deepEqual(rows.map((r) => r.team.name), [
-        "Charlie Cheers FC", "Salmon Roe United", "FA Blast from the Past",
+        "Charlie Cheers FC", "FA Blast from the Past", "Salmon Roe United",
     ]);
     assert.equal(teamCount("summer-2026"), 3);
     const charlie = rows[0];

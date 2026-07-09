@@ -184,10 +184,12 @@ export function matchTeam(m: Match, index: number): MatchTeam {
 }
 
 /** Per-team ledger rows within a season, derived from matches: grouped by
-    `matchTeam().groupKey`, ordered by first-match date (matches are already
-    date-ascending), each group's stats aggregated. Replaces `teamLines` as
-    the render source — this reflects guest/sub appearances that `teamLines`
-    (which only walks `Season.teamIds`) can't. */
+    `matchTeam().groupKey`, ordered per the season's `teamIds` (rostered teams
+    in their authored order), with any groups outside `teamIds` (guest/one-off
+    appearances) after, in first-appearance order. Each group's stats
+    aggregated. Replaces `teamLines` as the render source — this reflects
+    guest/sub appearances that `teamLines` (which only walks `Season.teamIds`)
+    can't. */
 export function seasonTeamRows(
     seasonId: string,
 ): { team: MatchTeam; agg: Agg }[] {
@@ -202,6 +204,15 @@ export function seasonTeamRows(
         }
         groups.get(key)!.push(m);
     });
+    // Rostered teams (groupKey === teamId) sort by their teamIds position;
+    // guests/one-offs (not in teamIds) sort after, preserving the
+    // first-appearance order already captured above (sort is stable).
+    const ids = seasonById(seasonId).teamIds;
+    const rank = (key: string) => {
+        const i = ids.indexOf(key);
+        return i >= 0 ? i : ids.length;
+    };
+    order.sort((a, b) => rank(a) - rank(b));
     return order.map((key) => {
         const ms = groups.get(key)!;
         // Resolve display from the first match of the group.
