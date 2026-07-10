@@ -31,6 +31,56 @@ export function normalize(s: string): string {
         .trim();
 }
 
+// Classic edit-distance DP, O(min space) via a single rolling row.
+export function levenshtein(a: string, b: string): number {
+    const m = a.length;
+    const n = b.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+    const row = new Array<number>(n + 1);
+    for (let j = 0; j <= n; j++) row[j] = j;
+    for (let i = 1; i <= m; i++) {
+        let prevDiag = row[0];
+        row[0] = i;
+        for (let j = 1; j <= n; j++) {
+            const temp = row[j];
+            row[j] =
+                a[i - 1] === b[j - 1]
+                    ? prevDiag
+                    : 1 + Math.min(prevDiag, row[j], row[j - 1]);
+            prevDiag = temp;
+        }
+    }
+    return row[n];
+}
+
+// Conservative near-miss fold: only for labels that are close enough to be
+// an obvious typo of a rostered team, and long enough that a short/generic
+// label ("FC") can't accidentally match. Ties (two teams equally close) are
+// treated as ambiguous and are not folded.
+function findNearMissTeam(
+    label: string | undefined,
+    teams: readonly KnownTeam[]
+): KnownTeam | undefined {
+    if (!label) return undefined;
+    const nLabel = normalize(label);
+    let best: { team: KnownTeam; distance: number } | undefined;
+    let ambiguous = false;
+    for (const t of teams) {
+        const nName = normalize(t.name);
+        if (Math.min(nLabel.length, nName.length) < 6) continue;
+        const distance = levenshtein(nLabel, nName);
+        if (distance > 2) continue;
+        if (!best || distance < best.distance) {
+            best = { team: t, distance };
+            ambiguous = false;
+        } else if (distance === best.distance) {
+            ambiguous = true;
+        }
+    }
+    return ambiguous ? undefined : best?.team;
+}
+
 const SUB_RE = /\(?\bsub(stitute)?\b\)?/i;
 const SCORE_RE = /(\d+)\s*[-–—]\s*(\d+)/;
 const RESULT_RE = /\b([WDL])\b/i;
@@ -65,7 +115,7 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     const normTitle = normalize(cleanTitle);
 
     // 3. Team — normalized dictionary substring match.
-    const team = input.teams.find((t) => normTitle.includes(normalize(t.name)));
+    let team = input.teams.find((t) => normTitle.includes(normalize(t.name)));
 
     // 4. Split the cleaned title on "Team - League" style separators. The
     // last segment (when there are >= 2) is the explicit league claim; the
@@ -120,10 +170,56 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     const a = ASSISTS_RE.exec(hay);
     if (a) base.assists = Number(a[1]);
 
-    // 9. Resolve team vs guest.
+    // 9. Extract the non-league team label — the same label guests are
+    // recorded under. Computed unconditionally (not just on the guest path)
+    // so the near-miss fold below can compare it against rostered team names
+    // before the team-vs-guest decision is made. When a blessed league is
+    // recognized, the label is whatever segment(s) are left after dropping
+    // the one segment that IS the recognized league (identified by an exact
+    // match, not substring containment, so a guest name that merely contains
+    // the league word — e.g. "Volo Rebels" vs league "Volo" — survives
+    // intact). This is order-independent, so "NYC Footy - FA Orange Julius"
+    // and "ABCDE FC - NYC Footy" both yield the correct team-only label. If
+    // no segment is an exact match (e.g. the league was only recognized as a
+    // substring inside a single no-separator segment), fall back to treating
+    // the last segment as the (unrecognized) league claim, same as when no
+    // blessed league is recognized at all.
+    let label: string | undefined;
+    if (league) {
+        const nLeague = normalize(league);
+        const leagueSegIndex = segments.findIndex(
+            (s) => normalize(s.replace(FORMAT_RE, "").trim()) === nLeague
+        );
+        if (leagueSegIndex !== -1) {
+            const remaining = segments.filter((_, i) => i !== leagueSegIndex);
+            label = remaining.join(" ").trim() || undefined;
+        } else {
+            label = preLeagueSegments.join(" ").trim() || undefined;
+        }
+    } else {
+        label = preLeagueSegments.join(" ").trim() || undefined;
+    }
+
+    // 10. Near-miss fold: only when the exact substring match (step 3) found
+    // nothing. Folds a conservative typo of a rostered team's name (e.g.
+    // "Charlie Cheer FC" missing the "s") to that team instead of letting it
+    // become a phantom guest. The known-team branch below then handles it
+    // exactly like a real match (teamId/league + league-mismatch flag), with
+    // an added non-blocking info flag naming the auto-correction.
+    let autoMatchFlag: string | undefined;
+    if (!team) {
+        const nearMiss = findNearMissTeam(label, input.teams);
+        if (nearMiss) {
+            team = nearMiss;
+            autoMatchFlag = `Title team "${label}" ≈ ${team.name} (auto-matched; fix the Strava title if wrong).`;
+        }
+    }
+
+    // 11. Resolve team vs guest.
     if (team) {
         base.teamId = team.id;
         base.league = team.league;
+        if (autoMatchFlag) flags.push(autoMatchFlag);
         if (league) {
             if (normalize(league) !== normalize(team.league)) {
                 flags.push(
@@ -140,33 +236,7 @@ export function parseActivity(input: ParseInput): ParsedMatch {
             base.blocking = true;
         }
     } else {
-        // No rostered team. When a blessed league is recognized, the guest
-        // label is whatever segment(s) are left after dropping the one
-        // segment that IS the recognized league (identified by an exact
-        // match, not substring containment, so a guest name that merely
-        // contains the league word — e.g. "Volo Rebels" vs league "Volo" —
-        // survives intact). This is order-independent, so "NYC Footy - FA
-        // Orange Julius" and "ABCDE FC - NYC Footy" both yield the correct
-        // team-only label. If no segment is an exact match (e.g. the league
-        // was only recognized as a substring inside a single no-separator
-        // segment), fall back to treating the last segment as the
-        // (unrecognized) league claim, same as when no blessed league is
-        // recognized at all.
-        let label: string | undefined;
-        if (league) {
-            const nLeague = normalize(league);
-            const leagueSegIndex = segments.findIndex(
-                (s) => normalize(s.replace(FORMAT_RE, "").trim()) === nLeague
-            );
-            if (leagueSegIndex !== -1) {
-                const remaining = segments.filter((_, i) => i !== leagueSegIndex);
-                label = remaining.join(" ").trim() || undefined;
-            } else {
-                label = preLeagueSegments.join(" ").trim() || undefined;
-            }
-        } else {
-            label = preLeagueSegments.join(" ").trim() || undefined;
-        }
+        // No rostered team, and no near-miss fold applied either.
         base.guest = { team: label, format };
         if (league) {
             base.league = league;

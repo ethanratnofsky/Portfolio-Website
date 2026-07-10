@@ -164,3 +164,22 @@ test("no score at all is blocking regardless of league/team resolution", () => {
     assert.equal(r.blocking, true);
     assert.ok(r.flags.some((f) => /score/i.test(f)));
 });
+
+test("a one-typo rostered team name folds to the rostered team (auto-matched, non-blocking)", () => {
+    const r = parse("Charlie Cheer FC - Volo", "W 5-4");
+    assert.equal(r.teamId, "charlie-cheers");
+    assert.equal(r.blocking, false);
+    assert.ok(r.flags.some((f) => /auto-matched/i.test(f)));
+});
+
+test("a clearly different guest name does not fold to a rostered team", () => {
+    const r = parse("FA Goalmates - NYC Footy", "W 2-0");
+    assert.equal(r.teamId, undefined);
+    assert.equal(r.guest?.team, "FA Goalmates");
+    assert.ok(!r.flags.some((f) => /auto-matched/i.test(f)));
+});
+
+test("a short/ambiguous label does not fold (length guard)", () => {
+    const r = parse("FC - NYC Footy", "W 1-0");
+    assert.equal(r.teamId, undefined);
+});
