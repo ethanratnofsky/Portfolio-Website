@@ -166,7 +166,7 @@ export function matchTeam(m: Match, index: number): MatchTeam {
         league: g.league ?? null,
         division: g.level,
         format: g.format,
-        venue: undefined,
+        venue: g.venue,
         isGuest: true,
         sub,
         // Lowercased so case variants of the same guest team ("Real Sosobad"

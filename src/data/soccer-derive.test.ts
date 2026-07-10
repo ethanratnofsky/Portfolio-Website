@@ -42,8 +42,9 @@ test("record formats w–d–l with en dashes", () => {
 });
 
 test("Spring 2026 (sealed) record is pinned against W/D/L flips", () => {
-    // Computed from the 22 spring-2026 matches in matches.json: 14 W, 1 D, 7 L.
-    assert.equal(record(seasonAgg("spring-2026")), "14–1–7");
+    // Computed from the 23 spring-2026 matches in matches.json (incl. the
+    // Real Sosobad guest sub, a Spring win): 15 W, 1 D, 7 L.
+    assert.equal(record(seasonAgg("spring-2026")), "15–1–7");
 });
 
 test("matchTeam resolves a rostered team from teamId", () => {
@@ -64,6 +65,7 @@ test("matchTeam falls back to guest label, then [Unknown team]", () => {
                 team: "Real Sosobad",
                 league: "NYC Soccer",
                 level: "Div 2",
+                venue: "outdoor",
             },
         } as Match,
         0
@@ -71,6 +73,7 @@ test("matchTeam falls back to guest label, then [Unknown team]", () => {
     assert.equal(labelled.name, "Real Sosobad");
     assert.equal(labelled.league, "NYC Soccer");
     assert.equal(labelled.division, "Div 2");
+    assert.equal(labelled.venue, "outdoor"); // guests can carry a venue
     assert.equal(labelled.isGuest, true);
     assert.equal(labelled.groupKey, "guest:real sosobad");
 
@@ -122,15 +125,34 @@ test("matchTeamLog formats rostered and guest teams", () => {
         groupKey: "guest:x",
     };
     assert.equal(matchTeamLog(guest), "NYC SOCCER · DIV 2 · 7V7");
+
+    const guestWithVenue: MatchTeam = {
+        name: "x",
+        league: "NYC Footy",
+        division: "P3",
+        format: "7v7",
+        venue: "outdoor",
+        isGuest: true,
+        sub: true,
+        groupKey: "guest:x",
+    };
+    assert.equal(matchTeamLog(guestWithVenue), "NYC FOOTY · P3 · 7V7 OUT");
 });
 
 test("seasonTeamRows derives Spring 2026 (sealed) team rows from matches", () => {
     const rows = seasonTeamRows("spring-2026");
+    // Rostered teams in teamIds order, then the Real Sosobad guest (a Spring
+    // sub) appended after, in first-appearance order.
     assert.deepEqual(
         rows.map((r) => r.team.name),
-        ["Charlie Cheers FC", "ABCDE FC", "FA Seven Wonders of the Goal"]
+        [
+            "Charlie Cheers FC",
+            "ABCDE FC",
+            "FA Seven Wonders of the Goal",
+            "Real Sosobad",
+        ]
     );
-    assert.equal(teamCount("spring-2026"), 3);
+    assert.equal(teamCount("spring-2026"), 4);
     const charlie = rows[0];
     assert.equal(charlie.agg.played, 8);
     assert.equal(charlie.agg.goals, 7);

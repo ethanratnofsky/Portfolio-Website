@@ -457,7 +457,7 @@
     {
         "stravaId": 18923663468,
         "date": "2026-06-14",
-        "seasonId": "summer-2026",
+        "seasonId": "spring-2026",
         "result": "W",
         "score": [7, 1],
         "goals": 1,
@@ -467,7 +467,8 @@
             "team": "Real Sosobad",
             "league": "NYC Footy",
             "format": "7v7",
-            "level": "P3"
+            "level": "P3",
+            "venue": "outdoor"
         }
     },
     {

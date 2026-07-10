@@ -68,6 +68,7 @@ export interface Match {
         league?: League;
         format?: string;
         level?: string;
+        venue?: "outdoor" | "indoor";
     };
 }
 
