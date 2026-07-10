@@ -1,1 +1,326 @@
-{}
+{
+    "16419561382": {
+        "score": [12, 6],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16420077097": {
+        "score": [5, 6],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16479122081": {
+        "score": [10, 5],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16490724953": {
+        "score": [5, 12],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16624326904": {
+        "score": [7, 8],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16624523453": {
+        "score": [9, 11],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16677601097": {
+        "score": [9, 6],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16689808356": {
+        "score": [5, 16],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16743028680": {
+        "score": [5, 7],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "16753751643": {
+        "score": [11, 4],
+        "goals": 3,
+        "assists": 2,
+        "goalsIsMinimum": false
+    },
+    "17029668520": {
+        "score": [11, 5],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "17054064493": {
+        "score": [13, 5],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "17110328491": {
+        "score": [9, 12],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "17110952704": {
+        "score": [13, 1],
+        "goals": 5,
+        "assists": 0,
+        "goalsIsMinimum": true
+    },
+    "17134645754": {
+        "score": [15, 5],
+        "goals": 3,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "17189667714": {
+        "score": [7, 11],
+        "goals": 2,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "17266681965": {
+        "score": [17, 0],
+        "goals": 2,
+        "assists": 0,
+        "goalsIsMinimum": true
+    },
+    "17267402947": {
+        "score": [11, 3],
+        "goals": 3,
+        "assists": 0,
+        "goalsIsMinimum": true
+    },
+    "17291034043": {
+        "score": [7, 6],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "17346501250": {
+        "score": [7, 19],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "17368737982": {
+        "score": [10, 4],
+        "goals": 3,
+        "assists": 0,
+        "goalsIsMinimum": true
+    },
+    "17422857841": {
+        "score": [10, 5],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "17446099023": {
+        "score": [17, 2],
+        "goals": 2,
+        "assists": 0,
+        "goalsIsMinimum": true
+    },
+    "17990857907": {
+        "score": [1, 1],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18007488791": {
+        "score": [2, 0],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18019755504": {
+        "score": [8, 1],
+        "goals": 2,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18082710174": {
+        "score": [2, 0],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18098968777": {
+        "score": [2, 4],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18111810238": {
+        "score": [6, 2],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18204724197": {
+        "score": [8, 0],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18270452483": {
+        "score": [4, 1],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18285999703": {
+        "score": [1, 2],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18298899541": {
+        "score": [2, 0],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18362759056": {
+        "score": [4, 1],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18379503436": {
+        "score": [2, 7],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18392012188": {
+        "score": [2, 3],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18456349387": {
+        "score": [4, 1],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18470624487": {
+        "score": [4, 2],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18484264206": {
+        "score": [6, 2],
+        "goals": 2,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18548568658": {
+        "score": [4, 0],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18562211607": {
+        "score": [0, 4],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18574833828": {
+        "score": [5, 2],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18667831579": {
+        "score": [2, 4],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18733577495": {
+        "score": [4, 0],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18749166016": {
+        "score": [1, 8],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "18923663468": {
+        "score": [7, 1],
+        "goals": 1,
+        "assists": 1,
+        "goalsIsMinimum": false
+    },
+    "18965370003": {
+        "score": [5, 4],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "19055530825": {
+        "score": [1, 3],
+        "goals": 0,
+        "assists": 1,
+        "goalsIsMinimum": false
+    },
+    "19103294763": {
+        "score": [4, 1],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "19116538506": {
+        "score": [8, 2],
+        "goals": 2,
+        "assists": 0,
+        "goalsIsMinimum": true
+    },
+    "19144012113": {
+        "score": [2, 0],
+        "goals": 2,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "19194349667": {
+        "score": [6, 1],
+        "goals": 3,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "19207233752": {
+        "score": [0, 3],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "19235340534": {
+        "score": [2, 6],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    }
+}
