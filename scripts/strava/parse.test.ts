@@ -215,3 +215,26 @@ test("ignore matching only applies to the title, not the description", () => {
     assert.equal(r.isMatch, true);
     assert.equal(r.teamId, "fa-blast");
 });
+
+test("a title matching multiple same-named team entries is not guessed; recorded as an ambiguous guest", () => {
+    const teams = [
+        { id: "cc-a", name: "Charlie Cheers FC", league: "NYC Footy" },
+        { id: "cc-b", name: "Charlie Cheers FC", league: "NYC Footy" },
+    ];
+    const r = parseActivity({
+        title: "Charlie Cheers FC - Volo",
+        description: "W 2-0",
+        teams,
+        leagues: LEAGUES,
+    });
+    assert.equal(r.teamId, undefined);
+    assert.equal(r.guest?.team, "Charlie Cheers FC");
+    assert.equal(r.blocking, false);
+    assert.ok(r.flags.some((f) => /multiple team entries/i.test(f)));
+});
+
+test("a single-name team among an otherwise-multi-team roster still resolves normally", () => {
+    const r = parse("FA Blast From the Past - NYC Footy", "W 4-1\n\n1 G");
+    assert.equal(r.teamId, "fa-blast");
+    assert.ok(!r.flags.some((f) => /multiple team entries/i.test(f)));
+});

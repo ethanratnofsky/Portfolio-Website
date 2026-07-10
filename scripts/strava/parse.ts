@@ -136,8 +136,25 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     const cleanTitle = rawTitle.replace(SUB_RE, " ");
     const normTitle = normalize(cleanTitle);
 
-    // 3. Team — normalized dictionary substring match.
-    let team = input.teams.find((t) => normTitle.includes(normalize(t.name)));
+    // 3. Team — normalized dictionary substring match. With per-season teams,
+    // several TEAMS entries can share a display name (e.g. three "Charlie
+    // Cheers FC", one per season). Collect ALL teams whose normalized name
+    // is contained in the title rather than taking the first: if exactly one
+    // matches, resolve it as before; if more than one matches, don't guess —
+    // treat the team as unresolved (falls through to the guest path below)
+    // and flag the ambiguity so a human assigns the season by hand.
+    const titleMatches = input.teams.filter((t) =>
+        normTitle.includes(normalize(t.name))
+    );
+    let team = titleMatches.length === 1 ? titleMatches[0] : undefined;
+    const multiMatchFlag =
+        titleMatches.length > 1
+            ? `Title matches multiple team entries (${titleMatches
+                  .map((t) => t.id)
+                  .join(
+                      ", "
+                  )}); recorded as a guest — assign the season by hand.`
+            : undefined;
 
     // 4. Split the cleaned title on "Team - League" style separators. The
     // last segment (when there are >= 2) is the explicit league claim; the
@@ -223,13 +240,17 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     }
 
     // 10. Near-miss fold: only when the exact substring match (step 3) found
-    // nothing. Folds a conservative typo of a rostered team's name (e.g.
-    // "Charlie Cheer FC" missing the "s") to that team instead of letting it
-    // become a phantom guest. The known-team branch below then handles it
-    // exactly like a real match (teamId/league + league-mismatch flag), with
-    // an added non-blocking info flag naming the auto-correction.
+    // nothing at all — never when it found more than one (an exact-name
+    // ambiguity takes precedence over fuzzy matching; guessing among
+    // several exact matches via typo-distance would be even less justified
+    // than guessing among them directly). Folds a conservative typo of a
+    // rostered team's name (e.g. "Charlie Cheer FC" missing the "s") to that
+    // team instead of letting it become a phantom guest. The known-team
+    // branch below then handles it exactly like a real match (teamId/league
+    // + league-mismatch flag), with an added non-blocking info flag naming
+    // the auto-correction.
     let autoMatchFlag: string | undefined;
-    if (!team) {
+    if (!team && titleMatches.length === 0) {
         const nearMiss = findNearMissTeam(label, input.teams);
         if (nearMiss) {
             team = nearMiss;
@@ -259,6 +280,7 @@ export function parseActivity(input: ParseInput): ParsedMatch {
         }
     } else {
         // No rostered team, and no near-miss fold applied either.
+        if (multiMatchFlag) flags.push(multiMatchFlag);
         base.guest = { team: label, format };
         if (league) {
             base.league = league;

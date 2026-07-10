@@ -76,3 +76,60 @@ test("known id with missing snapshot baseline and an identical draft does not th
     assert.ok(r.snapshot["1"]);
     assert.deepEqual(r.snapshot["1"].score, [4, 2]);
 });
+
+test("update preserves curated teamId/seasonId even when the re-derived draft has a different identity", () => {
+    const repo = draft({
+        teamId: "charlie-cheers-summer",
+        seasonId: "summer-2026",
+    });
+    const restrava: any = draft({
+        score: [3, 2],
+        goals: 2,
+        assists: 0,
+    });
+    // Simulate the importer re-deriving a *different* identity for the same
+    // stravaId (e.g. an ambiguous team name folded to a guest instead).
+    delete restrava.teamId;
+    delete restrava.seasonId;
+    restrava.guest = { team: "Some Guest FC", league: "Volo" };
+
+    const r = mergeImports([repo], snap(), [restrava]);
+    assert.equal(r.updated.length, 1);
+    assert.equal(r.matches[0].teamId, "charlie-cheers-summer");
+    assert.equal(r.matches[0].seasonId, "summer-2026");
+    assert.equal(r.matches[0].guest, undefined);
+    assert.deepEqual(r.matches[0].score, [3, 2]);
+    assert.equal(r.matches[0].goals, 2);
+    assert.equal(r.matches[0].assists, 0);
+});
+
+test("update preserves repo's guest and sub when the draft carries a (different) resolved teamId", () => {
+    const repo = draft({ guest: { team: "Some Guest FC", league: "Volo" } });
+    delete (repo as any).teamId;
+    (repo as any).sub = true;
+    const restrava: any = draft({ score: [3, 2] });
+    // Draft re-resolved a rostered team where the repo had recorded a guest.
+    restrava.teamId = "charlie-cheers-fall";
+
+    const r = mergeImports([repo], snap(), [restrava]);
+    assert.equal(r.updated.length, 1);
+    assert.equal(r.matches[0].teamId, undefined);
+    assert.deepEqual(r.matches[0].guest, {
+        team: "Some Guest FC",
+        league: "Volo",
+    });
+    assert.equal(r.matches[0].sub, true);
+    assert.deepEqual(r.matches[0].score, [3, 2]);
+});
+
+test("goalsIsMinimum does not linger true when the new draft omits it", () => {
+    const repo = draft({ goalsIsMinimum: true });
+    const baseline = snap({ goalsIsMinimum: true });
+    const restrava: any = draft({ score: [5, 2] });
+    delete restrava.goalsIsMinimum;
+
+    const r = mergeImports([repo], baseline, [restrava]);
+    assert.equal(r.updated.length, 1);
+    assert.equal(r.matches[0].goalsIsMinimum, undefined);
+    assert.deepEqual(r.matches[0].score, [5, 2]);
+});

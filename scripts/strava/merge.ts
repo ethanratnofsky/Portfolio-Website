@@ -84,7 +84,25 @@ export function mergeImports(
             );
             continue;
         }
-        matches[idx] = { ...repo, ...d };
+        // Only refresh the observable, Strava-derived fields. Curated
+        // identity (teamId/seasonId/guest/sub) is hand-assigned during
+        // reconciliation and must survive a re-import untouched, even when
+        // the importer re-derives a different identity for the same
+        // stravaId (e.g. an ambiguous team name that now folds to a guest).
+        const next: DraftMatch = {
+            ...repo,
+            date: d.date,
+            result: d.result,
+            score: d.score,
+            goals: d.goals,
+            assists: d.assists,
+        };
+        if ("goalsIsMinimum" in d) {
+            next.goalsIsMinimum = d.goalsIsMinimum;
+        } else {
+            delete next.goalsIsMinimum;
+        }
+        matches[idx] = next;
         snap[key] = stravaNow;
         res.updated.push(
             `updated ${label(d)}: ${prev.score[0]}–${prev.score[1]} → ${d.score[0]}–${d.score[1]}`
