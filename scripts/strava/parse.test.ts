@@ -183,3 +183,35 @@ test("a short/ambiguous label does not fold (length guard)", () => {
     const r = parse("FC - NYC Footy", "W 1-0");
     assert.equal(r.teamId, undefined);
 });
+
+test("a drop-in title is skipped, no flags", () => {
+    const r = parse("NYC Soccer - Drop-In", "W 5-3");
+    assert.equal(r.isMatch, false);
+    assert.equal(r.flags.length, 0);
+});
+
+test("a scrimmage title is skipped", () => {
+    assert.equal(parse("NYC Footy Scrimmage", "W 2-0").isMatch, false);
+});
+
+test("a night football title is skipped", () => {
+    assert.equal(parse("Night Football (Soccer)", "L 1-2").isMatch, false);
+});
+
+test("a pickup title (no separator) is skipped", () => {
+    assert.equal(parse("Sunday Pickup Game", "W 3-1").isMatch, false);
+});
+
+test("a normal match is unaffected by the ignore list", () => {
+    const r = parse("FA Blast From the Past - NYC Footy", "W 4-1\n\n1 G");
+    assert.equal(r.isMatch, true);
+});
+
+test("ignore matching only applies to the title, not the description", () => {
+    const r = parse(
+        "FA Blast From the Past - NYC Footy",
+        "W 4-1\n\nGreat pickup game energy today, 1 G"
+    );
+    assert.equal(r.isMatch, true);
+    assert.equal(r.teamId, "fa-blast");
+});

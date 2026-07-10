@@ -81,6 +81,12 @@ function findNearMissTeam(
     return ambiguous ? undefined : best?.team;
 }
 
+// Owner-extendable list of non-league activity markers (pickup games,
+// scrimmages, drop-ins, etc.) — add new terms here as they come up. Matched
+// case-insensitively with word boundaries against the TITLE ONLY (never the
+// description — see the comment at the call site).
+const IGNORE_RE = /\b(scrimmage|drop[\s-]?in|pick[\s-]?up|night football)\b/i;
+
 const SUB_RE = /\(?\bsub(stitute)?\b\)?/i;
 const SCORE_RE = /(\d+)\s*[-–—]\s*(\d+)/;
 const RESULT_RE = /\b([WDL])\b/i;
@@ -93,6 +99,22 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     const rawTitle = input.title ?? "";
     const rawDesc = input.description ?? "";
     const hay = `${rawTitle}\n${rawDesc}`;
+
+    // 0. Non-league activity (pickup/scrimmage/drop-in/etc.) — skip silently.
+    // Title only, deliberately: matching the free-form description risks
+    // silently dropping a real match whose notes happen to mention one of
+    // these words, which would be invisible data loss (no report line).
+    if (IGNORE_RE.test(rawTitle)) {
+        return {
+            isMatch: false,
+            sub: false,
+            goals: 0,
+            goalsIsMinimum: false,
+            assists: 0,
+            flags: [],
+            blocking: false,
+        };
+    }
 
     // 1. Is it a match? Needs a score or a W/D/L token in the description.
     const score = SCORE_RE.exec(rawDesc);
