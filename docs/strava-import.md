@@ -11,6 +11,12 @@ parses their title + description for match details, and opens a pull request aga
 about) and merge it. No stored totals exist anywhere — every number on the site
 recomputes from `MATCHES` at build time, so merging the PR is the only step.
 
+Pickup games, scrimmages, and drop-ins are skipped entirely (no PR line at all) — see
+[Post conventions](#5-post-conventions) for the marker list. Everything else gets a
+match date from Strava's `start_date_local` (your local wall-clock time at kickoff), so
+a late-evening game is dated the day you played it, not the day it rolled over to in
+UTC.
+
 The workflow runs **weekly** (Monday) and can also be triggered **on demand** from the
 Actions tab (`workflow_dispatch`, with an optional "rescan all seasons" input for a
 full backfill). Either way it only ever opens/updates a review PR — it never pushes
@@ -85,7 +91,7 @@ it needs the following in every match post:
 
 | What | Where | Format | Example |
 |---|---|---|---|
-| Team + league | **Title** | `Team - League` (separator can be `-`, `–`, `—`, `\|`, or `·`) | `FA Blast From the Past - NYC Footy` |
+| Team + league | **Title** | `Team - League` or `League - Team` — either order (separator can be `-`, `–`, `—`, `\|`, or `·`) | `FA Blast From the Past - NYC Footy` or `NYC Footy - FA Blast From the Past` |
 | Guest / substitute marker | **Title** | `(sub)` (or `sub`, `substitute`) anywhere in the title | `Real Sosobad (sub) - NYC Soccer` |
 | Result | **Description** | `W`, `D`, or `L` | `W` |
 | Score | **Description** | `N-N` (your goals – their goals; the separator regex also accepts an en dash `–` or em dash `—`, not just a hyphen) | `4-1` |
@@ -102,6 +108,14 @@ Notes on why this matters:
 - **Leagues are a blessed, closed set:** `NYC Footy`, `Volo`, `NYC Soccer` (see
   `LEAGUES` in `src/data/soccer.ts`). Anything else in the league position is flagged
   in the PR, never silently accepted or auto-created.
+- **A free-agent / one-off team name is recorded, not blocked, as long as the league
+  is one of the blessed three.** You don't need `(sub)` for this — a title like `FA
+  Orange Julius - NYC Footy` is recorded as a guest appearance under "FA Orange
+  Julius," with a non-blocking note in the PR so you can confirm it's really a one-off
+  and not a rostered team you forgot to add to `TEAMS`. `(sub)` still exists to mark a
+  guest appearance explicitly (e.g. subbing into a match for a team you don't
+  otherwise play for) and skips that note. What still blocks the import: an
+  **unrecognized league**, or a match with **no score**.
 - **Never write "0 G" or "0 A."** A missing goals/assists token means 0 — write the
   `G` token only in games where you actually scored, and the `A` token only when you
   had an assist.
@@ -111,9 +125,22 @@ Notes on why this matters:
 - A recognized team name anywhere in the title (e.g. `Charlie Cheers FC vs Riverside
   Rovers`, or a `(Home)`/`(Away)` tag) doesn't need an explicit `- League` segment —
   the team's own league is used automatically.
+- **A near-miss typo of a rostered team's name auto-matches to that team.** If the
+  title's team label is a small edit away from an existing entry in `TEAMS` (e.g.
+  `Charlie Cheer FC` for "Charlie Cheers FC"), the importer folds it to the rostered
+  team and adds a non-blocking note naming the correction — it doesn't invent a guest
+  row for what's really a typo. This is deliberately conservative (short edit
+  distance only, and only when it isn't ambiguous between two teams), so a genuinely
+  different team name is still treated as a guest or flagged normally.
 - An optional format token like `7v7` in the title is picked up automatically for
   guest appearances; you don't need to add it for rostered-team matches (the team's
   format is already known).
+- **Pickup games, scrimmages, and drop-ins are skipped entirely — no PR line at all.**
+  The importer checks the activity's **title** against a marker list (currently
+  `scrimmage`, `drop-in`/`dropin`/`drop in`, `pickup`/`pick-up`/`pick up`, and `night
+  football`) and silently ignores anything that matches, on the assumption it isn't a
+  league match worth tracking. If you use another recurring term for pickup soccer,
+  add it to the `IGNORE_RE` constant near the top of `scripts/strava/parse.ts`.
 
 ### Examples
 
@@ -130,6 +157,13 @@ Guest appearance, substitute, undercounted goals:
 > `2+ G` \
 > `1 A`
 
+Free-agent one-off, no `(sub)` needed — recorded as a guest row under "FA Orange
+Julius" with a non-blocking review note, since `NYC Footy` is a blessed league (title
+order doesn't matter here either):
+
+> **Title:** `NYC Footy - FA Orange Julius`
+> **Description:** `L 2-4`
+
 ## 6. Running the import
 
 - **Weekly:** the workflow runs automatically every Monday and only scans activities
@@ -142,27 +176,37 @@ Guest appearance, substitute, undercounted goals:
   summary of what was added, updated, or flagged. Review the diff and the PR body,
   then merge — nothing is written to `matches.json` outside of a PR you approve.
 
-## 7. Resolving a PR that flags an unknown team, league, or season
+## 7. Reading PR notes, and resolving a flag that blocks an activity
 
-The importer only ever writes **valid** data. When it can't make sense of something,
-it reports the activity in the PR body instead of writing it, using one of these
-flags:
+The PR body annotates every activity it touched with an `ℹ` or `⚠︎` line. The
+difference matters:
 
-- **Unrecognized team** on a non-sub match — the title's team name doesn't match any
-  entry in `TEAMS` (`src/data/soccer.ts`), and it isn't marked `(sub)`. Either:
-  - add the team to `TEAMS` in `src/data/soccer.ts` (id, name, league, division/format/
-    venue as applicable) if it's a team you actually play for, or
-  - add `(sub)` to the post's title if it was a one-off guest appearance, or
-  - fix a typo in the post's title so it matches an existing team.
-- **Unrecognized league** — the league segment in the title (or a guest post with no
-  recognized league at all) doesn't match `LEAGUES` in `src/data/soccer.ts`. Either add
-  the league to that blessed list, or correct the post to use one of the existing
-  three (`NYC Footy`, `Volo`, `NYC Soccer`).
-- **No season covers this date** — the activity's date doesn't fall within any
-  `Season.start`–`Season.end` range in `SEASONS` (`src/data/soccer.ts`). Add a new
-  season, or extend an existing one's `start`/`end`.
-- **No score found** — the description has a `W`/`D`/`L` letter but no `N-N` score, so
-  the record can't be completed. Edit the post's description to add the score.
+- **`ℹ` (info) — the match was still recorded**, just with something worth a second
+  look. This covers the two guest-recording notes above (an unrecognized-but-blessed
+  team, or a near-miss typo auto-matched to a rostered team) and a result-letter/score
+  disagreement. No action is required; skim it, and fix the data model (or the next
+  post's title) only if the note reveals an actual mistake.
+- **`⚠︎` (blocking) — the activity was *not* written**, and needs a fix before it'll be
+  imported. There are three ways an activity ends up blocked:
+  - **Unrecognized league** — nothing in the title matches `LEAGUES`
+    (`src/data/soccer.ts`), whether or not a team was also recognized. Either add the
+    league to that blessed list, or correct the post to use one of the existing three
+    (`NYC Footy`, `Volo`, `NYC Soccer`).
+  - **No score found** — the description has a `W`/`D`/`L` letter but no `N-N` score,
+    so the record can't be completed. Edit the post's description to add the score.
+  - **No season covers this date** — the activity's date doesn't fall within any
+    `Season.start`–`Season.end` range in `SEASONS` (`src/data/soccer.ts`). Add a new
+    season, or extend an existing one's `start`/`end`.
+
+  Note that an **unrecognized team name is no longer blocking by itself** — as long as
+  the league is recognized, it's recorded as a guest row with an `ℹ` note (see
+  [Post conventions](#5-post-conventions)). If it's actually a rostered team, add it to
+  `TEAMS` in `src/data/soccer.ts` (id, name, league, division/format/venue as
+  applicable) so *future* activities for that team import correctly. The dedup
+  snapshot only tracks score/goals/assists, not team identity, so simply re-running
+  the import won't retroactively upgrade an already-written guest row to a
+  rostered-team match — edit that one entry in `src/data/matches.json` by hand if you
+  want it fixed too.
 
 After fixing the data model, re-run the workflow on demand (Actions tab → **Strava
 import** → **Run workflow**, with "rescan all seasons" checked if the activity is
