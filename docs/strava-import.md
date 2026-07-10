@@ -130,8 +130,10 @@ Notes on why this matters:
   `Charlie Cheer FC` for "Charlie Cheers FC"), the importer folds it to the rostered
   team and adds a non-blocking note naming the correction — it doesn't invent a guest
   row for what's really a typo. This is deliberately conservative (short edit
-  distance only, and only when it isn't ambiguous between two teams), so a genuinely
-  different team name is still treated as a guest or flagged normally.
+  distance only, both the label and the candidate team name must be at least 6
+  normalized characters long so a short label like `FC` can never auto-match, and
+  only when it isn't ambiguous between two teams), so a genuinely different team name
+  is still treated as a guest or flagged normally.
 - An optional format token like `7v7` in the title is picked up automatically for
   guest appearances; you don't need to add it for rostered-team matches (the team's
   format is already known).
@@ -188,10 +190,13 @@ difference matters:
   post's title) only if the note reveals an actual mistake.
 - **`⚠︎` (blocking) — the activity was *not* written**, and needs a fix before it'll be
   imported. There are three ways an activity ends up blocked:
-  - **Unrecognized league** — nothing in the title matches `LEAGUES`
-    (`src/data/soccer.ts`), whether or not a team was also recognized. Either add the
-    league to that blessed list, or correct the post to use one of the existing three
-    (`NYC Footy`, `Volo`, `NYC Soccer`).
+  - **Unrecognized league** — an *explicit* league segment (in `Team - League` or
+    `League - Team` form) doesn't match `LEAGUES` (`src/data/soccer.ts`), or neither a
+    team nor a league can be identified in the title at all. Either add the league to
+    that blessed list, or correct the post to use one of the existing three (`NYC
+    Footy`, `Volo`, `NYC Soccer`). Omitting the league segment entirely when a team
+    **is** recognized is fine — the team's own league is used automatically (see the
+    note under [Post conventions](#5-post-conventions)).
   - **No score found** — the description has a `W`/`D`/`L` letter but no `N-N` score,
     so the record can't be completed. Edit the post's description to add the score.
   - **No season covers this date** — the activity's date doesn't fall within any
