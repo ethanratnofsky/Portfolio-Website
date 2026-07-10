@@ -13,12 +13,18 @@
 export const LEAGUES = ["NYC Footy", "Volo", "NYC Soccer"] as const;
 export type League = (typeof LEAGUES)[number];
 
+/** NYC Footy tier (P1 strongest); some teams span two adjacent tiers. */
+export type Division = "P1" | "P2" | "P3" | "P4" | "P5" | "P2/P3" | "P3/P4";
+
 export interface Team {
     id: string;
     name: string;
+    /** Season this entry participates in — each team-season is its own TEAMS
+        entry (e.g. Charlie Cheers FC has one entry per season it played). */
+    seasonId: string;
     league: League;
-    /** NYC Footy tier (P1 strongest). Volo has no tiers — omit, never render. */
-    division?: "P1" | "P2" | "P3" | "P4" | "P5";
+    /** NYC Footy tier. Volo has no tiers — omit, never render. */
+    division?: Division;
     /** e.g. "7v7" | "8v8" | "6v6" */
     format: string;
     venue: "outdoor" | "indoor";
@@ -67,27 +73,111 @@ export interface Match {
 
 export const TEAMS: Team[] = [
     {
-        id: "charlie-cheers",
-        name: "Charlie Cheers FC",
+        id: "fa-orange-julius",
+        name: "FA Orange Julius",
+        seasonId: "fall-2025",
         league: "NYC Footy",
-        division: "P4", // TODO(ethan): set the real P1–P5 tier
+        division: "P3",
+        format: "5v5",
+        venue: "indoor",
+    },
+    {
+        id: "fa-rapinoe-grigio",
+        name: "FA Rapinoe Grigio",
+        seasonId: "fall-2025",
+        league: "NYC Footy",
+        division: "P3",
+        format: "5v5",
+        venue: "indoor",
+    },
+    {
+        id: "fa-pretty-in-pink",
+        name: "FA Pretty in Pink",
+        seasonId: "fall-2025",
+        league: "NYC Footy",
+        division: "P4",
+        format: "7v7",
+        venue: "indoor",
+    },
+    {
+        id: "charlie-cheers-winter",
+        name: "Charlie Cheers FC",
+        seasonId: "winter-2025-26",
+        league: "Volo",
+        format: "7v7",
+        venue: "indoor",
+    },
+    {
+        id: "formerly-fate",
+        name: "Formerly Fate",
+        seasonId: "winter-2025-26",
+        league: "NYC Footy",
+        division: "P3",
+        format: "5v5",
+        venue: "indoor",
+    },
+    {
+        id: "fa-goalmates",
+        name: "FA Goalmates",
+        seasonId: "winter-2025-26",
+        league: "NYC Footy",
+        division: "P3",
+        format: "5v5",
+        venue: "indoor",
+    },
+    {
+        id: "charlie-cheers-spring",
+        name: "Charlie Cheers FC",
+        seasonId: "spring-2026",
+        league: "Volo",
+        format: "7v7",
+        venue: "outdoor",
+    },
+    {
+        id: "abcde-fc",
+        name: "ABCDE FC",
+        seasonId: "spring-2026",
+        league: "NYC Footy",
+        division: "P3",
+        format: "7v7",
+        venue: "outdoor",
+    },
+    {
+        id: "fa-seven-wonders",
+        name: "FA Seven Wonders of the Goal",
+        seasonId: "spring-2026",
+        league: "NYC Footy",
+        division: "P3/P4",
+        format: "7v7",
+        venue: "outdoor",
+    },
+    {
+        id: "charlie-cheers-summer",
+        name: "Charlie Cheers FC",
+        seasonId: "summer-2026",
+        league: "NYC Footy",
+        division: "P2/P3",
+        format: "6v6",
+        venue: "outdoor",
+    },
+    {
+        id: "salmon-roe",
+        // formerly posted on Strava as "FA Goal Oriented"
+        name: "Salmon Roe United",
+        seasonId: "summer-2026",
+        league: "NYC Footy",
+        division: "P3",
         format: "7v7",
         venue: "outdoor",
     },
     {
         id: "fa-blast",
         name: "FA Blast from the Past",
+        seasonId: "summer-2026",
         league: "NYC Footy",
-        division: "P3", // TODO(ethan): set the real P1–P5 tier
-        format: "8v8",
+        division: "P3",
+        format: "7v7",
         venue: "outdoor",
-    },
-    {
-        id: "salmon-roe",
-        name: "Salmon Roe United",
-        league: "Volo",
-        format: "6v6",
-        venue: "indoor",
     },
 ];
 
@@ -95,48 +185,42 @@ export const SEASONS: Season[] = [
     {
         id: "fall-2025",
         label: "Fall 2025",
-        months: "SEP — NOV",
+        months: "OCT — DEC",
         status: "sealed",
-        start: "2025-09-01",
-        end: "2025-11-15",
-        teamIds: ["charlie-cheers"],
+        start: "2025-10-01",
+        end: "2025-12-15",
+        teamIds: ["fa-orange-julius", "fa-rapinoe-grigio", "fa-pretty-in-pink"],
     },
     {
         id: "winter-2025-26",
         label: "Winter 2025 – 26",
-        months: "NOV — FEB",
+        months: "DEC — MAR",
         status: "sealed",
-        start: "2025-11-16",
-        end: "2026-02-28",
-        teamIds: ["charlie-cheers", "salmon-roe"],
+        start: "2025-12-16",
+        end: "2026-03-31",
+        teamIds: ["charlie-cheers-winter", "formerly-fate", "fa-goalmates"],
     },
     {
         id: "spring-2026",
         label: "Spring 2026",
-        months: "MAR — MAY",
+        months: "APR — JUN",
         status: "sealed",
-        start: "2026-03-01",
-        end: "2026-05-31",
-        teamIds: ["charlie-cheers", "fa-blast"],
+        start: "2026-04-01",
+        end: "2026-06-13",
+        teamIds: ["charlie-cheers-spring", "abcde-fc", "fa-seven-wonders"],
     },
     {
         id: "summer-2026",
         label: "Summer 2026",
         months: "JUN — AUG",
         status: "in-play",
-        start: "2026-06-01",
-        teamIds: ["charlie-cheers", "fa-blast", "salmon-roe"],
+        start: "2026-06-14",
+        teamIds: ["charlie-cheers-summer", "salmon-roe", "fa-blast"],
     },
 ];
 
-// TODO(ethan): the three sealed seasons in matches.json are PLACEHOLDERS from
-// the design handoff (result sequences and G/A per match match its charts;
-// dates, scores and team splits are invented). Backfill the real matches from
-// the Strava archive — every derived number recomputes. Summer 2026 is real.
-//
-// Append matches by hand, or let the Strava importer open a PR — see
-// docs/strava-import.md. Matches live in matches.json (not inline) so the
-// importer can write data without touching this file. `with { type: "json" }`
+// Matches live in matches.json (not inline) so the Strava importer can write
+// data without touching this file. `with { type: "json" }`
 // is required so
 // the Node-based importer (which imports this module directly) can load the
 // JSON; Vite/Astro accept the attribute too. The cast through `unknown` is
