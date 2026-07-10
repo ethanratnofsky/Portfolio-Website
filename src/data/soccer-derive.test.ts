@@ -4,6 +4,7 @@ import {
     allTime,
     matchTeam,
     matchTeamLog,
+    matchesBySeasonThenDate,
     record,
     seasonAgg,
     seasonTeamRows,
@@ -157,4 +158,38 @@ test("seasonTeamRows derives Spring 2026 (sealed) team rows from matches", () =>
     assert.equal(charlie.agg.played, 8);
     assert.equal(charlie.agg.goals, 7);
     assert.equal(charlie.agg.assists, 0);
+});
+
+test("matchesBySeasonThenDate makes each season a contiguous block, date-sorted within", () => {
+    const ms = matchesBySeasonThenDate();
+    assert.equal(ms.length, MATCHES.length); // nothing dropped
+
+    // Collapse consecutive season ids into runs; each season must appear in
+    // exactly one run (contiguous) and the runs must follow SEASONS order.
+    const runs: string[] = [];
+    for (const m of ms)
+        if (runs[runs.length - 1] !== m.seasonId) runs.push(m.seasonId);
+    assert.equal(
+        runs.length,
+        new Set(runs).size,
+        "each season is one contiguous block"
+    );
+    const present = SEASONS.map((s) => s.id).filter((id) => runs.includes(id));
+    assert.deepEqual(runs, present, "blocks follow SEASONS declaration order");
+
+    // Dates ascending within each season.
+    for (const s of SEASONS) {
+        const dates = ms.filter((m) => m.seasonId === s.id).map((m) => m.date);
+        assert.deepEqual(dates, [...dates].sort());
+    }
+
+    // The interleave bug this fixes: the Fall match dated 2025-12-14 must sort
+    // BEFORE the Winter match dated 2025-12-08 (season order beats raw date).
+    const iFall = ms.findIndex((m) => m.date === "2025-12-14");
+    const iWinter = ms.findIndex((m) => m.date === "2025-12-08");
+    assert.ok(iFall >= 0 && iWinter >= 0);
+    assert.ok(
+        iFall < iWinter,
+        "Fall 12-14 precedes Winter 12-08 under season-then-date"
+    );
 });

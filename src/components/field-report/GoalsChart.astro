@@ -9,20 +9,23 @@ import {
     allTime,
     currentSeason,
     goalsSuffix,
+    matchesBySeasonThenDate,
     matchesFor,
     record,
     seasonAgg,
     shortSeason,
-    sortedMatches,
 } from "../../data/soccer-derive";
 
-const all = sortedMatches();
+// Season-then-date order (not pure date) so each season is a contiguous block
+// and the dividers/labels below line up — real sessions overlap in December.
+const all = matchesBySeasonThenDate();
 const at = allTime();
 const current = currentSeason();
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
-/* Season spans over a chronological match list (matches are contiguous
-   per season). Used for dashed boundaries + centered season labels. */
+/* Season spans over a season-then-date-ordered match list (so each season IS
+   a contiguous block — pass matchesBySeasonThenDate(), not a pure date sort).
+   Used for dashed boundaries + centered season labels. */
 interface Span {
     season: Season;
     start: number;

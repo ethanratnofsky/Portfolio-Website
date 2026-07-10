@@ -27,6 +27,23 @@ export function matchesFor(seasonId?: string): Match[] {
     return seasonId ? all.filter((m) => m.seasonId === seasonId) : all;
 }
 
+/** Matches ordered by season (as declared in SEASONS) then by date within each
+    season, so each season is a single contiguous block. The goals chart draws
+    season dividers by index and needs that; a pure date sort interleaves
+    seasons whose real-world sessions overlap in the calendar (e.g. Fall and
+    Winter both run in December). A stable sort by season rank preserves the
+    date order sortedMatches() already gives within each season; an unknown
+    seasonId (shouldn't happen — ids are validated) sorts last, never dropped. */
+export function matchesBySeasonThenDate(): Match[] {
+    const rank = (seasonId: string) => {
+        const i = SEASONS.findIndex((s) => s.id === seasonId);
+        return i === -1 ? SEASONS.length : i;
+    };
+    return [...sortedMatches()].sort(
+        (a, b) => rank(a.seasonId) - rank(b.seasonId)
+    );
+}
+
 export function teamById(id: string): Team {
     const team = TEAMS.find((t) => t.id === id);
     if (!team) throw new Error(`Unknown team id: ${id}`);
