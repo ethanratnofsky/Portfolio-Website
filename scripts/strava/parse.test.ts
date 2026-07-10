@@ -125,6 +125,15 @@ test("omitted team on a sub match → guest with no label", () => {
 test("an obvious format token is captured for guests", () => {
     const r = parse("Real Sosobad (sub) - NYC Soccer 7v7", "W 3-2");
     assert.equal(r.guest?.format, "7v7");
+    assert.equal(r.guest?.team, "Real Sosobad");
+});
+
+test("a guest label containing the league name as a substring is not corrupted", () => {
+    const r = parse("Volo Rebels - Volo", "W 2-1");
+    assert.equal(r.guest?.team, "Volo Rebels");
+    assert.equal(r.league, "Volo");
+    assert.equal(r.blocking, false);
+    assert.equal(r.teamId, undefined);
 });
 
 test('an opponent after "vs" makes no league claim and isn\'t blocking', () => {

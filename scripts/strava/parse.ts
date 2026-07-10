@@ -141,19 +141,29 @@ export function parseActivity(input: ParseInput): ParsedMatch {
         }
     } else {
         // No rostered team. When a blessed league is recognized, the guest
-        // label is whatever segment(s) are left after dropping the one that
-        // IS the recognized league — order-independent, so "NYC Footy - FA
+        // label is whatever segment(s) are left after dropping the one
+        // segment that IS the recognized league (identified by an exact
+        // match, not substring containment, so a guest name that merely
+        // contains the league word — e.g. "Volo Rebels" vs league "Volo" —
+        // survives intact). This is order-independent, so "NYC Footy - FA
         // Orange Julius" and "ABCDE FC - NYC Footy" both yield the correct
-        // team-only label. Without a blessed league, fall back to treating
-        // the last segment as the (unrecognized) league claim.
+        // team-only label. If no segment is an exact match (e.g. the league
+        // was only recognized as a substring inside a single no-separator
+        // segment), fall back to treating the last segment as the
+        // (unrecognized) league claim, same as when no blessed league is
+        // recognized at all.
         let label: string | undefined;
         if (league) {
             const nLeague = normalize(league);
-            const remaining = segments.filter((s) => {
-                const nSeg = normalize(s);
-                return !(nSeg.includes(nLeague) || nLeague.includes(nSeg));
-            });
-            label = remaining.join(" ").trim() || undefined;
+            const leagueSegIndex = segments.findIndex(
+                (s) => normalize(s.replace(FORMAT_RE, "").trim()) === nLeague
+            );
+            if (leagueSegIndex !== -1) {
+                const remaining = segments.filter((_, i) => i !== leagueSegIndex);
+                label = remaining.join(" ").trim() || undefined;
+            } else {
+                label = preLeagueSegments.join(" ").trim() || undefined;
+            }
         } else {
             label = preLeagueSegments.join(" ").trim() || undefined;
         }
@@ -180,7 +190,6 @@ export function parseActivity(input: ParseInput): ParsedMatch {
                 flags.push(
                     `Unrecognized team${label ? ` "${label}"` : ""} on a non-sub match — define the team or mark it (sub).`
                 );
-                base.blocking = true;
             }
         }
     }
