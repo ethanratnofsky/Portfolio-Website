@@ -80,14 +80,37 @@ test("(sub) sets sub and keeps an unknown team as a guest label (non-blocking)",
     assert.equal(r.blocking, false);
 });
 
-test("unknown team on a NON-sub match is blocking", () => {
+test("unknown team + recognized league on a NON-sub match is a non-blocking guest", () => {
     const r = parse("Some Random FC - NYC Footy", "W 2-0");
-    assert.equal(r.blocking, true);
-    assert.ok(r.flags.some((f) => /team/i.test(f)));
+    assert.equal(r.blocking, false);
+    assert.equal(r.teamId, undefined);
+    assert.equal(r.guest?.team, "Some Random FC");
+    assert.equal(r.league, "NYC Footy");
+    assert.ok(r.flags.some((f) => /guest/i.test(f)));
+});
+
+test("league-first order still yields a clean guest label", () => {
+    const r = parse("NYC Footy - FA Orange Julius", "L 4-6");
+    assert.equal(r.guest?.team, "FA Orange Julius");
+    assert.equal(r.league, "NYC Footy");
+    assert.equal(r.blocking, false);
+});
+
+test("team-last order yields a clean guest label", () => {
+    const r = parse("ABCDE FC - NYC Footy", "W 3-0");
+    assert.equal(r.guest?.team, "ABCDE FC");
+    assert.equal(r.league, "NYC Footy");
+    assert.equal(r.blocking, false);
 });
 
 test("unknown league is blocking and never auto-accepted", () => {
     const r = parse("Charlie Cheers FC - Beer League", "W 2-0");
+    assert.equal(r.blocking, true);
+    assert.ok(r.flags.some((f) => /league/i.test(f)));
+});
+
+test("unknown team AND unknown league on a NON-sub match is still blocking", () => {
+    const r = parse("Total Randoms - Beer League", "W 2-0");
     assert.equal(r.blocking, true);
     assert.ok(r.flags.some((f) => /league/i.test(f)));
 });

@@ -69,7 +69,9 @@ export function parseActivity(input: ParseInput): ParsedMatch {
 
     // 4. Split the cleaned title on "Team - League" style separators. The
     // last segment (when there are >= 2) is the explicit league claim; the
-    // segment(s) before it are the fallback guest label.
+    // segment(s) before it are the fallback guest label, used only when no
+    // blessed league is recognized (step 9 derives the order-independent
+    // label directly from `segments` once a blessed league is found).
     const segments = cleanTitle.split(/\s*[-–—|·]\s*/).map((s) => s.trim());
     const leagueSegment =
         segments.length >= 2 ? segments[segments.length - 1] : undefined;
@@ -138,27 +140,48 @@ export function parseActivity(input: ParseInput): ParsedMatch {
             base.blocking = true;
         }
     } else {
-        // No rostered team. The segment(s) before the league segment (if
-        // any) become the guest label.
-        const label = preLeagueSegments.join(" ").trim() || undefined;
+        // No rostered team. When a blessed league is recognized, the guest
+        // label is whatever segment(s) are left after dropping the one that
+        // IS the recognized league — order-independent, so "NYC Footy - FA
+        // Orange Julius" and "ABCDE FC - NYC Footy" both yield the correct
+        // team-only label. Without a blessed league, fall back to treating
+        // the last segment as the (unrecognized) league claim.
+        let label: string | undefined;
+        if (league) {
+            const nLeague = normalize(league);
+            const remaining = segments.filter((s) => {
+                const nSeg = normalize(s);
+                return !(nSeg.includes(nLeague) || nLeague.includes(nSeg));
+            });
+            label = remaining.join(" ").trim() || undefined;
+        } else {
+            label = preLeagueSegments.join(" ").trim() || undefined;
+        }
         base.guest = { team: label, format };
         if (league) {
             base.league = league;
             base.guest.league = league;
-        } else if (unrecognizedLeagueFlag) {
-            flags.push(unrecognizedLeagueFlag);
-            base.blocking = true;
+            // A recognized league makes this a legitimate free-agent/guest
+            // appearance rather than a data-entry error — record it
+            // without blocking, but leave a breadcrumb in case "guest" is
+            // actually a rostered team missing from TEAMS.
+            if (!base.sub) {
+                flags.push(
+                    `Recorded "${label ?? "[Unknown team]"}" as a guest team in ${league}. If this is a rostered team, add it to TEAMS.`
+                );
+            }
         } else {
             flags.push(
-                "Unrecognized league — add it to the blessed list or correct the post."
+                unrecognizedLeagueFlag ??
+                    "Unrecognized league — add it to the blessed list or correct the post."
             );
             base.blocking = true;
-        }
-        if (!base.sub) {
-            flags.push(
-                `Unrecognized team${label ? ` "${label}"` : ""} on a non-sub match — define the team or mark it (sub).`
-            );
-            base.blocking = true;
+            if (!base.sub) {
+                flags.push(
+                    `Unrecognized team${label ? ` "${label}"` : ""} on a non-sub match — define the team or mark it (sub).`
+                );
+                base.blocking = true;
+            }
         }
     }
     return base;
