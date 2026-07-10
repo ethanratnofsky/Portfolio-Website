@@ -7,19 +7,12 @@ import {
 } from "./client.ts";
 import { parseActivity } from "./parse.ts";
 import { mergeImports, type DraftMatch, type Snapshot } from "./merge.ts";
+import { matchDate, seasonForDate } from "./dates.ts";
 import { TEAMS, SEASONS, LEAGUES } from "../../src/data/soccer.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const MATCHES_PATH = `${ROOT}src/data/matches.json`;
 const SNAP_PATH = `${ROOT}src/data/.strava-snapshot.json`;
-
-function seasonForDate(iso: string): string | null {
-    const d = iso.slice(0, 10);
-    for (const s of SEASONS) {
-        if (d >= s.start && (!s.end || d <= s.end)) return s.id;
-    }
-    return null;
-}
 
 async function main() {
     const all = process.argv.includes("--all");
@@ -61,22 +54,23 @@ async function main() {
         });
         if (!parsed.isMatch) continue;
 
-        const seasonId = seasonForDate(detail.start_date);
+        const date = matchDate(detail);
+        const seasonId = seasonForDate(date, SEASONS);
         if (!seasonId) {
             reports.push(
-                `⚠︎ ${detail.start_date.slice(0, 10)} "${detail.name}": no season covers this date — add/extend a season.`
+                `⚠︎ ${date} "${detail.name}": no season covers this date — add/extend a season.`
             );
             continue;
         }
         if (parsed.blocking) {
             reports.push(
-                `⚠︎ ${detail.start_date.slice(0, 10)} "${detail.name}": ${parsed.flags.join(" ")}`
+                `⚠︎ ${date} "${detail.name}": ${parsed.flags.join(" ")}`
             );
             continue;
         }
         const m: DraftMatch = {
             stravaId: a.id,
-            date: detail.start_date.slice(0, 10),
+            date,
             seasonId,
             result: parsed.result!,
             score: parsed.score!,

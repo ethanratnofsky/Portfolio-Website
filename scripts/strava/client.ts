@@ -4,6 +4,7 @@ export interface StravaActivity {
     description: string;
     sport_type: string;
     start_date: string;
+    start_date_local: string;
 }
 export interface StravaCreds {
     clientId: string;
