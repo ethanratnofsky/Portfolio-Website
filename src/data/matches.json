@@ -551,5 +551,15 @@
         "goals": 1,
         "assists": 0,
         "teamId": "charlie-cheers-summer"
+    },
+    {
+        "stravaId": 19286805442,
+        "date": "2026-07-12",
+        "seasonId": "summer-2026",
+        "result": "L",
+        "score": [0, 2],
+        "goals": 0,
+        "assists": 0,
+        "teamId": "fa-blast"
     }
 ]
