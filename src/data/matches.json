@@ -631,5 +631,18 @@
             "team": "Charlie Cheers FC",
             "league": "NYC Footy"
         }
+    },
+    {
+        "stravaId": 19619388585,
+        "date": "2026-08-05",
+        "seasonId": "summer-2026",
+        "result": "W",
+        "score": [4, 1],
+        "goals": 2,
+        "assists": 1,
+        "guest": {
+            "team": "Charlie Cheers FC",
+            "league": "NYC Footy"
+        }
     }
 ]
