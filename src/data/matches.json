@@ -644,5 +644,28 @@
             "team": "Charlie Cheers FC",
             "league": "NYC Footy"
         }
+    },
+    {
+        "stravaId": 19688171889,
+        "date": "2026-08-10",
+        "seasonId": "summer-2026",
+        "result": "W",
+        "score": [4, 1],
+        "goals": 0,
+        "assists": 1,
+        "teamId": "salmon-roe"
+    },
+    {
+        "stravaId": 19718252028,
+        "date": "2026-08-12",
+        "seasonId": "summer-2026",
+        "result": "W",
+        "score": [5, 3],
+        "goals": 0,
+        "assists": 2,
+        "guest": {
+            "team": "Charlie Cheers FC",
+            "league": "NYC Footy"
+        }
     }
 ]

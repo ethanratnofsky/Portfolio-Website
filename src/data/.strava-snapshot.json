@@ -370,5 +370,17 @@
         "goals": 2,
         "assists": 1,
         "goalsIsMinimum": false
+    },
+    "19688171889": {
+        "score": [4, 1],
+        "goals": 0,
+        "assists": 1,
+        "goalsIsMinimum": false
+    },
+    "19718252028": {
+        "score": [5, 3],
+        "goals": 0,
+        "assists": 2,
+        "goalsIsMinimum": false
     }
 }
