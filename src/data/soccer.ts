@@ -173,7 +173,7 @@ export const TEAMS: Team[] = [
     },
     {
         id: "fa-blast",
-        name: "FA Blast from the Past",
+        name: "FA Blast from the Pass",
         seasonId: "summer-2026",
         league: "NYC Footy",
         division: "P3",
