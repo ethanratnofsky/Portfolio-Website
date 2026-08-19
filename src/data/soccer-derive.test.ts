@@ -193,3 +193,22 @@ test("matchesBySeasonThenDate makes each season a contiguous block, date-sorted 
         "Fall 12-14 precedes Winter 12-08 under season-then-date"
     );
 });
+
+// Guards the bug the season-scoped importer fixes: before team resolution was
+// scoped to the match's season, every "Charlie Cheers FC" title matched all
+// three of its team-seasons at once, and the importer filed the match as a
+// GUEST rather than guessing. Those rows split one rostered team into two
+// entities on the site. A guest label that is a rostered team name in that
+// same season is always a mis-recorded match.
+test("no guest match wears the name of a team rostered in its own season", () => {
+    const offenders = MATCHES.filter((m) => {
+        const label = m.guest?.team;
+        if (!label) return false;
+        return TEAMS.some(
+            (t) =>
+                t.seasonId === m.seasonId &&
+                t.name.toLowerCase() === label.toLowerCase()
+        );
+    }).map((m) => `${m.date} ${m.guest?.team} (${m.seasonId})`);
+    assert.deepEqual(offenders, []);
+});

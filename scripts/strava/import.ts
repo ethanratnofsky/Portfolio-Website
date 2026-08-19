@@ -40,22 +40,28 @@ async function main() {
         id: t.id,
         name: t.name,
         league: t.league,
+        seasonId: t.seasonId,
     }));
     const drafts: DraftMatch[] = [];
     const reports: string[] = [];
 
     for (const a of soccer) {
         const detail = await getActivity(token, a.id);
+        // The season is derived BEFORE parsing and handed to the parser:
+        // same-named team entries (one per season) are only separable by the
+        // match's own date. The isMatch check still runs before the
+        // missing-season report so non-match activities stay silent.
+        const date = matchDate(detail);
+        const seasonId = seasonForDate(date, SEASONS);
         const parsed = parseActivity({
             title: detail.name,
             description: detail.description ?? "",
             teams,
             leagues: LEAGUES,
+            seasonId: seasonId ?? undefined,
         });
         if (!parsed.isMatch) continue;
 
-        const date = matchDate(detail);
-        const seasonId = seasonForDate(date, SEASONS);
         if (!seasonId) {
             reports.push(
                 `⚠︎ ${date} "${detail.name}": no season covers this date — add/extend a season.`

@@ -2,12 +2,21 @@ export interface KnownTeam {
     id: string;
     name: string;
     league: string;
+    /** Season this entry plays in. Each team-season is its own TEAMS entry,
+        so several entries share a display name (three "Charlie Cheers FC",
+        one per season) — the season is what tells them apart. */
+    seasonId: string;
 }
 export interface ParseInput {
     title: string;
     description: string;
     teams: KnownTeam[];
     leagues: readonly string[];
+    /** Season the activity's date falls in — scopes team resolution to that
+        season's entries. Omitted only when no season covers the date, in
+        which case every entry stays in scope (the importer reports and drops
+        those matches anyway). */
+    seasonId?: string;
 }
 export interface ParsedMatch {
     isMatch: boolean;
@@ -136,27 +145,7 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     const cleanTitle = rawTitle.replace(SUB_RE, " ");
     const normTitle = normalize(cleanTitle);
 
-    // 3. Team — normalized dictionary substring match. With per-season teams,
-    // several TEAMS entries can share a display name (e.g. three "Charlie
-    // Cheers FC", one per season). Collect ALL teams whose normalized name
-    // is contained in the title rather than taking the first: if exactly one
-    // matches, resolve it as before; if more than one matches, don't guess —
-    // treat the team as unresolved (falls through to the guest path below)
-    // and flag the ambiguity so a human assigns the season by hand.
-    const titleMatches = input.teams.filter((t) =>
-        normTitle.includes(normalize(t.name))
-    );
-    let team = titleMatches.length === 1 ? titleMatches[0] : undefined;
-    const multiMatchFlag =
-        titleMatches.length > 1
-            ? `Title matches multiple team entries (${titleMatches
-                  .map((t) => t.id)
-                  .join(
-                      ", "
-                  )}); recorded as a guest — assign the season by hand.`
-            : undefined;
-
-    // 4. Split the cleaned title on "Team - League" style separators. The
+    // 3. Split the cleaned title on "Team - League" style separators. The
     // last segment (when there are >= 2) is the explicit league claim; the
     // segment(s) before it are the fallback guest label, used only when no
     // blessed league is recognized (step 9 derives the order-independent
@@ -167,13 +156,44 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     const preLeagueSegments =
         segments.length >= 2 ? segments.slice(0, -1) : segments;
 
-    // 5. League — a blessed dictionary substring match anywhere in the title
+    // 4. League — a blessed dictionary substring match anywhere in the title
     // always wins. Otherwise, an explicit (but unrecognized) league segment
     // is flagged rather than silently accepted or ignored.
     const league = input.leagues.find((l) => normTitle.includes(normalize(l)));
     const unrecognizedLeagueFlag = leagueSegment
         ? `Unrecognized league "${leagueSegment}" — add it to the blessed list or correct the post.`
         : undefined;
+
+    // 5. Team — normalized dictionary substring match, scoped to the season
+    // the match was played in. Each team-season is its own TEAMS entry, so a
+    // display name alone is ambiguous across seasons (three "Charlie Cheers
+    // FC") but unique within one: filtering by the match's own season is what
+    // resolves it, which is why this runs after the date-derived seasonId is
+    // known. A name that survives into two entries in the SAME season (one
+    // club fielding rosters in two leagues at once) is tie-broken by the
+    // league claimed in the title. Anything still ambiguous after both is not
+    // guessed: the team falls through to the guest path below with a flag, so
+    // a human assigns it by hand.
+    const inSeason = input.seasonId
+        ? input.teams.filter((t) => t.seasonId === input.seasonId)
+        : input.teams;
+    const titleMatches = inSeason.filter((t) =>
+        normTitle.includes(normalize(t.name))
+    );
+    let candidates = titleMatches;
+    if (candidates.length > 1 && league) {
+        const byLeague = candidates.filter(
+            (t) => normalize(t.league) === normalize(league)
+        );
+        if (byLeague.length === 1) candidates = byLeague;
+    }
+    let team = candidates.length === 1 ? candidates[0] : undefined;
+    const multiMatchFlag =
+        candidates.length > 1
+            ? `Title matches multiple team entries in the same season (${candidates
+                  .map((t) => t.id)
+                  .join(", ")}); recorded as a guest — assign the team by hand.`
+            : undefined;
 
     // 6. Format token (optional).
     const fmt = FORMAT_RE.exec(hay);
@@ -239,7 +259,7 @@ export function parseActivity(input: ParseInput): ParsedMatch {
         label = preLeagueSegments.join(" ").trim() || undefined;
     }
 
-    // 10. Near-miss fold: only when the exact substring match (step 3) found
+    // 10. Near-miss fold: only when the exact substring match (step 5) found
     // nothing at all — never when it found more than one (an exact-name
     // ambiguity takes precedence over fuzzy matching; guessing among
     // several exact matches via typo-distance would be even less justified
@@ -251,7 +271,7 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     // the auto-correction.
     let autoMatchFlag: string | undefined;
     if (!team && titleMatches.length === 0) {
-        const nearMiss = findNearMissTeam(label, input.teams);
+        const nearMiss = findNearMissTeam(label, inSeason);
         if (nearMiss) {
             team = nearMiss;
             autoMatchFlag = `Title team "${label}" ≈ ${team.name} (auto-matched; fix the Strava title if wrong).`;

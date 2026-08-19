@@ -2,14 +2,36 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseActivity, normalize } from "./parse.ts";
 
+const SEASON = "summer-2026";
 const TEAMS = [
-    { id: "charlie-cheers", name: "Charlie Cheers FC", league: "NYC Footy" },
-    { id: "fa-blast", name: "FA Blast from the Past", league: "NYC Footy" },
-    { id: "salmon-roe", name: "Salmon Roe United", league: "Volo" },
+    {
+        id: "charlie-cheers",
+        name: "Charlie Cheers FC",
+        league: "NYC Footy",
+        seasonId: SEASON,
+    },
+    {
+        id: "fa-blast",
+        name: "FA Blast from the Past",
+        league: "NYC Footy",
+        seasonId: SEASON,
+    },
+    {
+        id: "salmon-roe",
+        name: "Salmon Roe United",
+        league: "Volo",
+        seasonId: SEASON,
+    },
 ];
 const LEAGUES = ["NYC Footy", "Volo", "NYC Soccer"];
 const parse = (title: string, description: string) =>
-    parseActivity({ title, description, teams: TEAMS, leagues: LEAGUES });
+    parseActivity({
+        title,
+        description,
+        teams: TEAMS,
+        leagues: LEAGUES,
+        seasonId: SEASON,
+    });
 
 test("normalize is case/whitespace/punctuation insensitive", () => {
     assert.equal(
@@ -218,14 +240,25 @@ test("ignore matching only applies to the title, not the description", () => {
 
 test("a title matching multiple same-named team entries is not guessed; recorded as an ambiguous guest", () => {
     const teams = [
-        { id: "cc-a", name: "Charlie Cheers FC", league: "NYC Footy" },
-        { id: "cc-b", name: "Charlie Cheers FC", league: "NYC Footy" },
+        {
+            id: "cc-a",
+            name: "Charlie Cheers FC",
+            league: "NYC Footy",
+            seasonId: SEASON,
+        },
+        {
+            id: "cc-b",
+            name: "Charlie Cheers FC",
+            league: "NYC Footy",
+            seasonId: SEASON,
+        },
     ];
     const r = parseActivity({
         title: "Charlie Cheers FC - Volo",
         description: "W 2-0",
         teams,
         leagues: LEAGUES,
+        seasonId: SEASON,
     });
     assert.equal(r.teamId, undefined);
     assert.equal(r.guest?.team, "Charlie Cheers FC");
@@ -237,4 +270,116 @@ test("a single-name team among an otherwise-multi-team roster still resolves nor
     const r = parse("FA Blast From the Past - NYC Footy", "W 4-1\n\n1 G");
     assert.equal(r.teamId, "fa-blast");
     assert.ok(!r.flags.some((f) => /multiple team entries/i.test(f)));
+});
+
+// --- season-scoped team resolution ---------------------------------------
+// Each team-season is its own TEAMS entry, so "Charlie Cheers FC" is three
+// entries. The match's own season is what tells them apart.
+const CHARLIES = [
+    {
+        id: "charlie-cheers-winter",
+        name: "Charlie Cheers FC",
+        league: "Volo",
+        seasonId: "winter-2025-26",
+    },
+    {
+        id: "charlie-cheers-spring",
+        name: "Charlie Cheers FC",
+        league: "Volo",
+        seasonId: "spring-2026",
+    },
+    {
+        id: "charlie-cheers-summer",
+        name: "Charlie Cheers FC",
+        league: "NYC Footy",
+        seasonId: "summer-2026",
+    },
+];
+
+test("same-named entries across seasons resolve to the match's own season", () => {
+    const r = parseActivity({
+        title: "Charlie Cheers FC - NYC Footy",
+        description: "W 2-0\n1 G",
+        teams: CHARLIES,
+        leagues: LEAGUES,
+        seasonId: "summer-2026",
+    });
+    assert.equal(r.teamId, "charlie-cheers-summer");
+    assert.equal(r.league, "NYC Footy");
+    assert.equal(r.blocking, false);
+    assert.deepEqual(r.flags, []);
+});
+
+test("the same title in a different season resolves to that season's entry", () => {
+    const r = parseActivity({
+        title: "Charlie Cheers FC - Volo",
+        description: "L 1-2",
+        teams: CHARLIES,
+        leagues: LEAGUES,
+        seasonId: "spring-2026",
+    });
+    assert.equal(r.teamId, "charlie-cheers-spring");
+    assert.deepEqual(r.flags, []);
+});
+
+test("a typo folds to the rostered entry for the match's season", () => {
+    const r = parseActivity({
+        title: "Charlie Cheer FC - Volo",
+        description: "W 5-4",
+        teams: CHARLIES,
+        leagues: LEAGUES,
+        seasonId: "winter-2025-26",
+    });
+    assert.equal(r.teamId, "charlie-cheers-winter");
+    assert.ok(r.flags.some((f) => /auto-matched/i.test(f)));
+});
+
+test("two same-named entries in one season are tie-broken by the title's league", () => {
+    const teams = [
+        {
+            id: "cc-volo",
+            name: "Charlie Cheers FC",
+            league: "Volo",
+            seasonId: SEASON,
+        },
+        {
+            id: "cc-footy",
+            name: "Charlie Cheers FC",
+            league: "NYC Footy",
+            seasonId: SEASON,
+        },
+    ];
+    const r = parseActivity({
+        title: "Charlie Cheers FC - Volo",
+        description: "W 2-0",
+        teams,
+        leagues: LEAGUES,
+        seasonId: SEASON,
+    });
+    assert.equal(r.teamId, "cc-volo");
+    assert.ok(!r.flags.some((f) => /multiple team entries/i.test(f)));
+});
+
+test("a team from another season is never resolved, even as the only name match", () => {
+    const r = parseActivity({
+        title: "Charlie Cheers FC - Volo",
+        description: "W 2-0",
+        teams: [CHARLIES[0]],
+        leagues: LEAGUES,
+        seasonId: "summer-2026",
+    });
+    assert.equal(r.teamId, undefined);
+    assert.equal(r.guest?.team, "Charlie Cheers FC");
+    assert.equal(r.blocking, false);
+});
+
+test("without a season (no season covers the date) all entries stay in scope", () => {
+    const r = parseActivity({
+        title: "Charlie Cheers FC - Volo",
+        description: "W 2-0",
+        teams: CHARLIES,
+        leagues: LEAGUES,
+    });
+    assert.equal(r.teamId, undefined);
+    assert.ok(r.flags.some((f) => /multiple team entries/i.test(f)));
 });

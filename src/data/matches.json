@@ -581,10 +581,7 @@
         "score": [3, 3],
         "goals": 0,
         "assists": 1,
-        "guest": {
-            "team": "Charlie Cheers FC",
-            "league": "NYC Footy"
-        }
+        "teamId": "charlie-cheers-summer"
     },
     {
         "stravaId": 19395326293,
@@ -604,10 +601,7 @@
         "score": [3, 1],
         "goals": 0,
         "assists": 0,
-        "guest": {
-            "team": "Charlie Cheers FC",
-            "league": "NYC Footy"
-        }
+        "teamId": "charlie-cheers-summer"
     },
     {
         "stravaId": 19492189819,
@@ -627,10 +621,7 @@
         "score": [4, 5],
         "goals": 1,
         "assists": 0,
-        "guest": {
-            "team": "Charlie Cheers FC",
-            "league": "NYC Footy"
-        }
+        "teamId": "charlie-cheers-summer"
     },
     {
         "stravaId": 19619388585,
@@ -640,10 +631,7 @@
         "score": [4, 1],
         "goals": 2,
         "assists": 1,
-        "guest": {
-            "team": "Charlie Cheers FC",
-            "league": "NYC Footy"
-        }
+        "teamId": "charlie-cheers-summer"
     },
     {
         "stravaId": 19688171889,
@@ -663,9 +651,6 @@
         "score": [5, 3],
         "goals": 0,
         "assists": 2,
-        "guest": {
-            "team": "Charlie Cheers FC",
-            "league": "NYC Footy"
-        }
+        "teamId": "charlie-cheers-summer"
     }
 ]
