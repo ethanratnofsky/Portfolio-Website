@@ -652,5 +652,35 @@
         "goals": 0,
         "assists": 2,
         "teamId": "charlie-cheers-summer"
+    },
+    {
+        "stravaId": 19786211598,
+        "date": "2026-08-17",
+        "seasonId": "summer-2026",
+        "result": "L",
+        "score": [2, 5],
+        "goals": 1,
+        "assists": 0,
+        "teamId": "salmon-roe"
+    },
+    {
+        "stravaId": 19815782517,
+        "date": "2026-08-19",
+        "seasonId": "summer-2026",
+        "result": "W",
+        "score": [5, 3],
+        "goals": 1,
+        "assists": 0,
+        "teamId": "charlie-cheers-summer"
+    },
+    {
+        "stravaId": 19870039532,
+        "date": "2026-08-23",
+        "seasonId": "summer-2026",
+        "result": "D",
+        "score": [3, 3],
+        "goals": 2,
+        "assists": 0,
+        "teamId": "fa-blast"
     }
 ]
