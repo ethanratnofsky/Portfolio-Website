@@ -682,5 +682,15 @@
         "goals": 2,
         "assists": 0,
         "teamId": "fa-blast"
+    },
+    {
+        "stravaId": 19885094777,
+        "date": "2026-08-24",
+        "seasonId": "summer-2026",
+        "result": "L",
+        "score": [0, 5],
+        "goals": 0,
+        "assists": 0,
+        "teamId": "salmon-roe"
     }
 ]
