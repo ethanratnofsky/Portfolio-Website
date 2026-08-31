@@ -400,5 +400,11 @@
         "goals": 2,
         "assists": 0,
         "goalsIsMinimum": false
+    },
+    "19885094777": {
+        "score": [0, 5],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
     }
 }
