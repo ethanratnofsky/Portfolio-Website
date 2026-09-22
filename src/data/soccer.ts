@@ -43,10 +43,8 @@ export interface Season {
     /** Months range for the ledger, e.g. "JUN — AUG". */
     months: string;
     status: "in-play" | "sealed";
-    /** ISO date the season opens (inclusive) — used to assign imported matches. */
-    start: string;
-    /** ISO date the season closes (inclusive); omit while in-play. */
-    end?: string;
+    /** No authored dates: a season's range is derived from its teams' runs —
+        see seasonRange() in soccer-derive.ts. */
     teamIds: string[];
 }
 
@@ -253,8 +251,6 @@ export const SEASONS: Season[] = [
         label: "Fall 2025",
         months: "OCT — DEC",
         status: "sealed",
-        start: "2025-10-01",
-        end: "2025-12-15",
         teamIds: [
             "fa-orange-julius-fall-2025",
             "fa-rapinoe-grigio-fall-2025",
@@ -266,8 +262,6 @@ export const SEASONS: Season[] = [
         label: "Winter 2025 – 26",
         months: "DEC — MAR",
         status: "sealed",
-        start: "2025-12-16",
-        end: "2026-03-31",
         teamIds: [
             "charlie-cheers-winter-2025-26",
             "formerly-fate-winter-2025-26",
@@ -279,8 +273,6 @@ export const SEASONS: Season[] = [
         label: "Spring 2026",
         months: "APR — JUN",
         status: "sealed",
-        start: "2026-04-01",
-        end: "2026-06-13",
         teamIds: [
             "charlie-cheers-spring-2026",
             "abcde-fc-spring-2026",
@@ -292,7 +284,6 @@ export const SEASONS: Season[] = [
         label: "Summer 2026",
         months: "JUN — AUG",
         status: "sealed",
-        start: "2026-06-14",
         teamIds: [
             "charlie-cheers-summer-2026",
             "salmon-roe-summer-2026",
@@ -304,7 +295,6 @@ export const SEASONS: Season[] = [
         label: "Fall 2026",
         months: "SEP — NOV",
         status: "in-play",
-        start: "2026-09-01",
         teamIds: [
             "charlie-cheers-fall-2026",
             "abcde-fc-fall-2026",

@@ -7,6 +7,8 @@ import {
     matchesBySeasonThenDate,
     record,
     seasonAgg,
+    seasonRange,
+    seasonRanges,
     seasonTeamRows,
     teamCount,
 } from "./soccer-derive.ts";
@@ -257,5 +259,54 @@ test("every rostered match falls inside its team-season's run", () => {
         if (!t) return true;
         return m.date < t.start || (t.end !== undefined && m.date > t.end);
     }).map((m) => `${m.date} ${m.teamId}`);
+    assert.deepEqual(offenders, []);
+});
+
+test("seasonRange derives a season's window from its teams' runs", () => {
+    // spring-2026: charlie-cheers Apr 7–May 26, abcde-fc Apr 5–Jun 21,
+    // seven-wonders Apr 6–Jun 15 → earliest start, latest end.
+    assert.deepEqual(seasonRange("spring-2026"), {
+        id: "spring-2026",
+        start: "2026-04-05",
+        end: "2026-06-21",
+    });
+    assert.deepEqual(seasonRange("summer-2026"), {
+        id: "summer-2026",
+        start: "2026-06-17",
+        end: "2026-08-31",
+    });
+});
+
+test("seasonRanges covers every season and overlaps where reality overlaps", () => {
+    const ranges = seasonRanges();
+    assert.equal(ranges.length, SEASONS.length);
+    const by = (id: string) => ranges.find((r) => r.id === id)!;
+    // NYC Footy's fall session ran into Volo's winter one.
+    assert.ok(by("fall-2025").end! >= by("winter-2025-26").start);
+    // Spring's last week overlaps summer's first.
+    assert.ok(by("spring-2026").end! >= by("summer-2026").start);
+    // The Real Sosobad guest (2026-06-14) sits in spring and only spring —
+    // the hand-correction this model has to reproduce, not contradict.
+    assert.ok("2026-06-14" >= by("spring-2026").start);
+    assert.ok("2026-06-14" <= by("spring-2026").end!);
+    assert.ok("2026-06-14" < by("summer-2026").start);
+});
+
+// seasonRange() walks a season's teamIds to find its window, so a team entry
+// missing from its own season's roster would silently shrink that window —
+// and an id in teamIds with no entry would throw at build time. Both
+// directions have to hold.
+test("every team entry and its season agree on each other", () => {
+    const offenders: string[] = [];
+    for (const t of TEAMS) {
+        const s = SEASONS.find((s) => s.id === t.seasonId);
+        if (!s) offenders.push(`${t.id}: unknown seasonId ${t.seasonId}`);
+        else if (!s.teamIds.includes(t.id))
+            offenders.push(`${t.id}: missing from ${s.id}.teamIds`);
+    }
+    for (const s of SEASONS)
+        for (const id of s.teamIds)
+            if (!TEAMS.some((t) => t.id === id))
+                offenders.push(`${s.id}.teamIds: no entry for ${id}`);
     assert.deepEqual(offenders, []);
 });

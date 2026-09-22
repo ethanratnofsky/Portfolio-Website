@@ -1,4 +1,6 @@
-import type { Season } from "../../src/data/soccer.ts";
+// Type-only import: erased at compile time, so this stays a pure date module
+// with no runtime dependency on the data layer.
+import type { SeasonRange } from "../../src/data/soccer-derive.ts";
 
 /** Strava's `start_date_local` is an ISO string with a trailing `Z` that
  * actually encodes the athlete's local wall-clock time — so the correct
@@ -8,13 +10,16 @@ export function matchDate(detail: { start_date_local: string }): string {
     return detail.start_date_local.slice(0, 10);
 }
 
-export function seasonForDate(
+/** Every season whose range covers this date, in the order given. Sessions
+    overlap in reality, so this can legitimately return more than one — it
+    reports what it found rather than picking. Zero or two-plus is the
+    importer's cue to ask a human. */
+export function seasonsForDate(
     iso: string,
-    seasons: readonly Season[]
-): string | null {
+    ranges: readonly SeasonRange[]
+): string[] {
     const d = iso.slice(0, 10);
-    for (const s of seasons) {
-        if (d >= s.start && (!s.end || d <= s.end)) return s.id;
-    }
-    return null;
+    return ranges
+        .filter((r) => d >= r.start && (!r.end || d <= r.end))
+        .map((r) => r.id);
 }

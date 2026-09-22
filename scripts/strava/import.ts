@@ -7,8 +7,9 @@ import {
 } from "./client.ts";
 import { parseActivity } from "./parse.ts";
 import { mergeImports, type DraftMatch, type Snapshot } from "./merge.ts";
-import { matchDate, seasonForDate } from "./dates.ts";
+import { matchDate, seasonsForDate } from "./dates.ts";
 import { TEAMS, SEASONS, LEAGUES } from "../../src/data/soccer.ts";
+import { seasonRange, seasonRanges } from "../../src/data/soccer-derive.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const MATCHES_PATH = `${ROOT}src/data/matches.json`;
@@ -27,9 +28,15 @@ async function main() {
         );
     }
 
-    const seasons = [...SEASONS].sort((a, b) => a.start.localeCompare(b.start));
-    const inPlay = seasons.find((s) => s.status === "in-play");
-    const since = all ? seasons[0].start : (inPlay?.start ?? seasons[0].start);
+    const ranges = seasonRanges();
+    if (!ranges.length) throw new Error("No season has any team-season runs");
+    const earliest = ranges.reduce(
+        (a, r) => (r.start < a ? r.start : a),
+        ranges[0].start
+    );
+    const inPlay = SEASONS.find((s) => s.status === "in-play");
+    const inPlayStart = inPlay ? seasonRange(inPlay.id)?.start : undefined;
+    const since = all ? earliest : (inPlayStart ?? earliest);
     const afterEpoch = Math.floor(new Date(since).getTime() / 1000);
 
     const token = await refreshAccessToken(creds);
@@ -41,6 +48,8 @@ async function main() {
         name: t.name,
         league: t.league,
         seasonId: t.seasonId,
+        start: t.start,
+        end: t.end,
     }));
     const drafts: DraftMatch[] = [];
     const reports: string[] = [];

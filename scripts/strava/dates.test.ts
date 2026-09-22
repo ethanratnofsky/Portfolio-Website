@@ -1,31 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { matchDate, seasonForDate } from "./dates.ts";
-import type { Season } from "../../src/data/soccer.ts";
-
-// Local fixture, independent of src/data/soccer.ts — real SEASONS boundaries
-// change every import, so pinning these tests to it would make them as
-// fragile as the data. A sealed season (start+end) followed by an in-play
-// season (no end) exercises every branch of seasonForDate.
-const FIXTURE_SEASONS: Season[] = [
-    {
-        id: "fall-2025",
-        label: "Fall 2025",
-        months: "SEP — NOV",
-        status: "sealed",
-        start: "2025-09-01",
-        end: "2025-11-15",
-        teamIds: [],
-    },
-    {
-        id: "winter-2025-26",
-        label: "Winter 2025 – 26",
-        months: "DEC — MAR",
-        status: "in-play",
-        start: "2025-12-01",
-        teamIds: [],
-    },
-];
+import { matchDate, seasonsForDate } from "./dates.ts";
 
 test("matchDate uses the local calendar date, not UTC", () => {
     // Paired UTC start_date would be "2025-11-11T01:00:00Z" (rolls to the next
@@ -36,26 +11,30 @@ test("matchDate uses the local calendar date, not UTC", () => {
     );
 });
 
-test("seasonForDate: a date on a sealed season's start resolves to that season", () => {
-    assert.equal(seasonForDate("2025-09-01", FIXTURE_SEASONS), "fall-2025");
+const RANGES = [
+    { id: "spring-2026", start: "2026-04-05", end: "2026-06-21" },
+    { id: "summer-2026", start: "2026-06-17", end: "2026-08-31" },
+    { id: "fall-2026", start: "2026-09-01", end: "2026-11-30" },
+];
+
+test("seasonsForDate returns the one season covering a date", () => {
+    assert.deepEqual(seasonsForDate("2026-06-14", RANGES), ["spring-2026"]);
+    assert.deepEqual(seasonsForDate("2026-09-14", RANGES), ["fall-2026"]);
 });
 
-test("seasonForDate: a date on a sealed season's end resolves to that season", () => {
-    assert.equal(seasonForDate("2025-11-15", FIXTURE_SEASONS), "fall-2025");
+test("seasonsForDate returns every season covering an overlapped date", () => {
+    // Spring's last week and summer's first overlap — genuinely ambiguous.
+    assert.deepEqual(seasonsForDate("2026-06-18", RANGES), [
+        "spring-2026",
+        "summer-2026",
+    ]);
 });
 
-test("seasonForDate: an in-play season (no end) matches any date >= start", () => {
-    assert.equal(
-        seasonForDate("2025-12-01", FIXTURE_SEASONS),
-        "winter-2025-26"
-    );
-    assert.equal(
-        seasonForDate("2099-01-01", FIXTURE_SEASONS),
-        "winter-2025-26"
-    );
+test("seasonsForDate returns nothing for a date in a gap", () => {
+    assert.deepEqual(seasonsForDate("2026-03-01", RANGES), []);
 });
 
-test("seasonForDate: a date before all seasons or in a gap returns null", () => {
-    assert.equal(seasonForDate("2025-08-31", FIXTURE_SEASONS), null); // before all seasons
-    assert.equal(seasonForDate("2025-11-16", FIXTURE_SEASONS), null); // gap between seasons
+test("seasonsForDate treats a missing end as still running", () => {
+    const open = [{ id: "fall-2026", start: "2026-09-01" }];
+    assert.deepEqual(seasonsForDate("2027-01-01", open), ["fall-2026"]);
 });

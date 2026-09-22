@@ -65,6 +65,41 @@ export function currentSeason(): Season | undefined {
     return SEASONS.find((s) => s.status === "in-play");
 }
 
+export interface SeasonRange {
+    id: string;
+    /** Earliest start among the season's teams. */
+    start: string;
+    /** Latest end; undefined while any of its teams is still running. */
+    end?: string;
+}
+
+/** A season's calendar window, derived from its teams' runs rather than
+    authored. Seasons have no dates of their own: a season IS when its teams
+    played, so the two can never drift apart — which is exactly how an
+    open-ended in-play season came to swallow the whole of Fall 2026. Real
+    sessions overlap (a league's last week runs into the next one's first), so
+    two ranges legitimately can cover the same date; callers decide, they don't
+    get a guess. Returns undefined for a season with no teams. */
+export function seasonRange(seasonId: string): SeasonRange | undefined {
+    const teams = seasonById(seasonId).teamIds.map(teamById);
+    if (!teams.length) return undefined;
+    let start = teams[0].start;
+    let end: string | undefined = teams[0].end;
+    for (const t of teams.slice(1)) {
+        if (t.start < start) start = t.start;
+        // One open-ended run leaves the whole season open-ended.
+        if (end !== undefined)
+            end = t.end === undefined ? undefined : t.end > end ? t.end : end;
+    }
+    return { id: seasonId, start, end };
+}
+
+export function seasonRanges(): SeasonRange[] {
+    return SEASONS.map((s) => seasonRange(s.id)).filter(
+        (r): r is SeasonRange => r !== undefined
+    );
+}
+
 function aggregate(matches: Match[]): Agg {
     const agg: Agg = {
         played: matches.length,
