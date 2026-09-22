@@ -406,5 +406,35 @@
         "goals": 0,
         "assists": 0,
         "goalsIsMinimum": false
+    },
+    "19998218835": {
+        "score": [7, 3],
+        "goals": 1,
+        "assists": 2,
+        "goalsIsMinimum": true
+    },
+    "20165124400": {
+        "score": [2, 3],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "20178464289": {
+        "score": [2, 0],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "20192987983": {
+        "score": [0, 2],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "20262136422": {
+        "score": [12, 0],
+        "goals": 1,
+        "assists": 3,
+        "goalsIsMinimum": false
     }
 }
