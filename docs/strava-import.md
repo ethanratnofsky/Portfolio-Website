@@ -216,8 +216,13 @@ Footy`, `Volo`, `NYC Soccer`). Omitting the league segment entirely when a team
       guest.
     - **No season covers this date** — the date falls outside every season's
       derived range. Seasons have no dates of their own: a season's range is the
-      earliest `start` to the latest `end` across its teams, so fix this by adding
-      or extending a team-season run in `TEAMS`, not by editing `SEASONS`.
+      earliest `start` to the latest `end` across its teams. If a **rostered**
+      team has a gap here, fix it by adding or extending a team-season run in
+      `TEAMS`, not by editing `SEASONS`. If it's actually a genuine **guest/sub**
+      appearance in the off-season (e.g. a one-off `(sub)` match played when no
+      team-season is running), don't widen a rostered team's run just to
+      swallow it — add the match by hand with the season you mean, same as the
+      "Several seasons cover this date" case below.
     - **Several seasons cover this date** — a guest appearance landed in a window
       where two sessions overlap (they legitimately do; NYC Footy's fall session
       runs into Volo's winter one). Add the match by hand with the season you mean.
@@ -238,12 +243,15 @@ Footy`, `Volo`, `NYC Soccer`). Omitting the league segment entirely when a team
 `Season` carries no `start`/`end`. Its range is derived from its teams' runs
 (`seasonRange()` in `src/data/soccer-derive.ts`), because two hand-maintained
 date sources drift — and when they drifted, an open-ended in-play season
-absorbed a whole new season's matches without a single flag. Three build-time
+absorbed a whole new season's matches without a single flag. Four build-time
 invariants in `src/data/soccer-derive.test.ts` keep the data honest:
 
 1. Every rostered match falls inside its team-season's run.
 2. No two entries sharing a team name have overlapping runs.
 3. No guest row wears the name of a team rostered in its own season.
+4. Every team entry and its season agree on each other — the team's
+   `seasonId` resolves to a real season, and the entry appears in that
+   season's `teamIds`.
 
 When a season starts, add its team entries with real `start` dates and the
 season falls out of them. That is the only edit required.

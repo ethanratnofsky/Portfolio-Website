@@ -103,6 +103,7 @@ test("(sub) sets sub and keeps an unknown team as a guest label (non-blocking)",
     const r = parse("Real Sosobad (sub) - NYC Soccer", "W 3-2\n1 G");
     assert.equal(r.sub, true);
     assert.equal(r.teamId, undefined);
+    assert.equal(r.seasonId, undefined); // import.ts keys its date fallback off this
     assert.equal(r.guest?.team, "Real Sosobad");
     assert.equal(r.league, "NYC Soccer");
     assert.equal(r.blocking, false);
@@ -340,6 +341,28 @@ test("the same title on another date resolves to that run's entry", () => {
     assert.deepEqual(r.flags, []);
 });
 
+test("covers() normalizes a full datetime the same as its date-only form, even on a run's exact last day", () => {
+    const dateOnly = parseActivity({
+        title: "Charlie Cheers FC - NYC Footy",
+        description: "W 2-0\n1 G",
+        teams: CHARLIES,
+        leagues: LEAGUES,
+        date: "2026-08-19", // the summer-2026 entry's exact `end`
+    });
+    const withTime = parseActivity({
+        title: "Charlie Cheers FC - NYC Footy",
+        description: "W 2-0\n1 G",
+        teams: CHARLIES,
+        leagues: LEAGUES,
+        date: "2026-08-19T23:30:00Z",
+    });
+    assert.equal(dateOnly.teamId, "charlie-cheers-summer-2026");
+    assert.equal(withTime.teamId, dateOnly.teamId);
+    assert.equal(withTime.seasonId, dateOnly.seasonId);
+    assert.equal(withTime.blocking, false);
+    assert.deepEqual(withTime.flags, dateOnly.flags);
+});
+
 test("a typo folds to the rostered entry covering the match date", () => {
     const r = parseActivity({
         title: "Charlie Cheer FC - Volo",
@@ -368,6 +391,12 @@ test("a rostered name outside every run blocks and names the gap", () => {
     assert.ok(
         r.flags.some((f) => /rostered in summer-2026/.test(f)),
         `expected a gap flag, got ${JSON.stringify(r.flags)}`
+    );
+    // A blocked result must not also claim the match was recorded as a
+    // guest — the two lines would contradict each other in the PR.
+    assert.ok(
+        !r.flags.some((f) => /recorded .* as a guest team/i.test(f)),
+        `blocking result should not carry the guest breadcrumb, got ${JSON.stringify(r.flags)}`
     );
 });
 

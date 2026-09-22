@@ -182,8 +182,10 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     // claimed in the title. Anything still ambiguous after both is not
     // guessed: the team falls through to the guest path below with a flag, so
     // a human assigns it by hand.
-    const covers = (t: KnownTeam, d: string) =>
-        d >= t.start && (!t.end || d <= t.end);
+    const covers = (t: KnownTeam, d: string) => {
+        const day = d.slice(0, 10);
+        return day >= t.start && (!t.end || day <= t.end);
+    };
     const inRange = input.date
         ? input.teams.filter((t) => covers(t, input.date!))
         : input.teams;
@@ -344,8 +346,11 @@ export function parseActivity(input: ParseInput): ParsedMatch {
             // A recognized league makes this a legitimate free-agent/guest
             // appearance rather than a data-entry error — record it
             // without blocking, but leave a breadcrumb in case "guest" is
-            // actually a rostered team missing from TEAMS.
-            if (!base.sub) {
+            // actually a rostered team missing from TEAMS. Skipped when this
+            // result is already blocking (e.g. the out-of-range gap above):
+            // the match wasn't written, so a "recorded as a guest" breadcrumb
+            // would contradict the blocking flag sitting right next to it.
+            if (!base.sub && !base.blocking) {
                 flags.push(
                     `Recorded "${label ?? "[Unknown team]"}" as a guest team in ${league}. If this is a rostered team, add it to TEAMS.`
                 );
