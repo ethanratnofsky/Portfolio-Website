@@ -323,8 +323,8 @@ print(f"renamed {n} teamId values across {len(ms)} matches")
 PY
 ```
 
-Expected: `renamed 71 teamId values across 73 matches` (the two ABCDE FC guest
-rows have no `teamId`).
+Expected: `renamed 70 teamId values across 73 matches` (three rows are guests
+with no `teamId`: Real Sosobad, and ABCDE FC twice).
 
 - [ ] **Step 7: Update the three real-ID references in soccer-derive.test.ts**
 
@@ -402,7 +402,7 @@ test("every rostered match falls inside its team-season's run", () => {
 - [ ] **Step 2: Run it to verify it fails**
 
 Run: `npm test 2>&1 | grep -A12 "inside its team-season"`
-Expected: FAIL, listing exactly four entries:
+Expected: FAIL, listing exactly three entries:
 
 ```
 '2026-09-01 charlie-cheers-summer-2026',
@@ -410,8 +410,8 @@ Expected: FAIL, listing exactly four entries:
 '2026-09-15 charlie-cheers-summer-2026'
 ```
 
-plus nothing for the two ABCDE FC rows (they are guests, so the invariant skips
-them — Step 5 converts them).
+The two ABCDE FC rows are absent because the invariant skips guests — Step 5
+converts them to rostered, which brings them under it.
 
 - [ ] **Step 3: Add the three Fall 2026 team entries**
 
@@ -567,7 +567,8 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 - Consumes: `Team.start`/`end` (Task 1), `fall-2026` (Task 2).
 - Produces:
-    - `interface SeasonRange { id: string; start: string; end?: string }`
+    - `interface SeasonRange { id: string; start: string; end?: string }` —
+      declared once, in `soccer-derive.ts`; `dates.ts` imports it as a type
     - `seasonRange(seasonId: string): SeasonRange | undefined`
     - `seasonRanges(): SeasonRange[]`
     - `seasonsForDate(iso: string, ranges: readonly SeasonRange[]): string[]`
@@ -749,14 +750,14 @@ Expected: FAIL — `seasonsForDate is not exported`.
 
 - [ ] **Step 9: Replace seasonForDate with seasonsForDate**
 
-Replace the bottom half of `scripts/strava/dates.ts` (drop the `Season` import):
+Replace the bottom half of `scripts/strava/dates.ts`, swapping the `Season`
+type import for `SeasonRange` (one definition, owned by the module that
+derives it — do not redeclare it here):
 
 ```ts
-export interface SeasonRange {
-    id: string;
-    start: string;
-    end?: string;
-}
+// Type-only import: erased at compile time, so this stays a pure date module
+// with no runtime dependency on the data layer.
+import type { SeasonRange } from "../../src/data/soccer-derive.ts";
 
 /** Every season whose range covers this date, in the order given. Sessions
     overlap in reality, so this can legitimately return more than one — it
