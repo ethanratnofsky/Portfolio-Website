@@ -34,6 +34,16 @@ test("seasonsForDate returns nothing for a date in a gap", () => {
     assert.deepEqual(seasonsForDate("2026-03-01", RANGES), []);
 });
 
+test("seasonsForDate includes a date exactly on a range's start or end", () => {
+    assert.deepEqual(seasonsForDate("2026-04-05", RANGES), ["spring-2026"]);
+    assert.deepEqual(seasonsForDate("2026-11-30", RANGES), ["fall-2026"]);
+});
+
+test("seasonsForDate excludes a date one day outside a range's start or end", () => {
+    assert.deepEqual(seasonsForDate("2026-04-04", RANGES), []);
+    assert.deepEqual(seasonsForDate("2026-12-01", RANGES), []);
+});
+
 test("seasonsForDate treats a missing end as still running", () => {
     const open = [{ id: "fall-2026", start: "2026-09-01" }];
     assert.deepEqual(seasonsForDate("2027-01-01", open), ["fall-2026"]);
