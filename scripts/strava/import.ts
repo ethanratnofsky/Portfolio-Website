@@ -56,32 +56,41 @@ async function main() {
 
     for (const a of soccer) {
         const detail = await getActivity(token, a.id);
-        // The season is derived BEFORE parsing and handed to the parser:
-        // same-named team entries (one per season) are only separable by the
-        // match's own date. The isMatch check still runs before the
-        // missing-season report so non-match activities stay silent.
+        // Resolution runs name+date → team → season: a display name is
+        // ambiguous across a club's team-seasons but unique within the run
+        // that covers the date. Deriving the season first (as this used to)
+        // is what let an open-ended in-play season swallow Fall 2026.
         const date = matchDate(detail);
-        const seasonId = seasonForDate(date, SEASONS);
         const parsed = parseActivity({
             title: detail.name,
             description: detail.description ?? "",
             teams,
             leagues: LEAGUES,
-            seasonId: seasonId ?? undefined,
+            date,
         });
         if (!parsed.isMatch) continue;
 
-        if (!seasonId) {
-            reports.push(
-                `⚠︎ ${date} "${detail.name}": no season covers this date — add/extend a season.`
-            );
-            continue;
-        }
         if (parsed.blocking) {
             reports.push(
                 `⚠︎ ${date} "${detail.name}": ${parsed.flags.join(" ")}`
             );
             continue;
+        }
+
+        // A rostered team carries its own season. A guest doesn't, so fall
+        // back to the date — and refuse to guess when that's ambiguous.
+        let seasonId = parsed.seasonId;
+        if (!seasonId) {
+            const covering = seasonsForDate(date, ranges);
+            if (covering.length !== 1) {
+                reports.push(
+                    covering.length === 0
+                        ? `⚠︎ ${date} "${detail.name}": no season covers this date — add or extend a team-season run in TEAMS.`
+                        : `⚠︎ ${date} "${detail.name}": ${covering.length} seasons cover this date (${covering.join(", ")}) — assign the season by hand.`
+                );
+                continue;
+            }
+            seasonId = covering[0];
         }
         const m: DraftMatch = {
             stravaId: a.id,

@@ -9,18 +9,24 @@ const TEAMS = [
         name: "Charlie Cheers FC",
         league: "NYC Footy",
         seasonId: SEASON,
+        start: "2026-06-17",
+        end: "2026-08-31",
     },
     {
         id: "fa-blast",
         name: "FA Blast from the Past",
         league: "NYC Footy",
         seasonId: SEASON,
+        start: "2026-06-17",
+        end: "2026-08-31",
     },
     {
         id: "salmon-roe",
         name: "Salmon Roe United",
         league: "Volo",
         seasonId: SEASON,
+        start: "2026-06-17",
+        end: "2026-08-31",
     },
 ];
 const LEAGUES = ["NYC Footy", "Volo", "NYC Soccer"];
@@ -30,7 +36,7 @@ const parse = (title: string, description: string) =>
         description,
         teams: TEAMS,
         leagues: LEAGUES,
-        seasonId: SEASON,
+        date: "2026-07-01",
     });
 
 test("normalize is case/whitespace/punctuation insensitive", () => {
@@ -245,12 +251,16 @@ test("a title matching multiple same-named team entries is not guessed; recorded
             name: "Charlie Cheers FC",
             league: "NYC Footy",
             seasonId: SEASON,
+            start: "2026-06-17",
+            end: "2026-08-31",
         },
         {
             id: "cc-b",
             name: "Charlie Cheers FC",
             league: "NYC Footy",
             seasonId: SEASON,
+            start: "2026-06-17",
+            end: "2026-08-31",
         },
     ];
     const r = parseActivity({
@@ -258,7 +268,7 @@ test("a title matching multiple same-named team entries is not guessed; recorded
         description: "W 2-0",
         teams,
         leagues: LEAGUES,
-        seasonId: SEASON,
+        date: "2026-07-01",
     });
     assert.equal(r.teamId, undefined);
     assert.equal(r.guest?.team, "Charlie Cheers FC");
@@ -272,81 +282,127 @@ test("a single-name team among an otherwise-multi-team roster still resolves nor
     assert.ok(!r.flags.some((f) => /multiple team entries/i.test(f)));
 });
 
-// --- season-scoped team resolution ---------------------------------------
-// Each team-season is its own TEAMS entry, so "Charlie Cheers FC" is three
-// entries. The match's own season is what tells them apart.
+// --- date-scoped team resolution -----------------------------------------
+// Each team-season is its own TEAMS entry with its own run, so "Charlie
+// Cheers FC" is three entries. The match date is what tells them apart.
 const CHARLIES = [
     {
-        id: "charlie-cheers-winter",
+        id: "charlie-cheers-winter-2025-26",
         name: "Charlie Cheers FC",
         league: "Volo",
         seasonId: "winter-2025-26",
+        start: "2026-01-14",
+        end: "2026-02-25",
     },
     {
-        id: "charlie-cheers-spring",
+        id: "charlie-cheers-spring-2026",
         name: "Charlie Cheers FC",
         league: "Volo",
         seasonId: "spring-2026",
+        start: "2026-04-07",
+        end: "2026-05-26",
     },
     {
-        id: "charlie-cheers-summer",
+        id: "charlie-cheers-summer-2026",
         name: "Charlie Cheers FC",
         league: "NYC Footy",
         seasonId: "summer-2026",
+        start: "2026-06-17",
+        end: "2026-08-19",
     },
 ];
 
-test("same-named entries across seasons resolve to the match's own season", () => {
+test("same-named entries across runs resolve to the one covering the date", () => {
     const r = parseActivity({
         title: "Charlie Cheers FC - NYC Footy",
         description: "W 2-0\n1 G",
         teams: CHARLIES,
         leagues: LEAGUES,
-        seasonId: "summer-2026",
+        date: "2026-07-01",
     });
-    assert.equal(r.teamId, "charlie-cheers-summer");
+    assert.equal(r.teamId, "charlie-cheers-summer-2026");
+    assert.equal(r.seasonId, "summer-2026");
     assert.equal(r.league, "NYC Footy");
     assert.equal(r.blocking, false);
     assert.deepEqual(r.flags, []);
 });
 
-test("the same title in a different season resolves to that season's entry", () => {
+test("the same title on another date resolves to that run's entry", () => {
     const r = parseActivity({
         title: "Charlie Cheers FC - Volo",
         description: "L 1-2",
         teams: CHARLIES,
         leagues: LEAGUES,
-        seasonId: "spring-2026",
+        date: "2026-05-05",
     });
-    assert.equal(r.teamId, "charlie-cheers-spring");
+    assert.equal(r.teamId, "charlie-cheers-spring-2026");
+    assert.equal(r.seasonId, "spring-2026");
     assert.deepEqual(r.flags, []);
 });
 
-test("a typo folds to the rostered entry for the match's season", () => {
+test("a typo folds to the rostered entry covering the match date", () => {
     const r = parseActivity({
         title: "Charlie Cheer FC - Volo",
         description: "W 5-4",
         teams: CHARLIES,
         leagues: LEAGUES,
-        seasonId: "winter-2025-26",
+        date: "2026-02-01",
     });
-    assert.equal(r.teamId, "charlie-cheers-winter");
+    assert.equal(r.teamId, "charlie-cheers-winter-2025-26");
     assert.ok(r.flags.some((f) => /auto-matched/i.test(f)));
 });
 
-test("two same-named entries in one season are tie-broken by the title's league", () => {
+// The guardrail. A rostered name outside every recorded run means a new
+// team-season started — never absorb it into the old entry, never file it
+// as a phantom guest.
+test("a rostered name outside every run blocks and names the gap", () => {
+    const r = parseActivity({
+        title: "Charlie Cheers FC - NYC Footy",
+        description: "W 2-0",
+        teams: CHARLIES,
+        leagues: LEAGUES,
+        date: "2026-09-01",
+    });
+    assert.equal(r.teamId, undefined);
+    assert.equal(r.blocking, true);
+    assert.ok(
+        r.flags.some((f) => /rostered in summer-2026/.test(f)),
+        `expected a gap flag, got ${JSON.stringify(r.flags)}`
+    );
+});
+
+test("an explicit (sub) outside every run is a guest, not a block", () => {
+    const r = parseActivity({
+        title: "Charlie Cheers FC (sub) - NYC Footy",
+        description: "W 2-0",
+        teams: CHARLIES,
+        leagues: LEAGUES,
+        date: "2026-09-01",
+    });
+    assert.equal(r.teamId, undefined);
+    assert.equal(r.sub, true);
+    assert.equal(r.blocking, false);
+});
+
+// The near-miss fold (an in-range typo) outranks the out-of-range block: the
+// exact-name entry sitting in another run is what the typo is NOT about.
+test("an in-range near-miss beats an out-of-range exact name", () => {
     const teams = [
         {
-            id: "cc-volo",
+            id: "cc-winter",
             name: "Charlie Cheers FC",
             league: "Volo",
-            seasonId: SEASON,
+            seasonId: "winter-2025-26",
+            start: "2026-01-14",
+            end: "2026-02-25",
         },
         {
-            id: "cc-footy",
-            name: "Charlie Cheers FC",
-            league: "NYC Footy",
-            seasonId: SEASON,
+            id: "cc-summer",
+            name: "Charlie Cheer FC",
+            league: "Volo",
+            seasonId: "summer-2026",
+            start: "2026-06-17",
+            end: "2026-08-31",
         },
     ];
     const r = parseActivity({
@@ -354,26 +410,46 @@ test("two same-named entries in one season are tie-broken by the title's league"
         description: "W 2-0",
         teams,
         leagues: LEAGUES,
-        seasonId: SEASON,
+        date: "2026-07-01",
+    });
+    assert.equal(r.teamId, "cc-summer");
+    assert.equal(r.seasonId, "summer-2026");
+    assert.equal(r.blocking, false);
+    assert.ok(r.flags.some((f) => /auto-matched/i.test(f)));
+    assert.ok(!r.flags.some((f) => /rostered in/.test(f)));
+});
+
+test("two entries whose runs both cover the date are tie-broken by league", () => {
+    const teams = [
+        {
+            id: "cc-volo",
+            name: "Charlie Cheers FC",
+            league: "Volo",
+            seasonId: "summer-2026",
+            start: "2026-06-17",
+            end: "2026-08-31",
+        },
+        {
+            id: "cc-footy",
+            name: "Charlie Cheers FC",
+            league: "NYC Footy",
+            seasonId: "summer-2026",
+            start: "2026-06-17",
+            end: "2026-08-31",
+        },
+    ];
+    const r = parseActivity({
+        title: "Charlie Cheers FC - Volo",
+        description: "W 2-0",
+        teams,
+        leagues: LEAGUES,
+        date: "2026-07-01",
     });
     assert.equal(r.teamId, "cc-volo");
     assert.ok(!r.flags.some((f) => /multiple team entries/i.test(f)));
 });
 
-test("a team from another season is never resolved, even as the only name match", () => {
-    const r = parseActivity({
-        title: "Charlie Cheers FC - Volo",
-        description: "W 2-0",
-        teams: [CHARLIES[0]],
-        leagues: LEAGUES,
-        seasonId: "summer-2026",
-    });
-    assert.equal(r.teamId, undefined);
-    assert.equal(r.guest?.team, "Charlie Cheers FC");
-    assert.equal(r.blocking, false);
-});
-
-test("without a season (no season covers the date) all entries stay in scope", () => {
+test("without a date all entries stay in scope", () => {
     const r = parseActivity({
         title: "Charlie Cheers FC - Volo",
         description: "W 2-0",

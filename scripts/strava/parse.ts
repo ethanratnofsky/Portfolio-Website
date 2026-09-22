@@ -3,24 +3,30 @@ export interface KnownTeam {
     name: string;
     league: string;
     /** Season this entry plays in. Each team-season is its own TEAMS entry,
-        so several entries share a display name (three "Charlie Cheers FC",
-        one per season) — the season is what tells them apart. */
+        so several entries share a display name (four "Charlie Cheers FC") —
+        the run that covers the match date is what tells them apart. */
     seasonId: string;
+    /** ISO date this entry's run opens (inclusive). */
+    start: string;
+    /** ISO date it closes (inclusive); omit while still running. */
+    end?: string;
 }
 export interface ParseInput {
     title: string;
     description: string;
     teams: KnownTeam[];
     leagues: readonly string[];
-    /** Season the activity's date falls in — scopes team resolution to that
-        season's entries. Omitted only when no season covers the date, in
-        which case every entry stays in scope (the importer reports and drops
-        those matches anyway). */
-    seasonId?: string;
+    /** The match's own date (ISO). Scopes team resolution to entries whose
+        run covers it. Omitted only by callers that have no date, in which
+        case every entry stays in scope. */
+    date?: string;
 }
 export interface ParsedMatch {
     isMatch: boolean;
     teamId?: string;
+    /** Season of the resolved team entry. Absent for guests — the caller
+        derives those from the date. */
+    seasonId?: string;
     guest?: { team?: string; league?: string; format?: string };
     sub: boolean;
     league?: string;
@@ -164,22 +170,36 @@ export function parseActivity(input: ParseInput): ParsedMatch {
         ? `Unrecognized league "${leagueSegment}" — add it to the blessed list or correct the post.`
         : undefined;
 
-    // 5. Team — normalized dictionary substring match, scoped to the season
-    // the match was played in. Each team-season is its own TEAMS entry, so a
-    // display name alone is ambiguous across seasons (three "Charlie Cheers
-    // FC") but unique within one: filtering by the match's own season is what
-    // resolves it, which is why this runs after the date-derived seasonId is
-    // known. A name that survives into two entries in the SAME season (one
-    // club fielding rosters in two leagues at once) is tie-broken by the
-    // league claimed in the title. Anything still ambiguous after both is not
+    // 5. Team — normalized dictionary substring match, scoped to the entries
+    // whose run covers the match date. Each team-season is its own TEAMS
+    // entry, so a display name alone is ambiguous across a club's history
+    // (four "Charlie Cheers FC") but unique within the run that covers the
+    // date: a club never plays two of its own team-seasons at once, so the
+    // run resolves the entry outright — and, unlike deriving the season from
+    // the date first, it has an answer even when sessions overlap. A name
+    // that survives into two entries whose runs both cover the date (one club
+    // fielding rosters in two leagues at once) is tie-broken by the league
+    // claimed in the title. Anything still ambiguous after both is not
     // guessed: the team falls through to the guest path below with a flag, so
     // a human assigns it by hand.
-    const inSeason = input.seasonId
-        ? input.teams.filter((t) => t.seasonId === input.seasonId)
+    const covers = (t: KnownTeam, d: string) =>
+        d >= t.start && (!t.end || d <= t.end);
+    const inRange = input.date
+        ? input.teams.filter((t) => covers(t, input.date!))
         : input.teams;
-    const titleMatches = inSeason.filter((t) =>
+    const titleMatches = inRange.filter((t) =>
         normTitle.includes(normalize(t.name))
     );
+    // A title naming a rostered team whose run doesn't cover this date is the
+    // signal that a new team-season began. Captured here, acted on in step 11.
+    // Most recent run first: a club's whole history matches its own name, and
+    // the run it just finished is the one whose successor is missing.
+    const outOfRange =
+        input.date && titleMatches.length === 0
+            ? input.teams
+                  .filter((t) => normTitle.includes(normalize(t.name)))
+                  .sort((a, b) => b.start.localeCompare(a.start))
+            : [];
     let candidates = titleMatches;
     if (candidates.length > 1 && league) {
         const byLeague = candidates.filter(
@@ -190,7 +210,7 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     let team = candidates.length === 1 ? candidates[0] : undefined;
     const multiMatchFlag =
         candidates.length > 1
-            ? `Title matches multiple team entries in the same season (${candidates
+            ? `Title matches multiple team entries in scope for this date (${candidates
                   .map((t) => t.id)
                   .join(", ")}); recorded as a guest — assign the team by hand.`
             : undefined;
@@ -265,23 +285,28 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     // several exact matches via typo-distance would be even less justified
     // than guessing among them directly). Folds a conservative typo of a
     // rostered team's name (e.g. "Charlie Cheer FC" missing the "s") to that
-    // team instead of letting it become a phantom guest. The known-team
+    // team instead of letting it become a phantom guest. Scoped to the runs
+    // covering the date, exactly like step 5 — and a successful fold resolves
+    // the team, so it takes precedence over step 11's out-of-range block (an
+    // in-range typo is not evidence of a missing team-season). The known-team
     // branch below then handles it exactly like a real match (teamId/league
     // + league-mismatch flag), with an added non-blocking info flag naming
     // the auto-correction.
     let autoMatchFlag: string | undefined;
     if (!team && titleMatches.length === 0) {
-        const nearMiss = findNearMissTeam(label, inSeason);
+        const nearMiss = findNearMissTeam(label, inRange);
         if (nearMiss) {
             team = nearMiss;
             autoMatchFlag = `Title team "${label}" ≈ ${team.name} (auto-matched; fix the Strava title if wrong).`;
         }
     }
 
-    // 11. Resolve team vs guest.
+    // 11. Resolve team vs guest. A resolved entry carries its own season; a
+    // guest has none, so the caller derives that from the date.
     if (team) {
         base.teamId = team.id;
         base.league = team.league;
+        base.seasonId = team.seasonId;
         if (autoMatchFlag) flags.push(autoMatchFlag);
         if (league) {
             if (normalize(league) !== normalize(team.league)) {
@@ -301,6 +326,17 @@ export function parseActivity(input: ParseInput): ParsedMatch {
     } else {
         // No rostered team, and no near-miss fold applied either.
         if (multiMatchFlag) flags.push(multiMatchFlag);
+        // A rostered name outside every recorded run: a new team-season
+        // started. Absorbing it into the old entry or filing it as a phantom
+        // guest are both silent corruptions, so block and name the gap. An
+        // explicit (sub) is a real guest appearance and passes through.
+        if (outOfRange.length && !base.sub) {
+            const t = outOfRange[0];
+            flags.push(
+                `${t.name} is rostered in ${t.seasonId} (${t.start} – ${t.end ?? "open"}) but this match is ${input.date}. Add a new team-season entry for ${t.name}, or mark the post (sub) if it was a guest appearance.`
+            );
+            base.blocking = true;
+        }
         base.guest = { team: label, format };
         if (league) {
             base.league = league;
