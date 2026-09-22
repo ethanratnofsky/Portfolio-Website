@@ -134,14 +134,14 @@ Rovers`, or a `(Home)`/`(Away)` tag) doesn't need an explicit `- League` segment
   normalized characters long so a short label like `FC` can never auto-match, and
   only when it isn't ambiguous between two teams), so a genuinely different team name
   is still treated as a guest or flagged normally.
-- **The same team name in different seasons resolves automatically.** Each
-  team-season is its own `TEAMS` entry, so "Charlie Cheers FC" is three entries
-  (Winter/Spring/Summer). The importer resolves the team _within the season the
-  activity's date falls in_, so you never need to disambiguate in the title. If one
-  club somehow has two entries in the _same_ season (e.g. rosters in two leagues at
-  once), the `- League` segment in the title breaks the tie; only if it's still
-  ambiguous after both is the match recorded as a guest with a note asking you to
-  assign the team by hand.
+- **The same team name across seasons resolves automatically.** Each team-season
+  is its own `TEAMS` entry carrying its own `start`/`end`, so "Charlie Cheers FC"
+  is four entries (Winter/Spring/Summer/Fall). The importer resolves the team
+  _within the run that covers the activity's date_, so you never need to
+  disambiguate in the title. If a club somehow has two entries whose runs both
+  cover the date (e.g. rosters in two leagues at once), the `- League` segment
+  breaks the tie; only if it's still ambiguous after both is the match recorded
+  as a guest with a note asking you to assign the team by hand.
 - An optional format token like `7v7` in the title is picked up automatically for
   guest appearances; you don't need to add it for rostered-team matches (the team's
   format is already known).
@@ -197,7 +197,7 @@ difference matters:
   disagreement. No action is required; skim it, and fix the data model (or the next
   post's title) only if the note reveals an actual mistake.
 - **`⚠︎` (blocking) — the activity was _not_ written**, and needs a fix before it'll be
-  imported. There are three ways an activity ends up blocked:
+  imported. There are five ways an activity ends up blocked:
     - **Unrecognized league** — an _explicit_ league segment (in `Team - League` or
       `League - Team` form) doesn't match `LEAGUES` (`src/data/soccer.ts`), or neither a
       team nor a league can be identified in the title at all. Either add the league to
@@ -207,19 +207,46 @@ Footy`, `Volo`, `NYC Soccer`). Omitting the league segment entirely when a team
       note under [Post conventions](#5-post-conventions)).
     - **No score found** — the description has a `W`/`D`/`L` letter but no `N-N` score,
       so the record can't be completed. Edit the post's description to add the score.
-    - **No season covers this date** — the activity's date doesn't fall within any
-      `Season.start`–`Season.end` range in `SEASONS` (`src/data/soccer.ts`). Add a new
-      season, or extend an existing one's `start`/`end`.
+    - **A rostered team outside every recorded run** — the title names a team in
+      `TEAMS`, but no entry for it has a `start`/`end` covering this date. This is
+      what a new season looks like: add a new team-season entry for it in `TEAMS`
+      (id `<club-slug>-<seasonId>`, with the new run's `start` and `end`), adding
+      the season to `SEASONS` if it doesn't exist yet. If it was really a one-off
+      guest appearance, mark the Strava post `(sub)` instead and it'll import as a
+      guest.
+    - **No season covers this date** — the date falls outside every season's
+      derived range. Seasons have no dates of their own: a season's range is the
+      earliest `start` to the latest `end` across its teams, so fix this by adding
+      or extending a team-season run in `TEAMS`, not by editing `SEASONS`.
+    - **Several seasons cover this date** — a guest appearance landed in a window
+      where two sessions overlap (they legitimately do; NYC Footy's fall session
+      runs into Volo's winter one). Add the match by hand with the season you mean.
 
     Note that an **unrecognized team name is no longer blocking by itself** — as long as
     the league is recognized, it's recorded as a guest row with an `ℹ` note (see
     [Post conventions](#5-post-conventions)). If it's actually a rostered team, add it to
-    `TEAMS` in `src/data/soccer.ts` (id, name, league, seasonId, division/format/venue
-    as applicable — one entry per season the team plays in) so _future_ activities for that team import correctly. The dedup
+    `TEAMS` in `src/data/soccer.ts` (id `<club-slug>-<seasonId>`, name, league,
+    seasonId, `start`/`end` for the run it covers, division/format/venue as
+    applicable — one entry per season the team plays in) so _future_ activities for that team import correctly. The dedup
     snapshot only tracks score/goals/assists, not team identity, so simply re-running
     the import won't retroactively upgrade an already-written guest row to a
     rostered-team match — edit that one entry in `src/data/matches.json` by hand if you
     want it fixed too.
+
+### Why seasons have no dates
+
+`Season` carries no `start`/`end`. Its range is derived from its teams' runs
+(`seasonRange()` in `src/data/soccer-derive.ts`), because two hand-maintained
+date sources drift — and when they drifted, an open-ended in-play season
+absorbed a whole new season's matches without a single flag. Three build-time
+invariants in `src/data/soccer-derive.test.ts` keep the data honest:
+
+1. Every rostered match falls inside its team-season's run.
+2. No two entries sharing a team name have overlapping runs.
+3. No guest row wears the name of a team rostered in its own season.
+
+When a season starts, add its team entries with real `start` dates and the
+season falls out of them. That is the only edit required.
 
 After fixing the data model, re-run the workflow on demand (Actions tab → **Strava
 import** → **Run workflow**, with "rescan all seasons" checked if the activity is
