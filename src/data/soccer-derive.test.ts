@@ -49,7 +49,7 @@ test("Spring 2026 (sealed) record is pinned against W/D/L flips", () => {
 });
 
 test("matchTeam resolves a rostered team from teamId", () => {
-    const t = TEAMS.find((t) => t.id === "salmon-roe")!;
+    const t = TEAMS.find((t) => t.id === "salmon-roe-summer-2026")!;
     const mt = matchTeam({ teamId: t.id } as Match, 0);
     assert.equal(mt.name, t.name);
     assert.equal(mt.league, t.league);
@@ -85,10 +85,14 @@ test("matchTeam falls back to guest label, then [Unknown team]", () => {
 
 test("matchTeam reports the sub flag", () => {
     assert.equal(
-        matchTeam({ teamId: "salmon-roe", sub: true } as Match, 0).sub,
+        matchTeam({ teamId: "salmon-roe-summer-2026", sub: true } as Match, 0)
+            .sub,
         true
     );
-    assert.equal(matchTeam({ teamId: "salmon-roe" } as Match, 0).sub, false);
+    assert.equal(
+        matchTeam({ teamId: "salmon-roe-summer-2026" } as Match, 0).sub,
+        false
+    );
 });
 
 test("matchTeamLog formats rostered and guest teams", () => {
@@ -210,5 +214,34 @@ test("no guest match wears the name of a team rostered in its own season", () =>
                 t.name.toLowerCase() === label.toLowerCase()
         );
     }).map((m) => `${m.date} ${m.guest?.team} (${m.seasonId})`);
+    assert.deepEqual(offenders, []);
+});
+
+// Name+date team resolution (scripts/strava/parse.ts) assumes a club never
+// plays two of its own team-seasons at once: the display name plus the match
+// date must identify exactly one entry. Overlapping runs under one name would
+// make that assumption false and silently reintroduce ambiguity.
+test("no two team entries sharing a name have overlapping runs", () => {
+    const byName = new Map<string, typeof TEAMS>();
+    for (const t of TEAMS) {
+        const key = t.name.toLowerCase();
+        byName.set(key, [...(byName.get(key) ?? []), t]);
+    }
+    const offenders: string[] = [];
+    for (const [, entries] of byName) {
+        const sorted = [...entries].sort((a, b) =>
+            a.start.localeCompare(b.start)
+        );
+        for (let i = 1; i < sorted.length; i++) {
+            const prev = sorted[i - 1];
+            const cur = sorted[i];
+            // An open-ended previous run overlaps anything that follows it.
+            if (!prev.end || prev.end >= cur.start) {
+                offenders.push(
+                    `${prev.id} (${prev.start}–${prev.end ?? "open"}) overlaps ${cur.id} (${cur.start}–)`
+                );
+            }
+        }
+    }
     assert.deepEqual(offenders, []);
 });

@@ -28,6 +28,12 @@ export interface Team {
     /** e.g. "7v7" | "8v8" | "6v6" */
     format: string;
     venue: "outdoor" | "indoor";
+    /** ISO date this team-season's run opens (inclusive). Authoritative where
+        known; a few early entries are inferred from first/last recorded match
+        (noted per entry). */
+    start: string;
+    /** ISO date the run closes (inclusive); omit while it's still going. */
+    end?: string;
 }
 
 export interface Season {
@@ -74,95 +80,117 @@ export interface Match {
 
 export const TEAMS: Team[] = [
     {
-        id: "fa-orange-julius",
+        id: "fa-orange-julius-fall-2025",
         name: "FA Orange Julius",
         seasonId: "fall-2025",
         league: "NYC Footy",
         division: "P3",
         format: "5v5",
         venue: "indoor",
+        start: "2025-10-06",
+        end: "2025-12-01",
     },
     {
-        id: "fa-rapinoe-grigio",
+        id: "fa-rapinoe-grigio-fall-2025",
         name: "FA Rapinoe Grigio",
         seasonId: "fall-2025",
         league: "NYC Footy",
         division: "P3",
         format: "5v5",
         venue: "indoor",
+        start: "2025-10-06",
+        end: "2025-12-01",
     },
     {
-        id: "fa-pretty-in-pink",
+        id: "fa-pretty-in-pink-fall-2025",
         name: "FA Pretty in Pink",
         seasonId: "fall-2025",
         league: "NYC Footy",
         division: "P4",
         format: "7v7",
         venue: "indoor",
+        // Inferred from first/last recorded match.
+        start: "2025-11-16",
+        end: "2025-12-14",
     },
     {
-        id: "charlie-cheers-winter",
+        id: "charlie-cheers-winter-2025-26",
         name: "Charlie Cheers FC",
         seasonId: "winter-2025-26",
         league: "Volo",
         format: "7v7",
         venue: "indoor",
+        start: "2026-01-14",
+        end: "2026-02-25",
     },
     {
-        id: "formerly-fate",
+        id: "formerly-fate-winter-2025-26",
         name: "Formerly Fate",
         seasonId: "winter-2025-26",
         league: "NYC Footy",
         division: "P3",
         format: "5v5",
         venue: "indoor",
+        // Inferred from first/last recorded match.
+        start: "2025-12-08",
+        end: "2026-02-02",
     },
     {
-        id: "fa-goalmates",
+        id: "fa-goalmates-winter-2025-26",
         name: "FA Goalmates",
         seasonId: "winter-2025-26",
         league: "NYC Footy",
         division: "P3",
         format: "5v5",
         venue: "indoor",
+        start: "2026-01-05",
+        end: "2026-03-09",
     },
     {
-        id: "charlie-cheers-spring",
+        id: "charlie-cheers-spring-2026",
         name: "Charlie Cheers FC",
         seasonId: "spring-2026",
         league: "Volo",
         format: "7v7",
         venue: "outdoor",
+        start: "2026-04-07",
+        end: "2026-05-26",
     },
     {
-        id: "abcde-fc",
+        id: "abcde-fc-spring-2026",
         name: "ABCDE FC",
         seasonId: "spring-2026",
         league: "NYC Footy",
         division: "P3",
         format: "7v7",
         venue: "outdoor",
+        start: "2026-04-05",
+        end: "2026-06-21",
     },
     {
-        id: "fa-seven-wonders",
+        id: "fa-seven-wonders-spring-2026",
         name: "FA Seven Wonders of the Goal",
         seasonId: "spring-2026",
         league: "NYC Footy",
         division: "P3/P4",
         format: "7v7",
         venue: "outdoor",
+        start: "2026-04-06",
+        end: "2026-06-15",
     },
     {
-        id: "charlie-cheers-summer",
+        id: "charlie-cheers-summer-2026",
         name: "Charlie Cheers FC",
         seasonId: "summer-2026",
         league: "NYC Footy",
         division: "P2/P3",
         format: "6v6",
         venue: "outdoor",
+        start: "2026-06-17",
+        end: "2026-08-19",
     },
     {
-        id: "salmon-roe",
+        id: "salmon-roe-summer-2026",
         // formerly posted on Strava as "FA Goal Oriented"
         name: "Salmon Roe United",
         seasonId: "summer-2026",
@@ -170,15 +198,19 @@ export const TEAMS: Team[] = [
         division: "P3",
         format: "7v7",
         venue: "outdoor",
+        start: "2026-06-29",
+        end: "2026-08-31",
     },
     {
-        id: "fa-blast",
+        id: "fa-blast-summer-2026",
         name: "FA Blast from the Pass",
         seasonId: "summer-2026",
         league: "NYC Footy",
         division: "P3",
         format: "7v7",
         venue: "outdoor",
+        start: "2026-06-28",
+        end: "2026-08-30",
     },
 ];
 
@@ -190,7 +222,11 @@ export const SEASONS: Season[] = [
         status: "sealed",
         start: "2025-10-01",
         end: "2025-12-15",
-        teamIds: ["fa-orange-julius", "fa-rapinoe-grigio", "fa-pretty-in-pink"],
+        teamIds: [
+            "fa-orange-julius-fall-2025",
+            "fa-rapinoe-grigio-fall-2025",
+            "fa-pretty-in-pink-fall-2025",
+        ],
     },
     {
         id: "winter-2025-26",
@@ -199,7 +235,11 @@ export const SEASONS: Season[] = [
         status: "sealed",
         start: "2025-12-16",
         end: "2026-03-31",
-        teamIds: ["charlie-cheers-winter", "formerly-fate", "fa-goalmates"],
+        teamIds: [
+            "charlie-cheers-winter-2025-26",
+            "formerly-fate-winter-2025-26",
+            "fa-goalmates-winter-2025-26",
+        ],
     },
     {
         id: "spring-2026",
@@ -208,7 +248,11 @@ export const SEASONS: Season[] = [
         status: "sealed",
         start: "2026-04-01",
         end: "2026-06-13",
-        teamIds: ["charlie-cheers-spring", "abcde-fc", "fa-seven-wonders"],
+        teamIds: [
+            "charlie-cheers-spring-2026",
+            "abcde-fc-spring-2026",
+            "fa-seven-wonders-spring-2026",
+        ],
     },
     {
         id: "summer-2026",
@@ -216,7 +260,11 @@ export const SEASONS: Season[] = [
         months: "JUN — AUG",
         status: "in-play",
         start: "2026-06-14",
-        teamIds: ["charlie-cheers-summer", "salmon-roe", "fa-blast"],
+        teamIds: [
+            "charlie-cheers-summer-2026",
+            "salmon-roe-summer-2026",
+            "fa-blast-summer-2026",
+        ],
     },
 ];
 
