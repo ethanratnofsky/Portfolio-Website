@@ -245,3 +245,17 @@ test("no two team entries sharing a name have overlapping runs", () => {
     }
     assert.deepEqual(offenders, []);
 });
+
+// The bug this model fixes: an open-ended in-play season let seasonForDate
+// absorb every later date, so five Fall 2026 matches were filed under
+// summer-2026 against their teams' summer entries. A rostered match played
+// outside its own team-season's run is always a mis-assignment.
+test("every rostered match falls inside its team-season's run", () => {
+    const offenders = MATCHES.filter((m) => {
+        if (!m.teamId) return false;
+        const t = TEAMS.find((t) => t.id === m.teamId);
+        if (!t) return true;
+        return m.date < t.start || (t.end !== undefined && m.date > t.end);
+    }).map((m) => `${m.date} ${m.teamId}`);
+    assert.deepEqual(offenders, []);
+});

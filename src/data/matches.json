@@ -696,58 +696,52 @@
     {
         "stravaId": 19998218835,
         "date": "2026-09-01",
-        "seasonId": "summer-2026",
+        "seasonId": "fall-2026",
         "result": "W",
         "score": [7, 3],
         "goals": 1,
         "assists": 2,
         "goalsIsMinimum": true,
-        "teamId": "charlie-cheers-summer-2026"
+        "teamId": "charlie-cheers-fall-2026"
     },
     {
         "stravaId": 20165124400,
         "date": "2026-09-13",
-        "seasonId": "summer-2026",
+        "seasonId": "fall-2026",
         "result": "L",
         "score": [2, 3],
         "goals": 0,
         "assists": 0,
-        "guest": {
-            "team": "ABCDE FC",
-            "league": "NYC Footy"
-        }
+        "teamId": "abcde-fc-fall-2026"
     },
     {
         "stravaId": 20178464289,
         "date": "2026-09-14",
-        "seasonId": "summer-2026",
+        "seasonId": "fall-2026",
         "result": "W",
         "score": [2, 0],
         "goals": 0,
         "assists": 0,
-        "teamId": "salmon-roe-summer-2026"
+        "teamId": "salmon-roe-fall-2026"
     },
     {
         "stravaId": 20192987983,
         "date": "2026-09-15",
-        "seasonId": "summer-2026",
+        "seasonId": "fall-2026",
         "result": "L",
         "score": [0, 2],
         "goals": 0,
         "assists": 0,
-        "teamId": "charlie-cheers-summer-2026"
+        "teamId": "charlie-cheers-fall-2026"
     },
     {
         "stravaId": 20262136422,
         "date": "2026-09-20",
-        "seasonId": "summer-2026",
+        "seasonId": "fall-2026",
         "result": "W",
         "score": [12, 0],
         "goals": 1,
         "assists": 3,
-        "guest": {
-            "team": "ABCDE FC",
-            "league": "NYC Footy"
-        }
+        "teamId": "abcde-fc-fall-2026"
     }
 ]
