@@ -743,5 +743,35 @@
         "goals": 1,
         "assists": 3,
         "teamId": "abcde-fc-fall-2026"
+    },
+    {
+        "stravaId": 20290128815,
+        "date": "2026-09-22",
+        "seasonId": "fall-2026",
+        "result": "W",
+        "score": [7, 0],
+        "goals": 1,
+        "assists": 1,
+        "teamId": "charlie-cheers-fall-2026"
+    },
+    {
+        "stravaId": 20372176950,
+        "date": "2026-09-28",
+        "seasonId": "fall-2026",
+        "result": "W",
+        "score": [12, 0],
+        "goals": 2,
+        "assists": 2,
+        "teamId": "salmon-roe-fall-2026"
+    },
+    {
+        "stravaId": 20454891972,
+        "date": "2026-10-04",
+        "seasonId": "fall-2026",
+        "result": "L",
+        "score": [1, 2],
+        "goals": 0,
+        "assists": 0,
+        "teamId": "abcde-fc-fall-2026"
     }
 ]
