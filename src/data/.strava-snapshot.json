@@ -454,5 +454,29 @@
         "goals": 0,
         "assists": 0,
         "goalsIsMinimum": false
+    },
+    "20824516248": {
+        "score": [8, 4],
+        "goals": 2,
+        "assists": 1,
+        "goalsIsMinimum": false
+    },
+    "20837364675": {
+        "score": [2, 2],
+        "goals": 1,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "20851759099": {
+        "score": [1, 3],
+        "goals": 0,
+        "assists": 0,
+        "goalsIsMinimum": false
+    },
+    "20915518785": {
+        "score": [10, 0],
+        "goals": 1,
+        "assists": 1,
+        "goalsIsMinimum": false
     }
 }
